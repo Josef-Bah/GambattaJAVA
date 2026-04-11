@@ -1,13 +1,13 @@
-/* --- Root / fond général --- */
+/* Root / fond général */
 .root {
-    -fx-background-color: #FFFFFF; /* fond clair */
+    -fx-background-color: #FFFFFF;
     -fx-font-family: "Segoe UI", Arial, sans-serif;
     -fx-font-size: 14px;
-    -fx-text-fill: #010203; /* texte noir */
+    -fx-text-fill: #010203;
     -fx-padding: 15px;
 }
 
-/* --- Panels / conteneurs --- */
+/* Panels / conteneurs */
 .pane {
     -fx-background-color: #FFFFFF;
     -fx-border-radius: 10px;
@@ -16,17 +16,17 @@
     -fx-padding: 10px;
 }
 
-/* --- TableView --- */
+/* TableView */
 .table-view {
     -fx-background-color: #FFFFFF;
-    -fx-border-color: #C5B358; /* bord doré */
+    -fx-border-color: #C5B358;
     -fx-border-radius: 8px;
     -fx-padding: 5px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1);
 }
 
 .table-view .column-header-background {
-    -fx-background-color: #C5B358; /* en-têtes doré */
+    -fx-background-color: #C5B358;
 }
 
 .table-view .column-header,
@@ -36,7 +36,7 @@
     -fx-alignment: CENTER;
 }
 
-/* --- Table rows --- */
+/* Table rows */
 .table-row-cell {
     -fx-background-color: #FFFFFF;
     -fx-text-fill: #010203;
@@ -44,10 +44,14 @@
 }
 
 .table-row-cell:filled:selected {
-    -fx-background-color: #FFF4C5; /* sélection dorée claire */
+    -fx-background-color: #FFF4C5;
 }
 
-/* --- TextField / Input --- */
+.table-row-cell:hover {
+    -fx-background-color: #FFF9E6;
+}
+
+/* TextField */
 .text-field {
     -fx-background-color: #FFFFFF;
     -fx-border-color: #C5B358;
@@ -58,10 +62,10 @@
     -fx-text-fill: #010203;
 }
 
-/* --- Buttons --- */
+/* Buttons */
 .button {
-    -fx-background-color: #C5B358; /* doré */
-    -fx-text-fill: #010203; /* texte noir */
+    -fx-background-color: #C5B358;
+    -fx-text-fill: #010203;
     -fx-font-weight: bold;
     -fx-background-radius: 8px;
     -fx-padding: 8px 15px;
@@ -72,19 +76,19 @@
 }
 
 .button:hover {
-    -fx-background-color: #FFD966; /* doré clair */
+    -fx-background-color: #FFD966;
 }
 
 .button:pressed {
-    -fx-background-color: #BFA33A; /* doré foncé */
+    -fx-background-color: #BFA33A;
 }
 
-/* --- Labels --- */
+/* Labels */
 .label {
-    -fx-text-fill: #010203; /* texte noir */
+    -fx-text-fill: #010203;
 }
 
-/* --- ScrollBar --- */
+/* ScrollBar */
 .scroll-bar:vertical .thumb {
     -fx-background-color: #C5B358;
     -fx-background-radius: 4px;
@@ -93,9 +97,4 @@
 .scroll-bar:horizontal .thumb {
     -fx-background-color: #C5B358;
     -fx-background-radius: 4px;
-}
-
-/* --- Hover effect pour TableView rows --- */
-.table-row-cell:hover {
-    -fx-background-color: #FFF9E6; /* léger survol doré */
 }

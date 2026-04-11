@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.controllers.EquipeController"
+            prefWidth="900" prefHeight="600">
+
+    <VBox spacing="15">
+        <padding>
+            <Insets top="15" right="15" bottom="15" left="15"/>
+        </padding>
+
+        <Label text="Gestion des Équipes" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
+
+        <HBox spacing="10">
+            <TextField fx:id="txtNom" promptText="Nom de l'équipe" HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="txtLeader" promptText="Nom du leader" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnAjouter" text="Ajouter"/>
+            <Button fx:id="btnModifier" text="Modifier"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <TextField fx:id="txtSearch" promptText="Rechercher par nom..."/>
+            <Button fx:id="btnPDF" text="Exporter PDF"/>
+            <Button fx:id="btnSupprimer" text="Supprimer"/>
+        </HBox>
+
+        <TableView fx:id="tableEquipes" prefHeight="400">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+                <TableColumn fx:id="colNom" text="Nom" prefWidth="250"/>
+                <TableColumn fx:id="colLeader" text="Leader" prefWidth="250"/>
+                <TableColumn fx:id="colStatus" text="Statut" prefWidth="150"/>
+            </columns>
+        </TableView>
+
+    </VBox>
+</AnchorPane>

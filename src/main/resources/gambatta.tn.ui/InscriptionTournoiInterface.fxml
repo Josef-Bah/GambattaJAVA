@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.controllers.InscritournoiController"
+            prefWidth="1000" prefHeight="600"
+            stylesheets="@style.css">
+    <VBox spacing="15" AnchorPane.topAnchor="10" AnchorPane.leftAnchor="10"
+          AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10">
+        <Label text="Gestion des Inscriptions Tournoi" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
+        <HBox spacing="10">
+            <TextField fx:id="txtEquipe" promptText="Nom de l'équipe" HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="txtTournoi" promptText="Nom du tournoi" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnAjouter" text="Ajouter"/>
+            <Button fx:id="btnSupprimer" text="Supprimer"/>
+        </HBox>
+        <HBox spacing="10">
+            <TextField fx:id="txtSearch" promptText="Rechercher par équipe ou tournoi..." HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnPDF" text="Exporter PDF"/>
+            <Button fx:id="btnStats" text="Stats"/>
+        </HBox>
+        <TableView fx:id="tableInscriptions" prefHeight="400">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+                <TableColumn fx:id="colEquipe" text="Équipe" prefWidth="250"/>
+                <TableColumn fx:id="colTournoi" text="Tournoi" prefWidth="250"/>
+                <TableColumn fx:id="colStatus" text="Statut" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </VBox>
+</AnchorPane>
