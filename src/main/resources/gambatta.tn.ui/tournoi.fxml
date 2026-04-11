@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" alignment="CENTER" xmlns:fx="C:\Program Files\Java\javafx-sdk-26\lib"
+      fx:controller="gambatta.tn.controllers.TournoiController">
+
+    <TextField fx:id="nomField" promptText="Nom tournoi"/>
+    <TextField fx:id="descField" promptText="Description"/>
+    <TextField fx:id="statutField" promptText="Statut"/>
+
+    <Button text="Ajouter" onAction="#addTournoi"/>
+    <Button text="Supprimer" onAction="#deleteTournoi"/>
+
+    <TableView fx:id="table">
+        <columns>
+            <TableColumn fx:id="idCol" text="ID"/>
+            <TableColumn fx:id="nomCol" text="Nom"/>
+            <TableColumn fx:id="statutCol" text="Statut"/>
+        </columns>
+    </TableView>
+
+</VBox>
