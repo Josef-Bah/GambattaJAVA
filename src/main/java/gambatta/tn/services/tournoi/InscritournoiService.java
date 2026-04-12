@@ -19,13 +19,13 @@ public class InscritournoiService {
         this.cnx = MyDataBase.getInstance();
     }
 
-    // Index: list all inscriptions
-    public List<inscriptiontournoi> index() {
+    // READ ALL
+    public List<inscriptiontournoi> findAll() {
         List<inscriptiontournoi> inscriptions = new ArrayList<>();
-        String sql = "SELECT i.id, i.status, e.id as equipe_id, e.nom as equipe_nom, t.id as tournoi_id, t.nomt as tournoi_nomt " +
-                     "FROM inscritournoi i " +
-                     "LEFT JOIN equipe e ON i.equipe_id = e.id " +
-                     "LEFT JOIN tournoi t ON i.tournoi_id = t.id";
+        String sql = "SELECT i.id, i.status, e.id AS equipe_id, e.nom AS equipe_nom, t.id AS tournoi_id, t.nomt AS tournoi_nomt " +
+                "FROM inscritournoi i " +
+                "LEFT JOIN equipe e ON i.equipe_id = e.id " +
+                "LEFT JOIN tournoi t ON i.tournoi_id = t.id";
         try (Statement st = cnx.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 inscriptiontournoi i = new inscriptiontournoi();
@@ -50,13 +50,13 @@ public class InscritournoiService {
         return inscriptions;
     }
 
-    // Find by id
+    // FIND BY ID
     public inscriptiontournoi findById(Long id) {
-        String sql = "SELECT i.id, i.status, e.id as equipe_id, e.nom as equipe_nom, t.id as tournoi_id, t.nomt as tournoi_nomt " +
-                     "FROM inscritournoi i " +
-                     "LEFT JOIN equipe e ON i.equipe_id = e.id " +
-                     "LEFT JOIN tournoi t ON i.tournoi_id = t.id " +
-                     "WHERE i.id = ?";
+        String sql = "SELECT i.id, i.status, e.id AS equipe_id, e.nom AS equipe_nom, t.id AS tournoi_id, t.nomt AS tournoi_nomt " +
+                "FROM inscritournoi i " +
+                "LEFT JOIN equipe e ON i.equipe_id = e.id " +
+                "LEFT JOIN tournoi t ON i.tournoi_id = t.id " +
+                "WHERE i.id = ?";
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setLong(1, id);
             ResultSet rs = pst.executeQuery();
@@ -83,9 +83,10 @@ public class InscritournoiService {
         return null;
     }
 
-    // Save
+    // SAVE / UPDATE
     public boolean save(inscriptiontournoi inscription) {
-        if (inscription.getId() == null) {
+        if (inscription.getId() == null || inscription.getId() == 0) {
+            // INSERT
             String sql = "INSERT INTO inscritournoi (equipe_id, tournoi_id, status) VALUES (?, ?, ?)";
             try (PreparedStatement pst = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 pst.setLong(1, inscription.getEquipe().getId());
@@ -99,8 +100,10 @@ public class InscritournoiService {
                 return true;
             } catch (SQLException e) {
                 e.printStackTrace();
+                return false;
             }
         } else {
+            // UPDATE
             String sql = "UPDATE inscritournoi SET equipe_id=?, tournoi_id=?, status=? WHERE id=?";
             try (PreparedStatement pst = cnx.prepareStatement(sql)) {
                 pst.setLong(1, inscription.getEquipe().getId());
@@ -111,14 +114,14 @@ public class InscritournoiService {
                 return true;
             } catch (SQLException e) {
                 e.printStackTrace();
+                return false;
             }
         }
-        return false;
     }
 
-    // Delete
+    // DELETE
     public boolean delete(Long id) {
-        String sql = "DELETE FROM inscritournoi WHERE id = ?";
+        String sql = "DELETE FROM inscritournoi WHERE id=?";
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setLong(1, id);
             return pst.executeUpdate() > 0;
@@ -128,25 +131,26 @@ public class InscritournoiService {
         return false;
     }
 
-    // Generate PDF (simplified)
+    // GENERATE PDF (simplified)
     public String generatePdf() {
-        List<inscriptiontournoi> inscriptions = index();
+        List<inscriptiontournoi> list = findAll();
         StringBuilder pdfContent = new StringBuilder();
         pdfContent.append("Registre des Inscriptions\n");
         pdfContent.append("ID\tÉQUIPE\tTOURNOI\tSTATUT\n");
-        for (int i = 0; i < inscriptions.size(); i++) {
-            inscriptiontournoi ins = inscriptions.get(i);
-            String equipe = ins.getEquipe() != null ? ins.getEquipe().getNom() : "-";
-            String tournoi = ins.getTournoi() != null ? ins.getTournoi().getNomt() : "-";
-            pdfContent.append((i + 1)).append("\t")
-                      .append(equipe).append("\t")
-                      .append(tournoi).append("\t")
-                      .append(ins.getStatus() != null ? ins.getStatus() : "-").append("\n");
+        for (int i = 0; i < list.size(); i++) {
+            inscriptiontournoi ins = list.get(i);
+            String equipeName = ins.getEquipe() != null ? ins.getEquipe().getNom() : "-";
+            String tournoiName = ins.getTournoi() != null ? ins.getTournoi().getNomt() : "-";
+            pdfContent.append((i + 1))
+                    .append("\t").append(equipeName)
+                    .append("\t").append(tournoiName)
+                    .append("\t").append(ins.getStatus() != null ? ins.getStatus() : "-")
+                    .append("\n");
         }
         return pdfContent.toString();
     }
 
-    // Stats
+    // STATISTICS
     public Map<String, Object> stats() {
         Map<String, Object> stats = new HashMap<>();
         String sqlTotal = "SELECT COUNT(*) as total FROM inscritournoi";
@@ -158,24 +162,19 @@ public class InscritournoiService {
             e.printStackTrace();
         }
 
-        List<Map<String, Object>> inscriptionsByStatus = new ArrayList<>();
+        List<Map<String, Object>> byStatus = new ArrayList<>();
         String sqlStatus = "SELECT status, COUNT(*) as count FROM inscritournoi GROUP BY status";
         try (Statement st = cnx.createStatement(); ResultSet rs = st.executeQuery(sqlStatus)) {
             while (rs.next()) {
                 Map<String, Object> row = new HashMap<>();
                 row.put("status", rs.getString("status"));
                 row.put("count", rs.getInt("count"));
-                inscriptionsByStatus.add(row);
+                byStatus.add(row);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        stats.put("inscriptionsByStatus", inscriptionsByStatus);
+        stats.put("inscriptionsByStatus", byStatus);
         return stats;
-    }
-
-    // Stats JSON (return map, can be converted to JSON)
-    public Map<String, Object> statsJson() {
-        return stats();
     }
 }

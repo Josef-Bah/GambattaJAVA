@@ -1,15 +1,17 @@
 package gambatta.tn.controllers;
 
 import gambatta.tn.entites.tournois.inscriptiontournoi;
+import gambatta.tn.entites.tournois.equipe;
+import gambatta.tn.entites.tournois.tournoi;
 import gambatta.tn.services.tournoi.InscritournoiService;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.util.List;
-import java.util.Map;
 
 public class InscritournoiController {
 
@@ -43,34 +45,30 @@ public class InscritournoiController {
     private InscritournoiService service;
     private ObservableList<inscriptiontournoi> inscriptions;
 
-    @FXML
     public void initialize() {
         service = new InscritournoiService();
 
-        // Config colonnes TableView
-        colId.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getId()));
-        colEquipe.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
-                cell.getValue().getEquipe() != null ? cell.getValue().getEquipe().getNom() : ""));
-        colTournoi.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
-                cell.getValue().getTournoi() != null ? cell.getValue().getTournoi().getNomt() : ""));
-        colStatus.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
-                cell.getValue().getStatus()));
+        // Configurer les colonnes TableView
+        colId.setCellValueFactory(data -> new javafx.beans.property.SimpleLongProperty(data.getValue().getId()).asObject());
+        colEquipe.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getEquipe().getNom()));
+        colTournoi.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getTournoi().getNomt()));
+        colStatus.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getStatus()));
 
-        // Charger les inscriptions
+        // Charger toutes les inscriptions
         loadInscriptions();
 
-        // Actions boutons
+        // Boutons
         btnAjouter.setOnAction(e -> addInscription());
         btnSupprimer.setOnAction(e -> deleteInscription());
         btnPDF.setOnAction(e -> exportPDF());
         btnStats.setOnAction(e -> showStats());
 
-        // Filtrage recherche
+        // Recherche en temps réel
         txtSearch.textProperty().addListener((obs, oldVal, newVal) -> filterInscriptions(newVal));
     }
 
     private void loadInscriptions() {
-        List<inscriptiontournoi> list = service.index();
+        List<inscriptiontournoi> list = service.findAll();
         inscriptions = FXCollections.observableArrayList(list);
         tableInscriptions.setItems(inscriptions);
     }
@@ -78,10 +76,19 @@ public class InscritournoiController {
     private void addInscription() {
         String equipeName = txtEquipe.getText().trim();
         String tournoiName = txtTournoi.getText().trim();
+
         if (!equipeName.isEmpty() && !tournoiName.isEmpty()) {
+            // Crée les objets associés
+            equipe e = new equipe();
+            e.setNom(equipeName);
+
+            tournoi t = new tournoi();
+            t.setNomt(tournoiName);
+
+            // Crée l'inscription
             inscriptiontournoi i = new inscriptiontournoi();
-            i.getEquipe().setNom(equipeName);
-            i.getTournoi().setNomt(tournoiName);
+            i.setEquipe(e);
+            i.setTournoi(t);
             i.setStatus(inscriptiontournoi.STATUS_PENDING);
 
             boolean saved = service.save(i);
@@ -89,6 +96,10 @@ public class InscritournoiController {
                 inscriptions.add(i);
                 txtEquipe.clear();
                 txtTournoi.clear();
+                tableInscriptions.refresh();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "Impossible d'ajouter cette inscription !");
+                alert.showAndWait();
             }
         }
     }
@@ -99,23 +110,35 @@ public class InscritournoiController {
             boolean deleted = service.delete(selected.getId());
             if (deleted) {
                 inscriptions.remove(selected);
+                tableInscriptions.refresh();
             }
         }
     }
 
     private void exportPDF() {
-        // Pour l'instant export texte simple
-        String content = service.generatePdf();
-        System.out.println("Contenu PDF :\n" + content);
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Exporter les inscriptions en PDF");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        File file = fileChooser.showSaveDialog(tableInscriptions.getScene().getWindow());
+        if (file != null) {
+            String pdfContent = service.generatePdf();
+            // Ici tu peux utiliser iText ou PDFBox pour créer un vrai PDF
+            System.out.println("PDF exporté vers : " + file.getAbsolutePath());
+            System.out.println(pdfContent);
+        }
     }
 
     private void showStats() {
-        Map<String, Object> stats = service.stats();
-        int total = (int) stats.getOrDefault("totalInscriptions", 0);
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Statistiques Inscriptions");
-        alert.setHeaderText("Total inscriptions : " + total);
-        alert.setContentText(stats.get("inscriptionsByStatus").toString());
+        // Exemples de stats
+        long accepted = inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_ACCEPTED)).count();
+        long pending = inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_PENDING)).count();
+        long refused = inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_REFUSED)).count();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION,
+                "Accepted: " + accepted + "\n" +
+                        "Pending: " + pending + "\n" +
+                        "Refused: " + refused);
+        alert.setHeaderText("Statistiques des inscriptions");
         alert.showAndWait();
     }
 
@@ -125,10 +148,8 @@ public class InscritournoiController {
         } else {
             ObservableList<inscriptiontournoi> filtered = FXCollections.observableArrayList();
             for (inscriptiontournoi i : inscriptions) {
-                String eq = i.getEquipe() != null ? i.getEquipe().getNom() : "";
-                String t = i.getTournoi() != null ? i.getTournoi().getNomt() : "";
-                if (eq.toLowerCase().contains(search.toLowerCase()) ||
-                        t.toLowerCase().contains(search.toLowerCase())) {
+                if (i.getEquipe().getNom().toLowerCase().contains(search.toLowerCase())
+                        || i.getTournoi().getNomt().toLowerCase().contains(search.toLowerCase())) {
                     filtered.add(i);
                 }
             }

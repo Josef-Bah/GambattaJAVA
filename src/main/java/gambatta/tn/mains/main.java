@@ -22,6 +22,8 @@ public class main {
         t.setDatefint(LocalDateTime.now().plusDays(3));
         t.setDescrit("Test CRUD Tournoi");
         t.setStatutt("EN_ATTENTE");
+        tournoiService.add(t); // ID généré
+
 
         // CREATE
         boolean addedTournoi = tournoiService.add(t);
@@ -44,15 +46,18 @@ public class main {
         boolean deletedTournoi = tournoiService.delete(t.getId());
         System.out.println("Tournoi supprimé = " + deletedTournoi);
 
+
         // === EQUIPE CRUD ===
         EquipeService equipeService = new EquipeService();
         equipe e = new equipe();
         e.setNom("Equipe Test");
         e.setTeamLeader("Leader Test");
         e.setStatus("EN_ATTENTE");
+        equipeService.save(e); // ID généré
+
 
         // CREATE
-        boolean addedEquipe = equipeService.save(e);
+        boolean addedEquipe = equipeService.save(e); // ID généré ici
         System.out.println("\nEquipe ajoutée = " + addedEquipe);
 
         // READ ALL
@@ -65,27 +70,30 @@ public class main {
         // UPDATE
         e.setNom("Equipe Modifiée");
         e.setStatus("VALIDE");
-        boolean updatedEquipe = equipeService.save(e);
+        boolean updatedEquipe = equipeService.save(e); // save modifie si ID existe
         System.out.println("Equipe modifiée = " + updatedEquipe);
 
         // DELETE
         boolean deletedEquipe = equipeService.delete(e.getId());
         System.out.println("Equipe supprimée = " + deletedEquipe);
 
+
         // === INSCRIPTION CRUD ===
         InscritournoiService inscritService = new InscritournoiService();
+
+
+        // CREATE inscription
         inscriptiontournoi i = new inscriptiontournoi();
-        i.setEquipe(e); // utiliser la même équipe
-        i.setTournoi(t); // utiliser le même tournoi
+        i.setEquipe(e);
+        i.setTournoi(t);
         i.setStatus(inscriptiontournoi.STATUS_PENDING);
 
-        // CREATE
         boolean addedInscription = inscritService.save(i);
         System.out.println("\nInscription ajoutée = " + addedInscription);
 
         // READ ALL
         System.out.println("\n--- Liste des Inscriptions ---");
-        List<inscriptiontournoi> listeInscription = inscritService.index();
+        List<inscriptiontournoi> listeInscription = inscritService.findAll();
         for (inscriptiontournoi ins : listeInscription) {
             System.out.println(ins.getId() + " - Equipe: " + ins.getEquipe().getNom() +
                     " - Tournoi: " + ins.getTournoi().getNomt() +

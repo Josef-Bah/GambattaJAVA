@@ -45,10 +45,14 @@
 
 .table-row-cell:filled:selected {
     -fx-background-color: #FFF4C5;
+    -fx-text-fill: #010203; /* texte noir même en sélection */
+
 }
 
 .table-row-cell:hover {
     -fx-background-color: #FFF9E6;
+    -fx-text-fill: #010203; /* texte noir même en sélection */
+
 }
 
 /* TextField */
@@ -61,7 +65,11 @@
     -fx-prompt-text-fill: #999999;
     -fx-text-fill: #010203;
 }
-
+/* Pour les cellules sélectionnées dans TableColumn */
+.table-cell:selected {
+    -fx-background-color: #FFF4C5; /* doré clair */
+    -fx-text-fill: #010203; /* texte noir */
+}
 /* Buttons */
 .button {
     -fx-background-color: #C5B358;

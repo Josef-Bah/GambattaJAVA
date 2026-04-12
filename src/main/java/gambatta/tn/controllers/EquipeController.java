@@ -43,7 +43,8 @@ public class EquipeController {
         colStatus.setCellValueFactory(cell -> cell.getValue().statusProperty());
 
         // Charge les équipes existantes
-        loadEquipes();
+        equipes = FXCollections.observableArrayList(equipeService.findAll());
+        tableEquipes.setItems(equipes);
 
         // Actions boutons
         btnAjouter.setOnAction(e -> addEquipe());
@@ -63,12 +64,6 @@ public class EquipeController {
         txtSearch.textProperty().addListener((obs, oldVal, newVal) -> filterEquipes(newVal));
     }
 
-    private void loadEquipes() {
-        List<equipe> list = equipeService.findAll();
-        equipes = FXCollections.observableArrayList(list);
-        tableEquipes.setItems(equipes);
-    }
-
     private void addEquipe() {
         String nom = txtNom.getText().trim();
         String leader = txtLeader.getText().trim();
@@ -79,7 +74,7 @@ public class EquipeController {
             e.setStatus("EN_ATTENTE");
             boolean saved = equipeService.save(e);
             if (saved) {
-                loadEquipes(); // rafraîchir le TableView
+                // 🔹 Ajouter l'objet directement à l'ObservableList
                 equipes.add(e);
                 tableEquipes.refresh();
                 txtNom.clear();
@@ -93,7 +88,7 @@ public class EquipeController {
         if (selected != null) {
             boolean deleted = equipeService.delete(selected.getId());
             if (deleted) {
-                loadEquipes(); // rafraîchir le TableView
+                // 🔹 Retirer l'objet de l'ObservableList
                 equipes.remove(selected);
                 tableEquipes.refresh();
             }
@@ -108,7 +103,7 @@ public class EquipeController {
             if (!nom.isEmpty()) selected.setNom(nom);
             if (!leader.isEmpty()) selected.setTeamLeader(leader);
             equipeService.save(selected); // gère INSERT ou UPDATE selon id
-            loadEquipes(); // rafraîchir le TableView
+            tableEquipes.refresh();
         }
     }
 
@@ -134,7 +129,7 @@ public class EquipeController {
         if (file != null) {
             String pdfContent = equipeService.generatePdf();
             System.out.println("PDF exporté vers : " + file.getAbsolutePath());
-            System.out.println(pdfContent); // temporaire, ou utiliser PDFBox/iText
+            System.out.println(pdfContent);
         }
     }
 }
