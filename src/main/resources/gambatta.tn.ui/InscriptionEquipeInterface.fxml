@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.controllers.InscriptionController"
+            prefWidth="1000" prefHeight="600">
+    <VBox spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">
+        <Label text="Prêt pour l'aventure ?" style="-fx-font-size:24px; -fx-font-weight:bold;" />
+        <Label text="Choisissez comment vous souhaitez intégrer la compétition." style="-fx-font-size:14px;" />
+
+        <HBox spacing="30" alignment="CENTER">
+            <!-- Rejoindre un tournoi -->
+            <VBox spacing="10" style="-fx-background-color:#F5F8FA; -fx-padding:20; -fx-border-radius:10; -fx-background-radius:10;">
+                <Label text="Rejoindre un Tournoi" style="-fx-font-weight:bold; -fx-font-size:16;" />
+                <Label text="Intégrez un groupe déjà formé et participez à un tournoi actif en tant que coéquipier." wrapText="true" />
+                <Button text="TROUVER UN TOURNOI" style="-fx-border-color:#0B1F3A; -fx-text-fill:#0B1F3A; -fx-background-color:transparent;" />
+            </VBox>
+
+            <!-- Créer son équipe -->
+            <VBox spacing="10" style="-fx-background-color:#F5F8FA; -fx-padding:20; -fx-border-radius:10; -fx-background-radius:10;">
+                <Label text="Créer mon équipe" style="-fx-font-weight:bold; -fx-font-size:16;" />
+                <Label text="Devenez capitaine, choisissez votre nom et vos couleurs, puis invitez vos amis." wrapText="true" />
+                <Button text="LANCER LA CRÉATION" style="-fx-background-color:#2C7D4E; -fx-text-fill:white; -fx-font-weight:bold;" />
+            </VBox>
+
+            <!-- Rejoindre une équipe existante -->
+            <VBox spacing="10" style="-fx-background-color:#F5F8FA; -fx-padding:20; -fx-border-radius:10; -fx-background-radius:10;">
+                <Label text="Joueur: rejoindre une équipe" style="-fx-font-weight:bold; -fx-font-size:16;" />
+                <Label text="Envoyez une demande rapide pour intégrer une équipe existante." wrapText="true" />
+                <Label text="Nom du joueur:" />
+                <TextField fx:id="txtNomJoueur" promptText="Entrez votre nom" />
+                <Label text="Sélectionner l'équipe:" />
+                <TextField fx:id="txtEquipe" promptText="Nom de l'équipe" />
+                <Button fx:id="btnEnvoyer" text="ENVOYER LA DEMANDE" style="-fx-background-color:#F5A623; -fx-text-fill:white; -fx-font-weight:bold;" />
+            </VBox>
+        </HBox>
+    </VBox>
+</AnchorPane>

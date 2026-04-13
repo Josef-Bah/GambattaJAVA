@@ -3,21 +3,28 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox spacing="10" alignment="CENTER" xmlns:fx="C:\Program Files\Java\javafx-sdk-26\lib"
+<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="gambatta.tn.controllers.TournoiController">
 
-    <TextField fx:id="nomField" promptText="Nom tournoi"/>
-    <TextField fx:id="descField" promptText="Description"/>
-    <TextField fx:id="statutField" promptText="Statut"/>
+    <!-- Champs de saisie -->
+    <TextField fx:id="nomField" promptText="Nom tournoi" />
+    <TextField fx:id="descField" promptText="Description" />
+    <ComboBox fx:id="cmbStatut" promptText="Statut" prefWidth="200"/>
 
-    <Button text="Ajouter" onAction="#addTournoi"/>
-    <Button text="Supprimer" onAction="#deleteTournoi"/>
+    <!-- Boutons -->
+    <HBox spacing="10">
+        <Button text="Ajouter" onAction="#addTournoi" />
+        <Button text="Supprimer" onAction="#deleteTournoi" />
+        <Button fx:id="btnPDF" text="Exporter PDF"/>
+        <Button text="Equipe" onAction="#openEquipeWindow" />
+    </HBox>
 
-    <TableView fx:id="table">
+    <!-- TableView -->
+    <TableView fx:id="table" prefHeight="400" prefWidth="500">
         <columns>
-            <TableColumn fx:id="idCol" text="ID"/>
-            <TableColumn fx:id="nomCol" text="Nom"/>
-            <TableColumn fx:id="statutCol" text="Statut"/>
+            <TableColumn fx:id="idCol" text="ID" prefWidth="50"/>
+            <TableColumn fx:id="nomCol" text="Nom" prefWidth="200"/>
+            <TableColumn fx:id="statutCol" text="Statut" prefWidth="100"/>
         </columns>
     </TableView>
 

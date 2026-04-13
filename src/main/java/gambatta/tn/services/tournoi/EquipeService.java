@@ -9,9 +9,7 @@ import gambatta.tn.tools.MyDataBase;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class EquipeService {
 
@@ -28,11 +26,7 @@ public class EquipeService {
         String sql = "SELECT id, nom, team_leader, titres, objectifs, coach, logo, joinApprovalMode, status FROM equipe";
         try (Statement st = cnx.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
-                equipe e = new equipe();
-                e.setId(rs.getLong("id"));
-                e.setNom(rs.getString("nom"));
-                e.setTeamLeader(rs.getString("team_leader"));
-                e.setStatus(rs.getString("status"));
+                equipe e = mapEquipe(rs);
                 list.add(e);
             }
         } catch (SQLException ex) {
@@ -55,7 +49,8 @@ public class EquipeService {
         return null;
     }
 
-    public equipe findByNom(String nom) {
+    // ✅ Nouvelle méthode pour findByName (appelée depuis InscriptionController)
+    public equipe findByName(String nom) {
         String sql = "SELECT * FROM equipe WHERE nom=?";
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setString(1, nom);
@@ -70,7 +65,7 @@ public class EquipeService {
     }
 
     public boolean save(equipe e) {
-        if (e.getId() == null || e.getId() == 0) {
+        if (e.getId() == 0 || e.getId() == null) {
             return add(e);
         } else {
             return update(e);
@@ -78,7 +73,7 @@ public class EquipeService {
     }
 
     private boolean add(equipe e) {
-        if (findByNom(e.getNom()) != null) return false;
+        if (findByName(e.getNom()) != null) return false;
         String sql = "INSERT INTO equipe (nom, team_leader, titres, objectifs, coach, logo, joinApprovalMode, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pst = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, e.getNom());
@@ -155,45 +150,5 @@ public class EquipeService {
                     .append(e.getTitres()).append("\n");
         }
         return sb.toString();
-    }
-
-    // --- Rejoindre tournoi ---
-    public boolean joinTournoi(Long equipeId, Long tournoiId) {
-        try {
-            String checkSql = "SELECT id FROM inscritournoi WHERE equipe_id=? AND tournoi_id=?";
-            try (PreparedStatement pst = cnx.prepareStatement(checkSql)) {
-                pst.setLong(1, equipeId);
-                pst.setLong(2, tournoiId);
-                if (pst.executeQuery().next()) return false;
-            }
-            equipe e = findById(equipeId);
-            if (e == null) return false;
-            String status = equipe.JOIN_APPROVAL_BY_LEADER.equals(e.getJoinApprovalMode()) ? inscriptiontournoi.STATUS_ACCEPTED : inscriptiontournoi.STATUS_PENDING;
-            String sql = "INSERT INTO inscritournoi (equipe_id, tournoi_id, status) VALUES (?, ?, ?)";
-            try (PreparedStatement pst = cnx.prepareStatement(sql)) {
-                pst.setLong(1, equipeId);
-                pst.setLong(2, tournoiId);
-                pst.setString(3, status);
-                return pst.executeUpdate() > 0;
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        return false;
-    }
-
-    // --- Demande rejoindre équipe ---
-    public boolean requestJoin(String playerName, Long equipeId) {
-        String sql = "INSERT INTO playerjoinrequest (player_name, equipe_id, status, created_at) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement pst = cnx.prepareStatement(sql)) {
-            pst.setString(1, playerName);
-            pst.setLong(2, equipeId);
-            pst.setString(3, playerjoinrequest.STATUS_PENDING);
-            pst.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
-            return pst.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 }

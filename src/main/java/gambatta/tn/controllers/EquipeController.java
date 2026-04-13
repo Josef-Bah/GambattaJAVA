@@ -6,8 +6,11 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.List;
@@ -28,6 +31,8 @@ public class EquipeController {
     @FXML private Button btnSupprimer;
     @FXML private Button btnModifier;
     @FXML private Button btnPDF;
+    @FXML private Button btnTournoi;
+    @FXML private Button btnNouvelleEquipe; // ✅ bouton pour InscriptionEquipeInterface
 
     private EquipeService equipeService;
     private ObservableList<equipe> equipes;
@@ -36,23 +41,25 @@ public class EquipeController {
     public void initialize() {
         equipeService = new EquipeService();
 
-        // Config TableView
+        // Configuration des colonnes
         colId.setCellValueFactory(cell -> new ReadOnlyObjectWrapper<>(cell.getValue().getId()));
         colNom.setCellValueFactory(cell -> cell.getValue().nomProperty());
         colLeader.setCellValueFactory(cell -> cell.getValue().teamLeaderProperty());
         colStatus.setCellValueFactory(cell -> cell.getValue().statusProperty());
 
-        // Charge les équipes existantes
+        // Charger les données
         equipes = FXCollections.observableArrayList(equipeService.findAll());
         tableEquipes.setItems(equipes);
 
-        // Actions boutons
+        // Actions des boutons
         btnAjouter.setOnAction(e -> addEquipe());
         btnSupprimer.setOnAction(e -> deleteEquipe());
         btnModifier.setOnAction(e -> updateEquipe());
         btnPDF.setOnAction(e -> exportPDF());
+        btnTournoi.setOnAction(e -> openTournoiWindow());
+        btnNouvelleEquipe.setOnAction(e -> openInscriptionEquipeWindow());
 
-        // Pré-remplissage des TextFields pour modification
+        // Sélection dans le tableau
         tableEquipes.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
                 txtNom.setText(newSel.getNom());
@@ -74,7 +81,6 @@ public class EquipeController {
             e.setStatus("EN_ATTENTE");
             boolean saved = equipeService.save(e);
             if (saved) {
-                // 🔹 Ajouter l'objet directement à l'ObservableList
                 equipes.add(e);
                 tableEquipes.refresh();
                 txtNom.clear();
@@ -88,7 +94,6 @@ public class EquipeController {
         if (selected != null) {
             boolean deleted = equipeService.delete(selected.getId());
             if (deleted) {
-                // 🔹 Retirer l'objet de l'ObservableList
                 equipes.remove(selected);
                 tableEquipes.refresh();
             }
@@ -102,7 +107,7 @@ public class EquipeController {
             String leader = txtLeader.getText().trim();
             if (!nom.isEmpty()) selected.setNom(nom);
             if (!leader.isEmpty()) selected.setTeamLeader(leader);
-            equipeService.save(selected); // gère INSERT ou UPDATE selon id
+            equipeService.save(selected);
             tableEquipes.refresh();
         }
     }
@@ -130,6 +135,34 @@ public class EquipeController {
             String pdfContent = equipeService.generatePdf();
             System.out.println("PDF exporté vers : " + file.getAbsolutePath());
             System.out.println(pdfContent);
+        }
+    }
+
+    private void openTournoiWindow() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta/tn/ui/tournoi.fxml"));
+            Scene scene = new Scene(loader.load(), 1280, 780);
+            scene.getStylesheets().add(getClass().getResource("/gambatta/tn/ui/style.css").toExternalForm());
+            Stage stage = new Stage();
+            stage.setTitle("Interface Tournoi");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void openInscriptionEquipeWindow() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta/tn/ui/InscriptionEquipeInterface.fxml"));
+            Scene scene = new Scene(loader.load(), 1000, 600);
+            scene.getStylesheets().add(getClass().getResource("/gambatta/tn/ui/style.css").toExternalForm());
+            Stage stage = new Stage();
+            stage.setTitle("Inscription Nouvelle Équipe");
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }

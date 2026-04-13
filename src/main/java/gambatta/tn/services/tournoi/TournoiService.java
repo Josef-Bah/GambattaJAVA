@@ -1,5 +1,6 @@
 package gambatta.tn.services.tournoi;
 
+import gambatta.tn.entites.tournois.equipe;
 import gambatta.tn.entites.tournois.tournoi;
 import gambatta.tn.tools.MyDataBase;
 
@@ -129,5 +130,23 @@ public class TournoiService {
         }
 
         return false;
+    }
+
+    // --- PDF simplifié pour Tournoi ---
+    public String generatePdf() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Liste des Tournois\n");
+        sb.append("ID\tNom\tDescription\tStatut\tDate Début\tDate Fin\n");
+
+        for (tournoi t : findAll()) {
+            sb.append(t.getId()).append("\t")
+                    .append(t.getNomt()).append("\t")
+                    .append(t.getDescrit()).append("\t")
+                    .append(t.getStatutt()).append("\t")
+                    .append(t.getDatedebutt()).append("\t")
+                    .append(t.getDatefint()).append("\n");
+        }
+
+        return sb.toString();
     }
 }
