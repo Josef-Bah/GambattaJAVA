@@ -17,16 +17,13 @@
             <TextField fx:id="txtNom" promptText="Nom de l'équipe" HBox.hgrow="ALWAYS"/>
             <TextField fx:id="txtLeader" promptText="Nom du leader" HBox.hgrow="ALWAYS"/>
             <Button fx:id="btnAjouter" text="Ajouter"/>
-            <Button fx:id="btnModifier" text="Modifier"/>
             <Button fx:id="btnTournoi" text="Tournoi"/>
         </HBox>
 
         <HBox spacing="10">
             <TextField fx:id="txtSearch" promptText="Rechercher par nom..."/>
             <Button fx:id="btnPDF" text="Exporter PDF"/>
-            <Button fx:id="btnSupprimer" text="Supprimer"/>
             <Button fx:id="btnNouvelleEquipe" text="Nouvelle Équipe"/>
-
         </HBox>
 
         <TableView fx:id="tableEquipes" prefHeight="400">
@@ -35,6 +32,8 @@
                 <TableColumn fx:id="colNom" text="Nom" prefWidth="250"/>
                 <TableColumn fx:id="colLeader" text="Leader" prefWidth="250"/>
                 <TableColumn fx:id="colStatus" text="Statut" prefWidth="150"/>
+                <TableColumn fx:id="colModifier" text="Modifier" prefWidth="100"/>
+                <TableColumn fx:id="colSupprimer" text="Supprimer" prefWidth="100"/>
             </columns>
         </TableView>
 

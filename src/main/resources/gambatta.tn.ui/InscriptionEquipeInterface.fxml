@@ -16,7 +16,7 @@
             <VBox spacing="10" style="-fx-background-color:#F5F8FA; -fx-padding:20; -fx-border-radius:10; -fx-background-radius:10;">
                 <Label text="Rejoindre un Tournoi" style="-fx-font-weight:bold; -fx-font-size:16;" />
                 <Label text="Intégrez un groupe déjà formé et participez à un tournoi actif en tant que coéquipier." wrapText="true" />
-                <Button text="TROUVER UN TOURNOI" style="-fx-border-color:#0B1F3A; -fx-text-fill:#0B1F3A; -fx-background-color:transparent;" />
+                <Button fx:id="btnTrouverTournoi" text="TROUVER UN TOURNOI" style="-fx-border-color:#0B1F3A; -fx-text-fill:#0B1F3A; -fx-background-color:transparent;" />
             </VBox>
 
             <!-- Créer son équipe -->
@@ -33,7 +33,7 @@
                 <Label text="Nom du joueur:" />
                 <TextField fx:id="txtNomJoueur" promptText="Entrez votre nom" />
                 <Label text="Sélectionner l'équipe:" />
-                <TextField fx:id="txtEquipe" promptText="Nom de l'équipe" />
+                <ComboBox fx:id="comboEquipe" promptText="Choisir une équipe..." maxWidth="Infinity"/>
                 <Button fx:id="btnEnvoyer" text="ENVOYER LA DEMANDE" style="-fx-background-color:#F5A623; -fx-text-fill:white; -fx-font-weight:bold;" />
             </VBox>
         </HBox>

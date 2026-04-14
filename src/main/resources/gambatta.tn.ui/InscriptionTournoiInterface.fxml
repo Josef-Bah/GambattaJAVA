@@ -10,8 +10,8 @@
           AnchorPane.rightAnchor="10" AnchorPane.bottomAnchor="10">
         <Label text="Gestion des Inscriptions Tournoi" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
         <HBox spacing="10">
-            <TextField fx:id="txtEquipe" promptText="Nom de l'équipe" HBox.hgrow="ALWAYS"/>
-            <TextField fx:id="txtTournoi" promptText="Nom du tournoi" HBox.hgrow="ALWAYS"/>
+            <ComboBox fx:id="comboEquipe" promptText="Choisir une équipe" HBox.hgrow="ALWAYS"/>
+            <ComboBox fx:id="comboTournoi" promptText="Choisir un tournoi" HBox.hgrow="ALWAYS"/>
             <Button fx:id="btnAjouter" text="Ajouter"/>
             <Button fx:id="btnSupprimer" text="Supprimer"/>
         </HBox>

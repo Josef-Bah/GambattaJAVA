@@ -27,6 +27,8 @@ public class TournoiController {
     @FXML private TableColumn<tournoi, Long> idCol;
     @FXML private TableColumn<tournoi, String> nomCol;
     @FXML private TableColumn<tournoi, String> statutCol;
+    @FXML private TableColumn<tournoi, Void> colModifier;
+    @FXML private TableColumn<tournoi, Void> colSupprimer;
 
     private TournoiService service = new TournoiService();
     private ObservableList<tournoi> tournois = FXCollections.observableArrayList();
@@ -42,6 +44,57 @@ public class TournoiController {
         statutCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getStatutt()));
         tournois = FXCollections.observableArrayList(service.findAll());
         table.setItems(tournois);
+
+        // Configuration des colonnes d'action Modifier
+        colModifier.setCellFactory(param -> new TableCell<>() {
+            private final Button btn = new Button("Modifier");
+            {
+                btn.setOnAction(event -> {
+                    tournoi t = getTableView().getItems().get(getIndex());
+                    nomField.setText(t.getNomt());
+                    descField.setText(t.getDescrit());
+                    cmbStatut.setValue(t.getStatutt());
+                    table.getSelectionModel().select(t);
+                });
+            }
+            @Override protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btn);
+            }
+        });
+
+        // Configuration des colonnes d'action Supprimer
+        colSupprimer.setCellFactory(param -> new TableCell<>() {
+            private final Button btn = new Button("Supprimer");
+            {
+                btn.setStyle("-fx-background-color: #ff4444; -fx-text-fill: white;");
+                btn.setOnAction(event -> {
+                    tournoi t = getTableView().getItems().get(getIndex());
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer le tournoi " + t.getNomt() + " ?", ButtonType.YES, ButtonType.NO);
+                    alert.showAndWait().ifPresent(response -> {
+                        if (response == ButtonType.YES) {
+                            if (service.delete(t.getId())) {
+                                tournois.remove(t);
+                            }
+                        }
+                    });
+                });
+            }
+            @Override protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btn);
+            }
+        });
+
+        // Sélection dans le tableau
+        table.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel != null) {
+                nomField.setText(newSel.getNomt());
+                descField.setText(newSel.getDescrit());
+                cmbStatut.setValue(newSel.getStatutt());
+            }
+        });
+
         // Charger les données depuis la base
         loadData();
     }
@@ -70,7 +123,25 @@ public class TournoiController {
         String desc = descField.getText().trim();
         String statut = cmbStatut.getValue();
 
-        if (!nom.isEmpty() && statut != null) {
+        if (nom.isEmpty() || statut == null) {
+            showAlert("Attention", "Veuillez remplir le nom et sélectionner un statut !");
+            return;
+        }
+
+        tournoi selected = table.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            // Modification
+            selected.setNomt(nom);
+            selected.setDescrit(desc);
+            selected.setStatutt(statut);
+            if (service.update(selected)) {
+                table.refresh();
+                clearFields();
+            } else {
+                showAlert("Erreur", "Impossible de modifier ce tournoi !");
+            }
+        } else {
+            // Ajout
             tournoi t = new tournoi();
             t.setNomt(nom);
             t.setDescrit(desc);
@@ -81,30 +152,18 @@ public class TournoiController {
             boolean added = service.add(t);
             if (added) {
                 tournois.add(t);
-                nomField.clear();
-                descField.clear();
-                cmbStatut.getSelectionModel().clearSelection();
+                clearFields();
             } else {
                 showAlert("Erreur", "Impossible d'ajouter ce tournoi !");
             }
-        } else {
-            showAlert("Attention", "Veuillez remplir le nom et sélectionner un statut !");
         }
     }
 
-    @FXML
-    public void deleteTournoi() {
-        tournoi selected = table.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            boolean deleted = service.delete(selected.getId());
-            if (deleted) {
-                tournois.remove(selected);
-            } else {
-                showAlert("Erreur", "Impossible de supprimer ce tournoi !");
-            }
-        } else {
-            showAlert("Information", "Veuillez sélectionner un tournoi !");
-        }
+    private void clearFields() {
+        nomField.clear();
+        descField.clear();
+        cmbStatut.getSelectionModel().clearSelection();
+        table.getSelectionModel().clearSelection();
     }
 
     @FXML

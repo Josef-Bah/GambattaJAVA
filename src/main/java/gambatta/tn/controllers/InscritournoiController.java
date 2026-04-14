@@ -3,11 +3,10 @@ package gambatta.tn.controllers;
 import gambatta.tn.entites.tournois.inscriptiontournoi;
 import gambatta.tn.entites.tournois.equipe;
 import gambatta.tn.entites.tournois.tournoi;
-import gambatta.tn.services.tournoi.InscritournoiService;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import gambatta.tn.services.tournoi.EquipeService;
+import gambatta.tn.services.tournoi.TournoiService;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -27,9 +26,9 @@ public class InscritournoiController {
     private TableColumn<inscriptiontournoi, String> colStatus;
 
     @FXML
-    private TextField txtEquipe;
+    private ComboBox<equipe> comboEquipe;
     @FXML
-    private TextField txtTournoi;
+    private ComboBox<tournoi> comboTournoi;
     @FXML
     private TextField txtSearch;
 
@@ -43,10 +42,16 @@ public class InscritournoiController {
     private Button btnStats;
 
     private InscritournoiService service;
+    private EquipeService equipeService = new EquipeService();
+    private TournoiService tournoiService = new TournoiService();
     private ObservableList<inscriptiontournoi> inscriptions;
 
     public void initialize() {
         service = new InscritournoiService();
+
+        // Charger les données dans les ComboBox
+        comboEquipe.setItems(FXCollections.observableArrayList(equipeService.findAll()));
+        comboTournoi.setItems(FXCollections.observableArrayList(tournoiService.findAll()));
 
         // Configurer les colonnes TableView
         colId.setCellValueFactory(data -> new javafx.beans.property.SimpleLongProperty(data.getValue().getId()).asObject());
@@ -74,28 +79,21 @@ public class InscritournoiController {
     }
 
     private void addInscription() {
-        String equipeName = txtEquipe.getText().trim();
-        String tournoiName = txtTournoi.getText().trim();
+        equipe selectedEquipe = comboEquipe.getSelectionModel().getSelectedItem();
+        tournoi selectedTournoi = comboTournoi.getSelectionModel().getSelectedItem();
 
-        if (!equipeName.isEmpty() && !tournoiName.isEmpty()) {
-            // Crée les objets associés
-            equipe e = new equipe();
-            e.setNom(equipeName);
-
-            tournoi t = new tournoi();
-            t.setNomt(tournoiName);
-
+        if (selectedEquipe != null && selectedTournoi != null) {
             // Crée l'inscription
             inscriptiontournoi i = new inscriptiontournoi();
-            i.setEquipe(e);
-            i.setTournoi(t);
+            i.setEquipe(selectedEquipe);
+            i.setTournoi(selectedTournoi);
             i.setStatus(inscriptiontournoi.STATUS_PENDING);
 
             boolean saved = service.save(i);
             if (saved) {
                 inscriptions.add(i);
-                txtEquipe.clear();
-                txtTournoi.clear();
+                comboEquipe.getSelectionModel().clearSelection();
+                comboTournoi.getSelectionModel().clearSelection();
                 tableInscriptions.refresh();
             } else {
                 Alert alert = new Alert(Alert.AlertType.WARNING, "Impossible d'ajouter cette inscription !");

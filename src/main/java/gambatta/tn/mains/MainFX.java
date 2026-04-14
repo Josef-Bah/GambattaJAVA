@@ -76,7 +76,7 @@ public class MainFX extends Application {
 
     private void openInscriptionTournoiWindow() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/InscriptionEquipeInterface.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/InscriptionTournoiInterface.fxml"));
             Scene scene = new Scene(loader.load(), 1000, 600);
             scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
             Stage stage = new Stage();

@@ -84,4 +84,8 @@ public class equipe {
             if (i.getEquipe() == this) i.setEquipe(null);
         }
     }
+    @Override
+    public String toString() {
+        return getNom() != null ? getNom() : "Sans nom";
+    }
 }

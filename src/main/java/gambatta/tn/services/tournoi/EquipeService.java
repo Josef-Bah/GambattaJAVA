@@ -23,7 +23,7 @@ public class EquipeService {
 
     public List<equipe> findAll() {
         List<equipe> list = new ArrayList<>();
-        String sql = "SELECT id, nom, team_leader, titres, objectifs, coach, logo, joinApprovalMode, status FROM equipe";
+        String sql = "SELECT id, nom, team_leader, titres, objectifs, coach, logo, join_approval_mode, status FROM equipe";
         try (Statement st = cnx.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 equipe e = mapEquipe(rs);
@@ -65,7 +65,7 @@ public class EquipeService {
     }
 
     public boolean save(equipe e) {
-        if (e.getId() == 0 || e.getId() == null) {
+        if (e.getId() == null || e.getId() == 0) {
             return add(e);
         } else {
             return update(e);
@@ -74,7 +74,7 @@ public class EquipeService {
 
     private boolean add(equipe e) {
         if (findByName(e.getNom()) != null) return false;
-        String sql = "INSERT INTO equipe (nom, team_leader, titres, objectifs, coach, logo, joinApprovalMode, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO equipe (nom, team_leader, titres, objectifs, coach, logo, join_approval_mode, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pst = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, e.getNom());
             pst.setString(2, e.getTeamLeader());
@@ -95,7 +95,7 @@ public class EquipeService {
     }
 
     private boolean update(equipe e) {
-        String sql = "UPDATE equipe SET nom=?, team_leader=?, titres=?, objectifs=?, coach=?, logo=?, joinApprovalMode=?, status=? WHERE id=?";
+        String sql = "UPDATE equipe SET nom=?, team_leader=?, titres=?, objectifs=?, coach=?, logo=?, join_approval_mode=?, status=? WHERE id=?";
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setString(1, e.getNom());
             pst.setString(2, e.getTeamLeader());
@@ -134,7 +134,7 @@ public class EquipeService {
         e.setObjectifs(rs.getString("objectifs"));
         e.setCoach(rs.getString("coach"));
         e.setLogo(rs.getString("logo"));
-        e.setJoinApprovalMode(rs.getString("joinApprovalMode"));
+        e.setJoinApprovalMode(rs.getString("join_approval_mode"));
         e.setStatus(rs.getString("status"));
         return e;
     }

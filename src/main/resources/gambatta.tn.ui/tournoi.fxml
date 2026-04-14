@@ -13,8 +13,7 @@
 
     <!-- Boutons -->
     <HBox spacing="10">
-        <Button text="Ajouter" onAction="#addTournoi" />
-        <Button text="Supprimer" onAction="#deleteTournoi" />
+        <Button text="Ajouter / Modifier" onAction="#addTournoi" />
         <Button fx:id="btnPDF" text="Exporter PDF"/>
         <Button text="Equipe" onAction="#openEquipeWindow" />
     </HBox>
@@ -25,6 +24,8 @@
             <TableColumn fx:id="idCol" text="ID" prefWidth="50"/>
             <TableColumn fx:id="nomCol" text="Nom" prefWidth="200"/>
             <TableColumn fx:id="statutCol" text="Statut" prefWidth="100"/>
+            <TableColumn fx:id="colModifier" text="Modifier" prefWidth="100"/>
+            <TableColumn fx:id="colSupprimer" text="Supprimer" prefWidth="100"/>
         </columns>
     </TableView>
 

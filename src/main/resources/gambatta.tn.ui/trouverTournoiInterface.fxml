@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.controllers.TrouverTournoiController"
+            prefWidth="900" prefHeight="600">
+
+    <VBox spacing="20" alignment="CENTER">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- Titre -->
+        <VBox spacing="5" alignment="CENTER">
+            <Label text="Inscription au Tournoi" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
+            <Label text="Inscrivez votre équipe et entrez dans la légende."/>
+        </VBox>
+
+        <!-- Formulaire -->
+        <VBox spacing="15" style="-fx-background-color: #FFFFFF; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1);">
+
+            <VBox spacing="5">
+                <Label text="ÉTAPE 1: CHOISIR VOTRE ÉQUIPE"/>
+                <ComboBox fx:id="comboEquipe" promptText="Sélectionner une équipe..."/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="ÉTAPE 2: SÉLECTIONNER LE TOURNOI"/>
+                <ComboBox fx:id="comboTournoi" promptText="Choisir une compétition active..."/>
+            </VBox>
+
+            <Button fx:id="btnEnvoyer" text="Envoyer la demande" style="-fx-background-color: #001F54; -fx-text-fill: #FFFFFF; -fx-font-weight: bold;"/>
+            <Label fx:id="lblRetour" text="← Annuler et retourner" style="-fx-font-size: 12px; -fx-text-fill: #666666; -fx-cursor: hand;"/>
+        </VBox>
+
+        <Label text="Selon le mode de l'équipe, la demande sera validée par le leader ou par l'administrateur." style="-fx-font-size: 10px; -fx-text-fill: #999999;"/>
+    </VBox>
+</AnchorPane>

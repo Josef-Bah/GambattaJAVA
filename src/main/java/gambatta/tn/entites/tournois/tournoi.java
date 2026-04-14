@@ -122,4 +122,9 @@ public class tournoi {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return getNomt() != null ? getNomt() : "Sans nom";
+    }
 }
