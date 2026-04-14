@@ -4,6 +4,7 @@ import gambatta.tn.entites.tournois.tournoi;
 import gambatta.tn.services.tournoi.TournoiService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -118,7 +119,7 @@ public class TournoiController {
 
 
     @FXML
-    public void addTournoi() {
+    public void addTournoi(ActionEvent event) {
         String nom = nomField.getText().trim();
         String desc = descField.getText().trim();
         String statut = cmbStatut.getValue();
@@ -135,6 +136,7 @@ public class TournoiController {
             selected.setDescrit(desc);
             selected.setStatutt(statut);
             if (service.update(selected)) {
+                showAlert("Succès", "Le tournoi a été modifié avec succès.");
                 table.refresh();
                 clearFields();
             } else {
@@ -151,12 +153,31 @@ public class TournoiController {
 
             boolean added = service.add(t);
             if (added) {
+                showAlert("Succès", "Le tournoi a été ajouté avec succès.");
                 tournois.add(t);
                 clearFields();
             } else {
                 showAlert("Erreur", "Impossible d'ajouter ce tournoi !");
             }
         }
+    }
+
+    @FXML
+    public void showStats(ActionEvent event) {
+        long enAttente = tournois.stream().filter(t -> "EN_ATTENTE".equals(t.getStatutt())).count();
+        long valide = tournois.stream().filter(t -> "VALIDE".equals(t.getStatutt())).count();
+        long termine = tournois.stream().filter(t -> "TERMINE".equals(t.getStatutt())).count();
+
+        showAlert("Statistiques des Tournois", 
+            "Tournois en attente : " + enAttente + "\n" +
+            "Tournois validés : " + valide + "\n" +
+            "Tournois terminés : " + termine);
+    }
+
+    @FXML
+    public void handleNewTournoi(ActionEvent event) {
+        clearFields();
+        showAlert("Prêt", "Les champs ont été réinitialisés. Vous pouvez maintenant ajouter un nouveau tournoi.");
     }
 
     private void clearFields() {
@@ -167,7 +188,7 @@ public class TournoiController {
     }
 
     @FXML
-    private void openEquipeWindow() {
+    public void openEquipeWindow(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/EquipeInterface.fxml"));
             Scene scene = new Scene(loader.load(), 1280, 780);

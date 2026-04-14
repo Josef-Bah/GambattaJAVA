@@ -4,9 +4,12 @@ import gambatta.tn.entites.tournois.inscriptiontournoi;
 import gambatta.tn.entites.tournois.equipe;
 import gambatta.tn.entites.tournois.tournoi;
 import javafx.scene.control.*;
-import javafx.scene.control.ComboBox;
 import gambatta.tn.services.tournoi.EquipeService;
 import gambatta.tn.services.tournoi.TournoiService;
+import gambatta.tn.services.tournoi.InscritournoiService;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -14,32 +17,20 @@ import java.util.List;
 
 public class InscritournoiController {
 
-    @FXML
-    private TableView<inscriptiontournoi> tableInscriptions;
-    @FXML
-    private TableColumn<inscriptiontournoi, Long> colId;
-    @FXML
-    private TableColumn<inscriptiontournoi, String> colEquipe;
-    @FXML
-    private TableColumn<inscriptiontournoi, String> colTournoi;
-    @FXML
-    private TableColumn<inscriptiontournoi, String> colStatus;
+    @FXML private TableView<inscriptiontournoi> tableInscriptions;
+    @FXML private TableColumn<inscriptiontournoi, Long> colId;
+    @FXML private TableColumn<inscriptiontournoi, String> colEquipe;
+    @FXML private TableColumn<inscriptiontournoi, String> colTournoi;
+    @FXML private TableColumn<inscriptiontournoi, String> colStatus;
 
-    @FXML
-    private ComboBox<equipe> comboEquipe;
-    @FXML
-    private ComboBox<tournoi> comboTournoi;
-    @FXML
-    private TextField txtSearch;
+    @FXML private ComboBox<equipe> comboEquipe;
+    @FXML private ComboBox<tournoi> comboTournoi;
+    @FXML private TextField txtSearch;
 
-    @FXML
-    private Button btnAjouter;
-    @FXML
-    private Button btnSupprimer;
-    @FXML
-    private Button btnPDF;
-    @FXML
-    private Button btnStats;
+    @FXML private Button btnAjouter;
+    @FXML private Button btnSupprimer;
+    @FXML private Button btnPDF;
+    @FXML private Button btnStats;
 
     private InscritournoiService service;
     private EquipeService equipeService = new EquipeService();
@@ -49,26 +40,21 @@ public class InscritournoiController {
     public void initialize() {
         service = new InscritournoiService();
 
-        // Charger les données dans les ComboBox
         comboEquipe.setItems(FXCollections.observableArrayList(equipeService.findAll()));
         comboTournoi.setItems(FXCollections.observableArrayList(tournoiService.findAll()));
 
-        // Configurer les colonnes TableView
         colId.setCellValueFactory(data -> new javafx.beans.property.SimpleLongProperty(data.getValue().getId()).asObject());
         colEquipe.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getEquipe().getNom()));
         colTournoi.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getTournoi().getNomt()));
         colStatus.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getStatus()));
 
-        // Charger toutes les inscriptions
         loadInscriptions();
 
-        // Boutons
         btnAjouter.setOnAction(e -> addInscription());
         btnSupprimer.setOnAction(e -> deleteInscription());
         btnPDF.setOnAction(e -> exportPDF());
         btnStats.setOnAction(e -> showStats());
 
-        // Recherche en temps réel
         txtSearch.textProperty().addListener((obs, oldVal, newVal) -> filterInscriptions(newVal));
     }
 
@@ -82,23 +68,25 @@ public class InscritournoiController {
         equipe selectedEquipe = comboEquipe.getSelectionModel().getSelectedItem();
         tournoi selectedTournoi = comboTournoi.getSelectionModel().getSelectedItem();
 
-        if (selectedEquipe != null && selectedTournoi != null) {
-            // Crée l'inscription
-            inscriptiontournoi i = new inscriptiontournoi();
-            i.setEquipe(selectedEquipe);
-            i.setTournoi(selectedTournoi);
-            i.setStatus(inscriptiontournoi.STATUS_PENDING);
+        if (selectedEquipe == null || selectedTournoi == null) {
+            showWarning("Veuillez sélectionner une équipe et un tournoi.");
+            return;
+        }
 
-            boolean saved = service.save(i);
-            if (saved) {
-                inscriptions.add(i);
-                comboEquipe.getSelectionModel().clearSelection();
-                comboTournoi.getSelectionModel().clearSelection();
-                tableInscriptions.refresh();
-            } else {
-                Alert alert = new Alert(Alert.AlertType.WARNING, "Impossible d'ajouter cette inscription !");
-                alert.showAndWait();
-            }
+        inscriptiontournoi i = new inscriptiontournoi();
+        i.setEquipe(selectedEquipe);
+        i.setTournoi(selectedTournoi);
+        i.setStatus(inscriptiontournoi.STATUS_PENDING);
+
+        boolean saved = service.save(i);
+        if (saved) {
+            showAlert("L'équipe " + selectedEquipe.getNom() + " a été inscrite avec succès !");
+            inscriptions.add(i);
+            comboEquipe.getSelectionModel().clearSelection();
+            comboTournoi.getSelectionModel().clearSelection();
+            tableInscriptions.refresh();
+        } else {
+            showError("Impossible d'ajouter cette inscription. L'équipe est peut-être déjà inscrite.");
         }
     }
 
@@ -120,24 +108,16 @@ public class InscritournoiController {
         File file = fileChooser.showSaveDialog(tableInscriptions.getScene().getWindow());
         if (file != null) {
             String pdfContent = service.generatePdf();
-            // Ici tu peux utiliser iText ou PDFBox pour créer un vrai PDF
             System.out.println("PDF exporté vers : " + file.getAbsolutePath());
-            System.out.println(pdfContent);
         }
     }
 
     private void showStats() {
-        // Exemples de stats
         long accepted = inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_ACCEPTED)).count();
         long pending = inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_PENDING)).count();
         long refused = inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_REFUSED)).count();
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION,
-                "Accepted: " + accepted + "\n" +
-                        "Pending: " + pending + "\n" +
-                        "Refused: " + refused);
-        alert.setHeaderText("Statistiques des inscriptions");
-        alert.showAndWait();
+        showAlert("Acceptées: " + accepted + "\nEn attente: " + pending + "\nRefusées: " + refused);
     }
 
     private void filterInscriptions(String search) {
@@ -153,5 +133,29 @@ public class InscritournoiController {
             }
             tableInscriptions.setItems(filtered);
         }
+    }
+
+    private void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showWarning(String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Attention");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erreur");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

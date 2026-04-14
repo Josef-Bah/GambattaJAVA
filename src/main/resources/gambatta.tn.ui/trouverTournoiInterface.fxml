@@ -5,36 +5,36 @@
 <?import javafx.scene.layout.*?>
 
 <AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.controllers.TrouverTournoiController"
-            prefWidth="900" prefHeight="600">
+            prefWidth="1000" prefHeight="600" styleClass="container" stylesheets="@style.css">
 
-    <VBox spacing="20" alignment="CENTER">
-        <padding>
-            <Insets top="20" right="20" bottom="20" left="20"/>
-        </padding>
-
+    <VBox spacing="40" alignment="CENTER" AnchorPane.topAnchor="60" AnchorPane.leftAnchor="100" AnchorPane.rightAnchor="100">
+        
         <!-- Titre -->
-        <VBox spacing="5" alignment="CENTER">
-            <Label text="Inscription au Tournoi" style="-fx-font-size:24px; -fx-font-weight:bold;"/>
-            <Label text="Inscrivez votre équipe et entrez dans la légende."/>
+        <VBox spacing="10" alignment="CENTER">
+            <Label text="INSCRIPTION AU TOURNOI" styleClass="title-label"/>
+            <Label text="Inscrivez votre équipe et entrez dans la légende." styleClass="subtitle-label"/>
         </VBox>
 
         <!-- Formulaire -->
-        <VBox spacing="15" style="-fx-background-color: #FFFFFF; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(two-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 1);">
+        <VBox spacing="25" maxWidth="500" styleClass="card" style="-fx-padding: 40;">
 
-            <VBox spacing="5">
-                <Label text="ÉTAPE 1: CHOISIR VOTRE ÉQUIPE"/>
-                <ComboBox fx:id="comboEquipe" promptText="Sélectionner une équipe..."/>
+            <VBox spacing="8">
+                <Label text="ÉTAPE 1: CHOISIR VOTRE ÉQUIPE" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="comboEquipe" promptText="Sélectionner une équipe..." maxWidth="Infinity"/>
             </VBox>
 
-            <VBox spacing="5">
-                <Label text="ÉTAPE 2: SÉLECTIONNER LE TOURNOI"/>
-                <ComboBox fx:id="comboTournoi" promptText="Choisir une compétition active..."/>
+            <VBox spacing="8">
+                <Label text="ÉTAPE 2: SÉLECTIONNER LE TOURNOI" style="-fx-font-weight: bold;"/>
+                <ComboBox fx:id="comboTournoi" promptText="Choisir une compétition active..." maxWidth="Infinity"/>
             </VBox>
 
-            <Button fx:id="btnEnvoyer" text="Envoyer la demande" style="-fx-background-color: #001F54; -fx-text-fill: #FFFFFF; -fx-font-weight: bold;"/>
-            <Label fx:id="lblRetour" text="← Annuler et retourner" style="-fx-font-size: 12px; -fx-text-fill: #666666; -fx-cursor: hand;"/>
+            <Button fx:id="btnEnvoyer" text="ENVOYER LA DEMANDE" styleClass="btn-primary" maxWidth="Infinity" style="-fx-padding: 15;"/>
+            
+            <HBox alignment="CENTER">
+                <Label fx:id="lblRetour" text="← Annuler et retourner" style="-fx-cursor: hand; -fx-text-fill: -fx-text-muted;"/>
+            </HBox>
         </VBox>
 
-        <Label text="Selon le mode de l'équipe, la demande sera validée par le leader ou par l'administrateur." style="-fx-font-size: 10px; -fx-text-fill: #999999;"/>
+        <Label text="Selon le mode de l'équipe, la demande sera validée par le leader ou par l'administrateur." style="-fx-font-size: 11px; -fx-text-fill: -fx-text-muted;"/>
     </VBox>
 </AnchorPane>

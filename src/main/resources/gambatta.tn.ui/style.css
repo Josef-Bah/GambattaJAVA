@@ -1,108 +1,141 @@
-/* Root / fond général */
+/* --- Global Variables & Root (Custom Palette) --- */
+:root {
+    -fx-black: #010203;
+    -fx-dark-blue: #000133;
+    -fx-royal-blue: #002366;
+    -fx-white: #FFFFFF;
+    -fx-gold: #C5B358;
+    
+    /* Mapping palette to functional roles */
+    -fx-primary-color: -fx-dark-blue;
+    -fx-secondary-color: -fx-gold;
+    -fx-background-alt: #F8FAFC;
+    -fx-text-main: -fx-black;
+    -fx-text-muted: #64748B;
+}
+
 .root {
-    -fx-background-color: #FFFFFF;
-    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-background-color: -fx-white;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
     -fx-font-size: 14px;
-    -fx-text-fill: #010203;
-    -fx-padding: 15px;
+    -fx-text-fill: -fx-text-main;
 }
 
-/* Panels / conteneurs */
-.pane {
-    -fx-background-color: #FFFFFF;
-    -fx-border-radius: 10px;
-    -fx-background-radius: 10px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);
-    -fx-padding: 10px;
+/* --- Layout Components --- */
+.container {
+    -fx-padding: 30px;
 }
 
-/* TableView */
-.table-view {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #C5B358;
-    -fx-border-radius: 8px;
-    -fx-padding: 5px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 1);
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 15, 0, 0, 5);
 }
 
-.table-view .column-header-background {
-    -fx-background-color: #C5B358;
-}
-
-.table-view .column-header,
-.table-view .column-header .label {
-    -fx-text-fill: #010203;
+/* --- Typography --- */
+.title-label {
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
-    -fx-alignment: CENTER;
+    -fx-text-fill: -fx-primary-color;
 }
 
-/* Table rows */
-.table-row-cell {
-    -fx-background-color: #FFFFFF;
-    -fx-text-fill: #010203;
-    -fx-border-color: transparent;
+.subtitle-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: -fx-text-muted;
 }
 
-.table-row-cell:filled:selected {
-    -fx-background-color: #FFF4C5;
-    -fx-text-fill: #010203; /* texte noir même en sélection */
-
+/* --- Form Fields --- */
+.text-field, .text-area {
+    -fx-background-color: white;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 10 15;
+    -fx-text-fill: -fx-text-main;
 }
 
-.table-row-cell:hover {
-    -fx-background-color: #FFF9E6;
-    -fx-text-fill: #010203; /* texte noir même en sélection */
-
+.text-field:focused, .text-area:focused {
+    -fx-border-color: -fx-royal-blue;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 35, 102, 0.2), 5, 0, 0, 0);
 }
 
-/* TextField */
-.text-field {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #C5B358;
-    -fx-border-radius: 6px;
-    -fx-background-radius: 6px;
-    -fx-padding: 6px 10px;
-    -fx-prompt-text-fill: #999999;
-    -fx-text-fill: #010203;
+.combo-box {
+    -fx-background-color: white;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
 }
-/* Pour les cellules sélectionnées dans TableColumn */
-.table-cell:selected {
-    -fx-background-color: #FFF4C5; /* doré clair */
-    -fx-text-fill: #010203; /* texte noir */
+
+.combo-box:focused {
+    -fx-border-color: -fx-royal-blue;
 }
-/* Buttons */
+
+/* --- Buttons (Stable Colors) --- */
 .button {
-    -fx-background-color: #C5B358;
-    -fx-text-fill: #010203;
+    -fx-background-radius: 8;
     -fx-font-weight: bold;
-    -fx-background-radius: 8px;
-    -fx-padding: 8px 15px;
+    -fx-padding: 10 20;
     -fx-cursor: hand;
-    -fx-border-color: #C5B358;
-    -fx-border-width: 1px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 2);
 }
 
 .button:hover {
-    -fx-background-color: #FFD966;
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 2);
 }
 
-.button:pressed {
-    -fx-background-color: #BFA33A;
+/* Principal (Action) - Gold */
+.btn-primary {
+    -fx-background-color: -fx-secondary-color;
+    -fx-text-fill: -fx-black;
 }
 
-/* Labels */
-.label {
-    -fx-text-fill: #010203;
+/* Secondary (Navigation) - Dark Blue */
+.btn-secondary {
+    -fx-background-color: -fx-primary-color;
+    -fx-text-fill: -fx-secondary-color; /* Gold Text as requested */
 }
 
-/* ScrollBar */
-.scroll-bar:vertical .thumb {
-    -fx-background-color: #C5B358;
-    -fx-background-radius: 4px;
+/* Accent (Royal) - Royal Blue */
+.btn-accent {
+    -fx-background-color: -fx-royal-blue;
+    -fx-text-fill: -fx-secondary-color; /* Gold Text */
 }
 
-.scroll-bar:horizontal .thumb {
-    -fx-background-color: #C5B358;
-    -fx-background-radius: 4px;
+/* Danger (Delete) - Red */
+.btn-danger {
+    -fx-background-color: #A63D40; /* Red base */
+    -fx-text-fill: -fx-secondary-color; /* Gold Text as requested in photo */
+}
+
+/* Outline - Simple Border */
+.btn-outline {
+    -fx-background-color: transparent;
+    -fx-border-color: #CBD5E1;
+    -fx-text-fill: -fx-text-muted;
+}
+
+/* --- TableView --- */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -fx-background-alt;
+    -fx-padding: 5;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -fx-primary-color;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #E2E8F0;
+    -fx-text-fill: -fx-primary-color;
 }

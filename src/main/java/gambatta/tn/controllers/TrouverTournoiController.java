@@ -9,7 +9,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-
 import javafx.scene.control.Label;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -21,13 +20,10 @@ public class TrouverTournoiController {
 
     @FXML
     private ComboBox<equipe> comboEquipe;
-
     @FXML
     private ComboBox<tournoi> comboTournoi;
-
     @FXML
     private Button btnEnvoyer;
-
     @FXML
     private Label lblRetour;
 
@@ -36,39 +32,34 @@ public class TrouverTournoiController {
 
     @FXML
     public void initialize() {
-        // Retour à l'interface d'inscription
         lblRetour.setOnMouseClicked(e -> goBack());
-        // Charger les équipes depuis la base
+        
         List<equipe> equipes = equipeService.findAll();
         comboEquipe.setItems(FXCollections.observableArrayList(equipes));
 
-        // Charger les tournois depuis la base
         List<tournoi> tournois = tournoiService.findAll();
         comboTournoi.setItems(FXCollections.observableArrayList(tournois));
 
-        // Bouton envoyer
         btnEnvoyer.setOnAction(e -> {
             equipe selectedEquipe = comboEquipe.getSelectionModel().getSelectedItem();
             tournoi selectedTournoi = comboTournoi.getSelectionModel().getSelectedItem();
 
             if (selectedEquipe == null || selectedTournoi == null) {
-                showAlert("Veuillez sélectionner une équipe et un tournoi.");
+                showWarning("Veuillez sélectionner une équipe et un tournoi.");
                 return;
             }
 
-            // Ici tu peux appeler ton service d'inscription
-            System.out.println("Demande envoyée : Équipe = " + selectedEquipe.getNom()
-                    + ", Tournoi = " + selectedTournoi.getNomt());
-
-            showAlert("Inscription envoyée pour l'équipe " + selectedEquipe.getNom()
+            // Simulating enrollment logic (the user hasn't provided a specific enrollment service yet)
+            showAlert("Demande d'inscription envoyée avec succès pour l'équipe " + selectedEquipe.getNom()
                     + " au tournoi " + selectedTournoi.getNomt());
+            goBack();
         });
     }
 
     private void goBack() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/InscriptionEquipeInterface.fxml"));
-            Scene scene = new Scene(loader.load(), 1000, 600);
+            Scene scene = new Scene(loader.load(), 1000, 700);
             scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
             Stage stage = (Stage) lblRetour.getScene().getWindow();
             stage.setScene(scene);
@@ -80,7 +71,15 @@ public class TrouverTournoiController {
 
     private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Info");
+        alert.setTitle("Information");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showWarning(String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Attention");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

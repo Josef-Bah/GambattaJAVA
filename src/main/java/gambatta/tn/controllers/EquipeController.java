@@ -6,6 +6,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -108,10 +109,29 @@ public class EquipeController {
         txtSearch.textProperty().addListener((obs, oldVal, newVal) -> filterEquipes(newVal));
     }
 
+    @FXML
+    public void showStats(ActionEvent event) {
+        long total = equipes.size();
+        long enAttente = equipes.stream().filter(e -> "EN_ATTENTE".equals(e.getStatus())).count();
+        long valide = equipes.stream().filter(e -> "VALIDE".equals(e.getStatus())).count();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Statistiques des Équipes");
+        alert.setHeaderText("Résumé des participations");
+        alert.setContentText("Total d'équipes : " + total + "\n" +
+                             "En attente : " + enAttente + "\n" +
+                             "Validées : " + valide);
+        alert.showAndWait();
+    }
+
     private void addEquipe() {
         String nom = txtNom.getText().trim();
         String leader = txtLeader.getText().trim();
-        if (nom.isEmpty() || leader.isEmpty()) return;
+
+        if (nom.isEmpty() || leader.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Champs requis", "Veuillez remplir les champs Nom et Capitaine.");
+            return;
+        }
 
         equipe selected = tableEquipes.getSelectionModel().getSelectedItem();
         if (selected != null) {
@@ -119,8 +139,11 @@ public class EquipeController {
             selected.setNom(nom);
             selected.setTeamLeader(leader);
             if (equipeService.save(selected)) {
+                showAlert(Alert.AlertType.INFORMATION, "Succès", "L'équipe a été modifiée avec succès.");
                 tableEquipes.refresh();
                 clearFields();
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de modifier l'équipe. Le nom est peut-être déjà pris.");
             }
         } else {
             // Ajout
@@ -129,10 +152,21 @@ public class EquipeController {
             e.setTeamLeader(leader);
             e.setStatus("EN_ATTENTE");
             if (equipeService.save(e)) {
+                showAlert(Alert.AlertType.INFORMATION, "Succès", "L'équipe a été ajoutée avec succès.");
                 equipes.add(e);
                 clearFields();
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible d'ajouter l'équipe. Le nom est peut-être déjà pris.");
             }
         }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private void clearFields() {

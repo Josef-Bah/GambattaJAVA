@@ -2,31 +2,46 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="gambatta.tn.controllers.TournoiController">
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.controllers.TournoiController"
+            prefWidth="1000" prefHeight="700" styleClass="container" stylesheets="@style.css">
 
-    <!-- Champs de saisie -->
-    <TextField fx:id="nomField" promptText="Nom tournoi" />
-    <TextField fx:id="descField" promptText="Description" />
-    <ComboBox fx:id="cmbStatut" promptText="Statut" prefWidth="200"/>
+    <VBox spacing="25" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">
+        
+        <VBox spacing="5">
+            <Label text="Gestion des Tournois" styleClass="title-label"/>
+            <Label text="Créez et gérez les compétitions actives." styleClass="subtitle-label"/>
+        </VBox>
 
-    <!-- Boutons -->
-    <HBox spacing="10">
-        <Button text="Ajouter / Modifier" onAction="#addTournoi" />
-        <Button fx:id="btnPDF" text="Exporter PDF"/>
-        <Button text="Equipe" onAction="#openEquipeWindow" />
-    </HBox>
+        <VBox spacing="20" styleClass="card" style="-fx-padding: 20;">
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <TextField fx:id="nomField" promptText="Nom du tournoi" HBox.hgrow="ALWAYS"/>
+                <ComboBox fx:id="cmbStatut" promptText="Choisir un statut" prefWidth="200"/>
+                <Button text="ENREGISTRER" onAction="#addTournoi" styleClass="btn-primary"/>
+                <Button text="+ NOUVEAU" onAction="#handleNewTournoi" styleClass="btn-secondary"/>
+            </HBox>
 
-    <!-- TableView -->
-    <TableView fx:id="table" prefHeight="400" prefWidth="500">
-        <columns>
-            <TableColumn fx:id="idCol" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="nomCol" text="Nom" prefWidth="200"/>
-            <TableColumn fx:id="statutCol" text="Statut" prefWidth="100"/>
-            <TableColumn fx:id="colModifier" text="Modifier" prefWidth="100"/>
-            <TableColumn fx:id="colSupprimer" text="Supprimer" prefWidth="100"/>
-        </columns>
-    </TableView>
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <TextField fx:id="descField" promptText="Description du tournoi" HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnPDF" text="EXPORTER PDF" styleClass="btn-outline"/>
+                <Button text="STATS" onAction="#showStats" styleClass="btn-secondary"/>
+                <Button text="GÉRER ÉQUIPES" onAction="#openEquipeWindow" styleClass="btn-secondary"/>
+            </HBox>
+        </VBox>
 
-</VBox>
+        <TableView fx:id="table" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="idCol" text="ID" prefWidth="60"/>
+                <TableColumn fx:id="nomCol" text="Nom du Tournoi" prefWidth="300"/>
+                <TableColumn fx:id="statutCol" text="Statut" prefWidth="150"/>
+                <TableColumn fx:id="colModifier" text="Modifier" prefWidth="100"/>
+                <TableColumn fx:id="colSupprimer" text="Supprimer" prefWidth="110"/>
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+        </TableView>
+
+    </VBox>
+</AnchorPane>
