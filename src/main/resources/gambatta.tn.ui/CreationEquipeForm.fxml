@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.controllers.CreationEquipeController"
+            prefWidth="1000" prefHeight="700" styleClass="container" stylesheets="@style.css">
+
+    <VBox spacing="30" AnchorPane.topAnchor="40" AnchorPane.leftAnchor="100" AnchorPane.rightAnchor="100" alignment="TOP_CENTER">
+        
+        <VBox spacing="10" alignment="CENTER">
+            <Label text="CRÉEZ VOTRE ÉQUIPE" styleClass="title-label" />
+            <Label text="Donnez une identité unique à votre futur club." styleClass="subtitle-label" />
+        </VBox>
+
+        <VBox spacing="25" styleClass="card" style="-fx-padding: 40;">
+            <GridPane hgap="30" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10" prefWidth="100.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10" prefWidth="100.0" />
+                </columnConstraints>
+                
+                <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label text="NOM DE L'ÉQUIPE *" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtNom" promptText="Ex: Les Lions du Désert" />
+                </VBox>
+
+                <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label text="CAPITAINE *" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtLeader" promptText="Entrez votre nom" />
+                </VBox>
+
+                <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <Label text="COACH" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtCoach" promptText="Nom de l'entraineur" />
+                </VBox>
+
+                <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <Label text="LOGO (URL)" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtLogo" promptText="Lien vers l'image" />
+                </VBox>
+
+                <VBox spacing="8" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                    <Label text="TITRES ET PALMARÈS" style="-fx-font-weight: bold;"/>
+                    <TextField fx:id="txtTitres" promptText="Ex: Champion 2023, Finaliste 2024..." />
+                </VBox>
+
+                <VBox spacing="8" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                    <Label text="OBJECTIFS DE L'ÉQUIPE" style="-fx-font-weight: bold;"/>
+                    <TextArea fx:id="txtObjectifs" promptText="Décrivez l'ambition de votre équipe..." prefHeight="100" />
+                </VBox>
+            </GridPane>
+
+            <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 20 0 0 0;">
+                <Button text="ANNULER" onAction="#handleAnnuler" styleClass="btn-outline"/>
+                <Button text="ENREGISTRER L'ÉQUIPE" onAction="#handleSave" styleClass="btn-primary" style="-fx-padding: 12 25;"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</AnchorPane>

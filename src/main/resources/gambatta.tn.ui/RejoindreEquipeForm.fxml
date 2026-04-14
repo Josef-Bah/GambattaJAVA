@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.controllers.RejoindreEquipeController"
+            prefWidth="1000" prefHeight="700" styleClass="container" stylesheets="@style.css">
+
+    <VBox spacing="40" AnchorPane.topAnchor="80" AnchorPane.leftAnchor="150" AnchorPane.rightAnchor="150" alignment="CENTER">
+        
+        <VBox spacing="10" alignment="CENTER">
+            <Label text="REJOINDRE UNE ÉQUIPE" styleClass="title-label" />
+            <Label text="Trouvez vos futurs coéquipiers et préparez-vous pour l'action." styleClass="subtitle-label" />
+        </VBox>
+
+        <VBox spacing="30" maxWidth="500" styleClass="card" style="-fx-padding: 40;">
+            
+            <VBox spacing="10">
+                <Label text="VOTRE NOM COMPLET *" style="-fx-font-weight:bold;" />
+                <TextField fx:id="txtPlayerName" promptText="Entrez votre nom" />
+            </VBox>
+
+            <VBox spacing="10">
+                <Label text="CHOISIR UNE ÉQUIPE *" style="-fx-font-weight:bold;" />
+                <ComboBox fx:id="comboEquipeSelection" promptText="Sélectionner une équipe..." maxWidth="Infinity" />
+            </VBox>
+
+            <Button text="ENVOYER MA DEMANDE" onAction="#handleEnvoyerDemande" maxWidth="Infinity" styleClass="btn-primary" style="-fx-padding: 15;" />
+        </VBox>
+
+        <HBox alignment="CENTER">
+            <Button text="← RETOUR" onAction="#handleRetour" styleClass="btn-outline" />
+        </HBox>
+    </VBox>
+</AnchorPane>
