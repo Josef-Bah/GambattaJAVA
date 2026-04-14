@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gambatta.tn.ui.ActiviteFrontController"
+            styleClass="root" stylesheets="@style.css">
+
+    <top>
+        <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-background-color: #1e293b; -fx-padding: 15 30 15 30; -fx-border-color: #334155; -fx-border-width: 0 0 1 0;">
+            <Label text="GAMBATTA" styleClass="title" style="-fx-font-size: 24px;"/>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="👨‍💻 Back-Office" onAction="#handleBackOffice" styleClass="btn-secondary"/>
+            <Button text="📅 Mes Réservations" onAction="#handleMesReservations" styleClass="btn-primary"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="25" style="-fx-padding: 30 50 30 50;">
+            
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <VBox>
+                    <Label text="Découvrez nos Activités" styleClass="title"/>
+                    <Label text="Réservez votre place dans l'univers Gambatta" styleClass="subtitle"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                
+                <TextField fx:id="searchBar" promptText="🔍 Rechercher une activité..." styleClass="search-field" prefWidth="250" onKeyReleased="#handleSearch"/>
+                
+                <ComboBox fx:id="sortCombo" promptText="Trier par..." styleClass="search-field" onAction="#handleSort"/>
+                
+                <Button text="📄 PDF" onAction="#handleExportPDF" styleClass="btn-secondary" />
+                <Button text="🔊 Lire (TTS)" onAction="#handleTTS" styleClass="btn-icon" />
+            </HBox>
+            
+            <ScrollPane fitToWidth="true" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
+                <FlowPane fx:id="activitiesPane" hgap="25" vgap="25" prefWrapLength="1000"/>
+            </ScrollPane>
+
+        </VBox>
+    </center>
+
+</BorderPane>

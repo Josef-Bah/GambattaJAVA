@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.paint.Color?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gambatta.tn.ui.MapController"
+      alignment="CENTER" spacing="20" style="-fx-background-color: #020617; -fx-padding: 30;" stylesheets="@style.css">
+
+    <Label fx:id="locationLabel" styleClass="title" />
+    <Label text="Voici où se trouve cette activité au sein du complexe" styleClass="subtitle"/>
+
+    <!-- Placeholder for an image map -->
+    <StackPane>
+        <Rectangle width="500" height="250" arcWidth="20" arcHeight="20" fill="#1e293b" stroke="#e6c86e" strokeWidth="2" />
+        <Label text="🗺️ Carte du complexe en 2D" style="-fx-text-fill: white; -fx-font-size: 20px;"/>
+        
+        <!-- Placeholder Pin -->
+        <Label text="📍" style="-fx-text-fill: red; -fx-font-size: 30px;" translateY="-30" translateX="50"/>
+    </StackPane>
+
+    <Button fx:id="closeBtn" text="Fermer" onAction="#closeWindow" styleClass="btn-primary" />
+
+</VBox>

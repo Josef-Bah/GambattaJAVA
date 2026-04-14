@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gambatta.tn.ui.ActiviteBackController"
+            styleClass="root" stylesheets="@style.css">
+
+    <top>
+        <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-background-color: #1e293b; -fx-padding: 15 30 15 30; -fx-border-color: #334155; -fx-border-width: 0 0 1 0;">
+            <Button text="⬅ Front-Office" onAction="#handleBackFront" styleClass="btn-secondary"/>
+            <Label text="GAMBATTA - ADMIN DASHBOARD" styleClass="title" style="-fx-font-size: 24px;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TabPane>
+            <!-- TAB 1: ACTIVITES -->
+            <Tab text="Gestion Activités" closable="false">
+                <HBox spacing="20" style="-fx-padding: 20;">
+                    <TableView fx:id="tableActivites" HBox.hgrow="ALWAYS" styleClass="search-field">
+                        <columns>
+                            <TableColumn fx:id="colActNom" text="Nom" prefWidth="150" />
+                            <TableColumn fx:id="colActType" text="Type" prefWidth="150" />
+                            <TableColumn fx:id="colActAdresse" text="Adresse" prefWidth="150" />
+                        </columns>
+                    </TableView>
+                    <VBox spacing="10" prefWidth="300" styleClass="card">
+                        <Label text="Détails" styleClass="card-title"/>
+                        <TextField fx:id="tfActNom" promptText="Nom" styleClass="search-field"/>
+                        <TextField fx:id="tfActType" promptText="Type" styleClass="search-field"/>
+                        <TextField fx:id="tfActDispo" promptText="Disponibilité" styleClass="search-field"/>
+                        <TextField fx:id="tfActAdresse" promptText="Adresse" styleClass="search-field"/>
+                        <TextArea fx:id="taActDesc" promptText="Description" prefRowCount="3" styleClass="search-field"/>
+                        <HBox spacing="10" alignment="CENTER">
+                            <Button text="Ajouter" onAction="#addActivite" styleClass="btn-primary"/>
+                            <Button text="Modifier" onAction="#updateActivite" styleClass="btn-secondary"/>
+                            <Button text="Sup" onAction="#deleteActivite" styleClass="btn-secondary" style="-fx-text-fill: red;"/>
+                        </HBox>
+                    </VBox>
+                </HBox>
+            </Tab>
+
+            <!-- TAB 2: RULES -->
+            <Tab text="Gestion Règles (Rules)" closable="false">
+                <HBox spacing="20" style="-fx-padding: 20;">
+                    <TableView fx:id="tableRules" HBox.hgrow="ALWAYS" styleClass="search-field">
+                        <columns>
+                            <TableColumn fx:id="colRuleId" text="ID" prefWidth="50" />
+                            <TableColumn fx:id="colRuleAct" text="Activité" prefWidth="150" />
+                            <TableColumn fx:id="colRuleDesc" text="Description" prefWidth="250" />
+                        </columns>
+                    </TableView>
+                    <VBox spacing="10" prefWidth="300" styleClass="card">
+                        <Label text="Règle" styleClass="card-title"/>
+                        <ComboBox fx:id="cbRuleActivite" promptText="Associer à l'activité..." prefWidth="Infinity" styleClass="search-field"/>
+                        <TextArea fx:id="taRuleDesc" promptText="Contenu de la règle" prefRowCount="4" styleClass="search-field"/>
+                        <HBox spacing="10" alignment="CENTER">
+                            <Button text="Ajouter" onAction="#addRule" styleClass="btn-primary"/>
+                            <Button text="Modifier" onAction="#updateRule" styleClass="btn-secondary"/>
+                            <Button text="Sup" onAction="#deleteRule" styleClass="btn-secondary" style="-fx-text-fill: red;"/>
+                        </HBox>
+                    </VBox>
+                </HBox>
+            </Tab>
+
+            <!-- TAB 3: RESERVATIONS -->
+            <Tab text="Validation Réservations" closable="false">
+                <HBox spacing="20" style="-fx-padding: 20;">
+                    <TableView fx:id="tableReservations" HBox.hgrow="ALWAYS" styleClass="search-field">
+                        <columns>
+                            <TableColumn fx:id="colResAct" text="Activité" prefWidth="150" />
+                            <TableColumn fx:id="colResDate" text="Date" prefWidth="100" />
+                            <TableColumn fx:id="colResHeure" text="Heure" prefWidth="100" />
+                            <TableColumn fx:id="colResStatut" text="Statut" prefWidth="150" />
+                        </columns>
+                    </TableView>
+                    <VBox spacing="20" prefWidth="300" styleClass="card" alignment="CENTER">
+                        <Label text="Action Administrateur" styleClass="card-title"/>
+                        <Button text="✅ VALIDER" onAction="#validerReservation" prefWidth="200" styleClass="btn-primary" style="-fx-background-color: #2ed573;"/>
+                        <Button text="❌ REFUSER" onAction="#refuserReservation" prefWidth="200" styleClass="btn-secondary" style="-fx-border-color: #ff4757; -fx-text-fill: #ff4757;"/>
+                    </VBox>
+                </HBox>
+            </Tab>
+        </TabPane>
+    </center>
+
+</BorderPane>

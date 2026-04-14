@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gambatta.tn.ui.MesReservationsController"
+            styleClass="root" stylesheets="@style.css">
+
+    <top>
+        <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-background-color: #1e293b; -fx-padding: 15 30 15 30; -fx-border-color: #334155; -fx-border-width: 0 0 1 0;">
+            <Button text="⬅ Retour" onAction="#handleBack" styleClass="btn-secondary"/>
+            <Label text="Mes Réservations" styleClass="title" style="-fx-font-size: 24px;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <HBox spacing="30" style="-fx-padding: 30 50 30 50;" alignment="CENTER">
+            
+            <VBox spacing="15" HBox.hgrow="ALWAYS">
+                <TableView fx:id="tableReservations" VBox.vgrow="ALWAYS" styleClass="search-field">
+                    <columns>
+                        <TableColumn fx:id="colActivite" text="Activité" prefWidth="150" />
+                        <TableColumn fx:id="colDate" text="Date" prefWidth="100"/>
+                        <TableColumn fx:id="colHeure" text="Heure" prefWidth="100"/>
+                        <TableColumn fx:id="colStatut" text="Statut" prefWidth="150"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <VBox spacing="15" prefWidth="300" styleClass="card">
+                <Label text="Gérer ma réservation" styleClass="card-title" />
+                
+                <Label text="Activité" styleClass="subtitle"/>
+                <ComboBox fx:id="activiteCombo" prefWidth="Infinity" styleClass="search-field"/>
+
+                <Label text="Date" styleClass="subtitle"/>
+                <DatePicker fx:id="datePicker" prefWidth="Infinity" styleClass="search-field"/>
+
+                <Label text="Heure" styleClass="subtitle"/>
+                <TextField fx:id="tfHeure" promptText="Ex: 10:30" styleClass="search-field"/>
+
+                <HBox spacing="10" alignment="CENTER">
+                    <Button text="Ajouter" onAction="#handleAdd" styleClass="btn-primary" />
+                    <Button text="Modifier" onAction="#handleModify" styleClass="btn-secondary" />
+                    <Button text="Supprimer" onAction="#handleDelete" styleClass="btn-secondary" style="-fx-border-color: #ff4757; -fx-text-fill: #ff4757;"/>
+                </HBox>
+            </VBox>
+
+        </HBox>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gambatta.tn.ui.DetailsActiviteController"
+            styleClass="root">
+
+    <top>
+        <Label fx:id="activityName" styleClass="title"/>
+    </top>
+
+    <center>
+        <VBox>
+            <Label fx:id="activityDescription"/>
+            <Label fx:id="activityStatus"/>
+        </VBox>
+    </center>
+
+    <bottom>
+        <Button text="Retour" onAction="#handleRetour"/>
+    </bottom>
+</BorderPane>
