@@ -1,5 +1,5 @@
 .root {
-    -fx-background-color: linear-gradient(to bottom right, #020617, #0f172a);
+    -fx-background-color: linear-gradient(to bottom right, #050b14 0%, #172a46 45%, #1e293b 70%, #020617 100%);
     -fx-font-family: "Segoe UI", "Arial", sans-serif;
 }
 
@@ -131,4 +131,71 @@
 .scroll-bar:vertical .thumb, .scroll-bar:horizontal .thumb {
     -fx-background-color: #e6c86e;
     -fx-background-radius: 10;
+}
+
+/* PREMIUM TABLE VIEW CUSTOMIZATION */
+.table-view {
+    -fx-background-color: rgba(15, 23, 42, 0.5);
+    -fx-border-color: rgba(255, 215, 0, 0.3);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 5;
+}
+.table-view .column-header-background {
+    -fx-background-color: rgba(30, 41, 59, 0.9);
+    -fx-background-radius: 10 10 0 0;
+}
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: transparent;
+    -fx-size: 45px;
+}
+.table-view .column-header .label {
+    -fx-text-fill: #FFD700;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+.table-row-cell {
+    -fx-background-color: rgba(15, 23, 42, 0.7);
+    -fx-text-fill: white;
+    -fx-cell-size: 40px;
+    -fx-border-color: transparent transparent rgba(255,255,255,0.05) transparent;
+}
+.table-row-cell:odd {
+    -fx-background-color: rgba(30, 41, 59, 0.5);
+}
+.table-row-cell:hover {
+    -fx-background-color: rgba(230, 200, 110, 0.15);
+}
+.table-row-cell:selected {
+    -fx-background-color: rgba(255, 215, 0, 0.2);
+    -fx-border-color: #FFD700;
+}
+.table-cell {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER-LEFT;
+}
+
+/* PREMIUM TAB PANE ESPORTS CUSTOMIZATION */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: rgba(15, 23, 42, 0.9);
+}
+.tab-pane .tab {
+    -fx-background-color: rgba(30, 41, 59, 0.5);
+    -fx-padding: 10 30;
+    -fx-background-radius: 10 10 0 0;
+    -fx-cursor: hand;
+}
+.tab-pane .tab:selected {
+    -fx-background-color: linear-gradient(to right, #FFD700, #ff9f43);
+}
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #020617;
+    -fx-font-weight: 900;
+    -fx-font-size: 14px;
+}
+.tab-pane .tab-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
 }

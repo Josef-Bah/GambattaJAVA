@@ -8,7 +8,7 @@
             styleClass="root" stylesheets="@style.css">
 
     <top>
-        <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-background-color: #1e293b; -fx-padding: 15 30 15 30; -fx-border-color: #334155; -fx-border-width: 0 0 1 0;">
+        <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-background-color: rgba(30, 41, 59, 0.9); -fx-padding: 15 30 15 30; -fx-border-color: #334155; -fx-border-width: 0 0 1 0;">
             <Label text="GAMBATTA" styleClass="title" style="-fx-font-size: 24px;"/>
             <Region HBox.hgrow="ALWAYS" />
             <Button text="👨‍💻 Back-Office" onAction="#handleBackOffice" styleClass="btn-secondary"/>
@@ -17,7 +17,7 @@
     </top>
 
     <center>
-        <VBox spacing="25" style="-fx-padding: 30 50 30 50;">
+        <VBox spacing="25" style="-fx-padding: 15;">
             
             <HBox alignment="CENTER_LEFT" spacing="15">
                 <VBox>
@@ -31,11 +31,13 @@
                 <ComboBox fx:id="sortCombo" promptText="Trier par..." styleClass="search-field" onAction="#handleSort"/>
                 
                 <Button text="📄 PDF" onAction="#handleExportPDF" styleClass="btn-secondary" />
+                <Button text="📊 Stats" onAction="#handleShowStats" styleClass="btn-secondary" />
                 <Button text="🔊 Lire (TTS)" onAction="#handleTTS" styleClass="btn-icon" />
             </HBox>
             
-            <ScrollPane fitToWidth="true" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
-                <FlowPane fx:id="activitiesPane" hgap="25" vgap="25" prefWrapLength="1000"/>
+            <!-- Removed padding and set fitToWidth to make elements adapt properly across a real full page layout -->
+            <ScrollPane fitToWidth="true" styleClass="scroll-pane" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent;">
+                <TilePane fx:id="activitiesPane" hgap="25" vgap="25" alignment="CENTER" prefColumns="4" style="-fx-padding: 30;"/>
             </ScrollPane>
 
         </VBox>

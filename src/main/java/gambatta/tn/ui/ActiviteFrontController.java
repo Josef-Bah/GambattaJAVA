@@ -15,7 +15,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -34,7 +33,7 @@ import java.util.stream.Collectors;
 
 public class ActiviteFrontController {
 
-    @FXML private FlowPane activitiesPane;
+    @FXML private TilePane activitiesPane;
     @FXML private TextField searchBar;
     @FXML private ComboBox<String> sortCombo;
 
@@ -63,7 +62,7 @@ public class ActiviteFrontController {
 
     private VBox createCard(activite a) {
         VBox card = new VBox();
-        card.setPrefWidth(300);
+        card.setPrefWidth(320); // Slightly wider to fill screen better
         card.getStyleClass().add("card");
         
         // Interactive E-Sport effect
@@ -80,48 +79,58 @@ public class ActiviteFrontController {
 
         // 1. IMAGE HEADER with Overlays (StackPane)
         StackPane imageHeader = new StackPane();
-        imageHeader.setPrefHeight(170);
+        imageHeader.setPrefHeight(180);
         
         ImageView imageView = new ImageView();
         try {
             String dbImage = a.getImagea();
-            Image img = null;
-            
-            // For local development reliability, directly reference the src folder paths
-            String basePath = "src/main/resources/activites/images/";
+            Image finalImg = null;
             
             if (dbImage != null && !dbImage.trim().isEmpty()) {
                 if (dbImage.startsWith("http") || dbImage.startsWith("file:")) {
-                    img = new Image(dbImage);
+                    finalImg = new Image(dbImage);
                 } else {
-                    java.io.File file = new java.io.File(dbImage);
-                    if (file.exists()) img = new Image(file.toURI().toString());
+                    java.io.File fb = new java.io.File(dbImage);
+                    if (fb.exists()) finalImg = new Image(fb.toURI().toString());
+                    else {
+                        try {
+                            java.net.URL dbUrl = getClass().getResource("/activites/images/" + dbImage);
+                            if (dbUrl != null) finalImg = new Image(dbUrl.toExternalForm());
+                        } catch (Exception x) { }
+                    }
                 }
             }
             
             // Smart Match if no specific image
-            if (img == null || img.isError()) {
+            if (finalImg == null || finalImg.isError()) {
                 String noma = a.getNoma().toLowerCase();
-                String fileName = "default.png";
+                String fileName = null;
                 if (noma.contains("nba") || noma.contains("2k")) fileName = "nba.png";
                 else if (noma.contains("call of duty") || noma.contains("cod") || noma.contains("black ops")) fileName = "cod.png";
                 else if (noma.contains("fifa") || noma.contains("fc")) fileName = "fifa.png";
                 else if (noma.contains("counter") || noma.contains("csgo") || noma.contains("cs")) fileName = "csgo.png";
                 
-                java.io.File fileLocal = new java.io.File(basePath + fileName);
-                if (fileLocal.exists()) {
-                    img = new Image(fileLocal.toURI().toString());
-                } else {
-                    img = new Image(getClass().getResourceAsStream("/activites/images/" + fileName));
+                if (fileName != null) {
+                    try {
+                         java.net.URL resUrl = getClass().getResource("/activites/images/" + fileName);
+                         if (resUrl != null) finalImg = new Image(resUrl.toExternalForm());
+                    } catch (Exception ez) {}
                 }
             }
-            if (img != null) imageView.setImage(img);
+            
+            // Fallback for custom games (GOLF, WOW, TENNIS, ISRAAA) to guarantee unique images!
+            if (finalImg == null || finalImg.isError()) {
+                int seed = Math.abs(a.getNoma().hashCode());
+                finalImg = new Image("https://picsum.photos/seed/" + seed + "/320/180");
+            }
+            
+            imageView.setImage(finalImg);
         } catch (Exception ex) {
-            System.out.println("Image err: " + ex.getMessage());
+            System.out.println("Image loading err: " + ex.getMessage());
         }
         
-        imageView.setFitWidth(300);
-        imageView.setFitHeight(170);
+        imageView.setFitWidth(320);
+        imageView.setFitHeight(180);
         imageView.setPreserveRatio(false);
 
         // Gradient Overlay over the image
@@ -145,59 +154,61 @@ public class ActiviteFrontController {
         VBox actionsArea = new VBox(15);
         actionsArea.setPadding(new javafx.geometry.Insets(15));
         
-        // Primary Button
-        Button btnReserver = new Button("RÉSERVER LA SESSION");
+        // Ligne 1: Reserver et Details
+        HBox primaryActions = new HBox(10);
+        primaryActions.setAlignment(Pos.CENTER);
+        Button btnReserver = new Button("Réserver");
         btnReserver.getStyleClass().add("btn-primary");
         btnReserver.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(btnReserver, Priority.ALWAYS);
         btnReserver.setStyle("-fx-font-size: 15px; -fx-padding: 12px;");
         btnReserver.setOnAction(e -> reserver(a));
 
-        // Secondary Buttons
-        HBox secondaryActions = new HBox(10);
-        secondaryActions.setAlignment(Pos.CENTER);
-        
-        Button btnDetails = new Button("Info");
+        Button btnDetails = new Button("Détails");
         btnDetails.getStyleClass().add("btn-secondary");
         btnDetails.setOnAction(e -> showDetails(a));
         
-        Button btnMap = new Button("Map");
-        btnMap.getStyleClass().add("btn-secondary");
+        primaryActions.getChildren().addAll(btnReserver, btnDetails);
+
+        // Ligne 2 : Boutons d'icone comme avant!
+        HBox secondaryActions = new HBox(10);
+        secondaryActions.setAlignment(Pos.CENTER_LEFT);
+        
+        Button btnMap = new Button("📍");
+        btnMap.getStyleClass().add("btn-icon");
+        btnMap.setTooltip(new Tooltip("Emplacement"));
         btnMap.setOnAction(e -> showMap(a));
 
-        Button btnCalendar = new Button("Date");
-        btnCalendar.getStyleClass().add("btn-secondary");
+        Button btnCalendar = new Button("📅");
+        btnCalendar.getStyleClass().add("btn-icon");
+        btnCalendar.setTooltip(new Tooltip("Calendrier"));
         btnCalendar.setOnAction(e -> showCalendar());
 
-        Button btnFav = new Button(a.isAfav() ? "★ Fav" : "☆ Fav");
-        btnFav.getStyleClass().add("btn-secondary");
-        if(a.isAfav()) btnFav.setStyle("-fx-text-fill: #FFD700; -fx-border-color: #FFD700;");
+        Button btnFav = new Button(a.isAfav() ? "❤️" : "🤍");
+        btnFav.getStyleClass().add("btn-fav");
+        btnFav.setStyle("-fx-font-size: 20px;");
+        btnFav.setTooltip(new Tooltip("Favoris"));
         btnFav.setOnAction(e -> toggleFavText(a, btnFav));
 
-        secondaryActions.getChildren().addAll(btnDetails, btnMap, btnCalendar, btnFav);
+        secondaryActions.getChildren().addAll(btnMap, btnCalendar, btnFav);
 
-        actionsArea.getChildren().addAll(btnReserver, secondaryActions);
+        actionsArea.getChildren().addAll(primaryActions, secondaryActions);
 
         card.getChildren().addAll(imageHeader, actionsArea);
-        card.setPadding(new javafx.geometry.Insets(0)); // Remove default padding to let image bleed to edges
+        card.setPadding(new javafx.geometry.Insets(0)); // Remove default padding
         return card;
     }
     
     private void toggleFavText(activite a, Button btn) {
         a.setAfav(!a.isAfav());
         activiteService.update(a);
-        btn.setText(a.isAfav() ? "★ Fav" : "☆ Fav");
-        if(a.isAfav()) {
-            btn.setStyle("-fx-text-fill: #FFD700; -fx-border-color: #FFD700;");
-        } else {
-            btn.setStyle("");
-        }
+        btn.setText(a.isAfav() ? "❤️" : "🤍");
     }
 
     private void reserver(activite a) {
-        // Hardcoded user 1 assuming no auth context is given yet.
         ReservationActivite r = new ReservationActivite(
                 new Date(),
-                "10:00", // Default or user input
+                "10:00",
                 "EN_ATTENTE",
                 a.getId(),
                 1,
@@ -213,10 +224,10 @@ public class ActiviteFrontController {
         alert.setHeaderText(a.getNoma());
         
         VBox content = new VBox(10);
-        content.getChildren().add(new Text("Type: " + a.getTypea()));
-        content.getChildren().add(new Text("Disponibilité: " + a.getDispoa()));
-        content.getChildren().add(new Text("Description: \n" + a.getDescria()));
-        content.getChildren().add(new Text("Adresse: " + a.getAdresse()));
+        content.getChildren().add(new Label("Type: " + a.getTypea()));
+        content.getChildren().add(new Label("Disponibilité: " + a.getDispoa()));
+        content.getChildren().add(new Label("Description: \n" + a.getDescria()));
+        content.getChildren().add(new Label("Adresse: " + a.getAdresse()));
         
         alert.getDialogPane().setContent(content);
         alert.show();
@@ -224,7 +235,6 @@ public class ActiviteFrontController {
 
     private void showMap(activite a) {
         try {
-            // Passing the Activite object could be done via a setter if MapController exists
             Parent root = FXMLLoader.load(getClass().getResource("/activites/Map.fxml"));
             Stage stage = new Stage();
             stage.setTitle("Emplacement - " + a.getNoma());
@@ -245,11 +255,6 @@ public class ActiviteFrontController {
         alert.show();
     }
 
-    private void toggleFav(activite a, Button btn) {
-        a.setAfav(!a.isAfav());
-        activiteService.update(a);
-        btn.setText(a.isAfav() ? "❤️" : "🤍");
-    }
 
     @FXML
     void handleSearch() {
@@ -321,7 +326,6 @@ public class ActiviteFrontController {
         }
 
         try {
-            // Using Powershell to run TTS on Windows. Zero dependency, works great!
             String textToSpeak = txt.toString().replace("'", " ").replace("\"", " ");
             String psCommand = "Add-Type -AssemblyName System.speech; $synth = New-Object System.Speech.Synthesis.SpeechSynthesizer; $synth.Speak('" + textToSpeak + "');";
             
@@ -330,6 +334,48 @@ public class ActiviteFrontController {
         } catch (Exception e) {
             alert("Erreur TTS", e.getMessage());
         }
+    }
+
+    @FXML
+    void handleShowStats() {
+        if (allActivities == null || allActivities.isEmpty()) return;
+        
+        javafx.scene.chart.PieChart pie = new javafx.scene.chart.PieChart();
+        pie.setTitle("Répartition");
+        java.util.Map<String, Long> typesCount = allActivities.stream()
+            .collect(Collectors.groupingBy(activite::getTypea, Collectors.counting()));
+        for (java.util.Map.Entry<String, Long> entry : typesCount.entrySet()) {
+            pie.getData().add(new javafx.scene.chart.PieChart.Data(entry.getKey() + " (" + entry.getValue() + ")", entry.getValue()));
+        }
+        
+        javafx.scene.chart.CategoryAxis xAxis = new javafx.scene.chart.CategoryAxis();
+        javafx.scene.chart.NumberAxis yAxis = new javafx.scene.chart.NumberAxis();
+        javafx.scene.chart.BarChart<String, Number> bar = new javafx.scene.chart.BarChart<>(xAxis, yAxis);
+        bar.setTitle("Populaires (Réservations)");
+        xAxis.setLabel("Activité");
+        yAxis.setLabel("Volume");
+        
+        javafx.scene.chart.XYChart.Series<String, Number> series = new javafx.scene.chart.XYChart.Series<>();
+        java.util.Map<Integer, Long> resCount = reservationService.getAll().stream()
+            .collect(Collectors.groupingBy(ReservationActivite::getActiviteId, Collectors.counting()));
+        for (java.util.Map.Entry<Integer, Long> entry : resCount.entrySet()) {
+            activite a = allActivities.stream().filter(act -> act.getId() == entry.getKey()).findFirst().orElse(null);
+            series.getData().add(new javafx.scene.chart.XYChart.Data<>(a != null ? a.getNoma() : "Inconnu", entry.getValue()));
+        }
+        bar.getData().add(series);
+        
+        HBox hbox = new HBox(20);
+        hbox.setAlignment(Pos.CENTER);
+        hbox.getChildren().addAll(pie, bar);
+        hbox.setStyle("-fx-padding: 20; -fx-background-color: #0f172a;");
+        
+        Stage st = new Stage();
+        st.setTitle("Statistiques Publiques Gambatta");
+        Scene sc = new Scene(hbox, 800, 400);
+        sc.getStylesheets().add(getClass().getResource("/activites/style.css").toExternalForm());
+        st.setScene(sc);
+        st.initModality(Modality.APPLICATION_MODAL);
+        st.show();
     }
 
     @FXML

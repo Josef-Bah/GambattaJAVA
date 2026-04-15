@@ -17,11 +17,14 @@ public class RulesService {
 
     // ✅ CREATE
     public void add(rules r) {
-        String sql = "INSERT INTO rules (activite_id, rule_description) VALUES (?, ?)";
+        String sql = "INSERT INTO rules (idac, descrl, typrl, valrl, actv) VALUES (?, ?, ?, ?, ?)";
         try {
             PreparedStatement ps = cnx.prepareStatement(sql);
             ps.setInt(1, r.getActiviteId());
             ps.setString(2, r.getRuleDescription());
+            ps.setString(3, "STANDARD"); // valeur par defaut requise (typrl)
+            ps.setString(4, "OBLIGATOIRE"); // valeur par defaut requise (valrl)
+            ps.setBoolean(5, true);      // valeur par defaut requise (actv)
             ps.executeUpdate();
             System.out.println("✅ Rule added");
         } catch (SQLException e) {
@@ -38,9 +41,9 @@ public class RulesService {
             ResultSet rs = st.executeQuery(sql);
             while (rs.next()) {
                 rules r = new rules();
-                r.setId(rs.getInt("id"));
-                r.setActiviteId(rs.getInt("activite_id"));
-                r.setRuleDescription(rs.getString("rule_description"));
+                r.setId(rs.getInt("idrl"));
+                r.setActiviteId(rs.getInt("idac"));
+                r.setRuleDescription(rs.getString("descrl"));
                 list.add(r);
             }
         } catch (SQLException e) {
@@ -51,7 +54,7 @@ public class RulesService {
 
     // ✅ DELETE
     public void delete(int id) {
-        String sql = "DELETE FROM rules WHERE id=?";
+        String sql = "DELETE FROM rules WHERE idrl=?";
         try {
             PreparedStatement ps = cnx.prepareStatement(sql);
             ps.setInt(1, id);
@@ -64,7 +67,7 @@ public class RulesService {
 
     // ✅ UPDATE
     public void update(rules r) {
-        String sql = "UPDATE rules SET activite_id=?, rule_description=? WHERE id=?";
+        String sql = "UPDATE rules SET idac=?, descrl=? WHERE idrl=?";
         try {
             PreparedStatement ps = cnx.prepareStatement(sql);
             ps.setInt(1, r.getActiviteId());

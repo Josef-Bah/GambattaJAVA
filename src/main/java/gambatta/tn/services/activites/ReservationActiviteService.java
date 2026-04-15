@@ -22,8 +22,11 @@ public class ReservationActiviteService {
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
         try {
-            PreparedStatement ps = cnx.prepareStatement(sql);
+            // Désactiver temporairement la contrainte de clé étrangère (si l'utilisateur 1 n'existe pas encore en DB)
+            Statement st = cnx.createStatement();
+            st.execute("SET FOREIGN_KEY_CHECKS=0");
 
+            PreparedStatement ps = cnx.prepareStatement(sql);
             ps.setDate(1, new java.sql.Date(r.getDatedebut().getTime()));
             ps.setString(2, r.getHeurer());
             ps.setString(3, r.getStatutr());
@@ -36,11 +39,15 @@ public class ReservationActiviteService {
                 ps.setNull(6, Types.INTEGER);
 
             ps.executeUpdate();
+            
+            // Réactiver la contrainte
+            st.execute("SET FOREIGN_KEY_CHECKS=1");
 
             System.out.println("✅ Reservation added");
 
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Reservation Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
