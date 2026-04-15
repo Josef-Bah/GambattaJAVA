@@ -116,6 +116,17 @@
     -fx-border-color: #FFD700;
 }
 
+/* FIX TEXTAREA WHITE BACKGROUND ISSUE */
+.text-area.search-field .content {
+    -fx-background-color: transparent;
+}
+.text-area.search-field {
+    -fx-control-inner-background: rgba(30, 41, 59, 0.8);
+    -fx-background-color: rgba(30, 41, 59, 0.8);
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #94a3b8;
+}
+
 /* SCROLL PANE */
 .scroll-pane {
     -fx-background-color: transparent;
