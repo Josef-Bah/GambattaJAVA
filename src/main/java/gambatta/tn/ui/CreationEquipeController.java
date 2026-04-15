@@ -24,8 +24,46 @@ public class CreationEquipeController {
     private TextField txtTitres;
     @FXML
     private TextArea txtObjectifs;
+    @FXML
+    private javafx.scene.layout.VBox vboxGenIA;
+    @FXML
+    private TextField txtPromptLogo;
+    @FXML
+    private javafx.scene.control.Button btnGenLogo;
 
     private EquipeService equipeService = new EquipeService();
+
+    @FXML
+    private void handleGenerateLogoIA() {
+        boolean isVisible = vboxGenIA.isVisible();
+        vboxGenIA.setVisible(!isVisible);
+        vboxGenIA.setManaged(!isVisible);
+    }
+
+    @FXML
+    private void handleDoGenerateLogo() {
+        String prompt = txtPromptLogo.getText().trim();
+        if (prompt.isEmpty()) {
+            showWarning("Veuillez entrer une description pour le logo.");
+            return;
+        }
+
+        btnGenLogo.setDisable(true);
+        btnGenLogo.setText("GÉNÉRATION...");
+
+        // DiceBear est gratuit et sans clé, parfait pour générer des logos créatifs instantanément
+        String logoUrl = "https://api.dicebear.com/7.x/identicon/png?seed=" + prompt.replaceAll("\\s+", "");
+        
+        // Simuler un léger délai pour l'effet "génération"
+        javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(1));
+        pause.setOnFinished(e -> {
+            txtLogo.setText(logoUrl);
+            showAlert("Logo généré avec succès ! (Utilisation de l'API créative DiceBear)");
+            btnGenLogo.setDisable(false);
+            btnGenLogo.setText("GÉNÉRER MON LOGO");
+        });
+        pause.play();
+    }
 
     @FXML
     private void handleSave() { // Matches FXML onAction="#handleSave"

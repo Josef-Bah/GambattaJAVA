@@ -37,11 +37,22 @@
                 </VBox>
 
                 <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                    <Label text="LOGO (URL)" style="-fx-font-weight: bold;"/>
-                    <TextField fx:id="txtLogo" promptText="Lien vers l'image" />
+                    <Label text="LOGO" style="-fx-font-weight: bold;"/>
+                    <HBox spacing="10">
+                        <TextField fx:id="txtLogo" promptText="URL du logo" HBox.hgrow="ALWAYS"/>
+                        <Button text="🎨 IA" onAction="#handleGenerateLogoIA" styleClass="btn-secondary" style="-fx-font-size: 10px;"/>
+                    </HBox>
                 </VBox>
 
-                <VBox spacing="8" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                <VBox fx:id="vboxGenIA" spacing="8" GridPane.columnSpan="2" GridPane.rowIndex="2" managed="false" visible="false">
+                    <Label text="DESCRIPTION POUR L'IA (PROMPT)" style="-fx-font-weight: bold; -fx-text-fill: #ffd700;"/>
+                    <HBox spacing="10">
+                        <TextField fx:id="txtPromptLogo" promptText="Ex: Un lion féroce avec une couronne, couleurs or et bleu" HBox.hgrow="ALWAYS" />
+                        <Button fx:id="btnGenLogo" text="GÉNÉRER MON LOGO" onAction="#handleDoGenerateLogo" styleClass="btn-primary" />
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="8" GridPane.columnSpan="2" GridPane.rowIndex="3">
                     <Label text="TITRES ET PALMARÈS" style="-fx-font-weight: bold;"/>
                     <TextField fx:id="txtTitres" promptText="Ex: Champion 2023, Finaliste 2024..." />
                 </VBox>

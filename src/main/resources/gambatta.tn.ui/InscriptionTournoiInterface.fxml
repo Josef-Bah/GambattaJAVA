@@ -41,5 +41,10 @@
             </columnResizePolicy>
         </TableView>
 
+        <HBox alignment="CENTER_RIGHT" style="-fx-padding: 10;">
+            <Button fx:id="btnChatbot" text="🤖 BESOIN D'AIDE ?" onAction="#handleOpenChatbot" 
+                    style="-fx-background-color: #ffd700; -fx-text-fill: #001f3f; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 20;"/>
+        </HBox>
+
     </VBox>
 </AnchorPane>

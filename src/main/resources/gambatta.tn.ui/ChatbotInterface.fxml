@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.ui.ChatbotController"
+      prefWidth="400" prefHeight="500" spacing="10" styleClass="card" stylesheets="@style.css"
+      style="-fx-background-color: #001f3f; -fx-border-color: #ffd700; -fx-border-width: 2;">
+    
+    <padding>
+        <Insets top="15" right="15" bottom="15" left="15"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label text="💬 ASSISTANT GAMBATTA" style="-fx-text-fill: #ffd700; -fx-font-weight: bold; -fx-font-size: 16px;"/>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="✕" onAction="#handleClose" styleClass="btn-danger" style="-fx-padding: 2 8;"/>
+    </HBox>
+
+    <ScrollPane fx:id="scrollPane" VBox.vgrow="ALWAYS" fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
+        <VBox fx:id="chatBox" spacing="10">
+            <!-- Messages will be added here -->
+        </VBox>
+    </ScrollPane>
+
+    <HBox spacing="10">
+        <TextField fx:id="txtInput" promptText="Posez votre question..." HBox.hgrow="ALWAYS" onAction="#handleSend"
+                   style="-fx-background-color: #002d5a; -fx-text-fill: white; -fx-prompt-text-fill: #888;"/>
+        <Button fx:id="btnSend" text="ENVOYER" onAction="#handleSend" styleClass="btn-primary"/>
+    </HBox>
+</VBox>

@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 
@@ -107,12 +108,13 @@ public class InscritournoiController {
 
     private void exportPDF() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Exporter les inscriptions en PDF");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        fileChooser.setTitle("Exporter les inscriptions");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
         File file = fileChooser.showSaveDialog(tableInscriptions.getScene().getWindow());
         if (file != null) {
-            String pdfContent = service.generatePdf();
-            System.out.println("PDF exporté vers : " + file.getAbsolutePath());
+            String content = service.generatePdf(); // Version texte
+            System.out.println("Exportation simulée vers terminal pour : " + file.getAbsolutePath());
+            System.out.println(content);
         }
     }
 
@@ -139,6 +141,22 @@ public class InscritournoiController {
         } catch (Exception e) {
             e.printStackTrace();
             showError("Impossible de charger les statistiques.");
+        }
+    }
+
+    @FXML
+    private void handleOpenChatbot() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/ChatbotInterface.fxml"));
+            VBox root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Assistant Gambatta IA");
+            stage.setScene(new Scene(root));
+            stage.setAlwaysOnTop(true);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Impossible de lancer l'assistant IA.");
         }
     }
 

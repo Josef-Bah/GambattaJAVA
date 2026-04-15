@@ -4,7 +4,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
 import java.util.Map;
@@ -18,6 +20,10 @@ public class StatsController {
     @FXML private Label lblStatTitle2;
     @FXML private Label lblStatVal2;
     @FXML private PieChart pieChart;
+    @FXML private Button btnAnalyseIA;
+    @FXML private TextArea txtAIAnalysis;
+
+    private Map<String, Long> currentData;
 
     @FXML
     public void initialize() {
@@ -25,6 +31,7 @@ public class StatsController {
     }
 
     public void setData(String title, Map<String, Long> dataMap, String statTitle1, String statTitle2) {
+        this.currentData = dataMap;
         lblTitle.setText(title);
         
         long total = dataMap.values().stream().mapToLong(Long::longValue).sum();
@@ -49,6 +56,34 @@ public class StatsController {
 
         pieChart.setData(chartData);
         pieChart.setAnimated(true);
+    }
+
+    @FXML
+    private void handleAnalyseIA() {
+        if (currentData == null || currentData.isEmpty()) {
+            txtAIAnalysis.setText("Aucune donnée disponible pour l'analyse.");
+            return;
+        }
+
+        txtAIAnalysis.setText("Analyse en cours... Veuillez patienter ✨");
+        btnAnalyseIA.setDisable(true);
+
+        String prompt = "En tant qu'expert en gestion de tournois sportifs pour l'application Gambatta, " +
+                "analyse les statistiques d'inscription suivantes et donne des conseils stratégiques (max 3 phrases) : " +
+                currentData.toString();
+
+        gambatta.tn.tools.GeminiService.getCompletion(prompt).thenAccept(response -> {
+            javafx.application.Platform.runLater(() -> {
+                txtAIAnalysis.setText(response);
+                btnAnalyseIA.setDisable(false);
+            });
+        }).exceptionally(ex -> {
+            javafx.application.Platform.runLater(() -> {
+                txtAIAnalysis.setText("Erreur : " + ex.getMessage());
+                btnAnalyseIA.setDisable(false);
+            });
+            return null;
+        });
     }
 
     @FXML
