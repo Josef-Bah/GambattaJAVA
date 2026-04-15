@@ -97,10 +97,10 @@ public class ActiviteBackController {
                 try {
                     if (newSel.getImagea() != null && !newSel.getImagea().isEmpty()) {
                         if (newSel.getImagea().startsWith("http") || newSel.getImagea().startsWith("file:")) {
-                            ivImagePreview.setImage(new Image(newSel.getImagea()));
+                            ivImagePreview.setImage(new Image(newSel.getImagea(), true));
                         } else {
                             File f = new File(newSel.getImagea());
-                            if (f.exists()) ivImagePreview.setImage(new Image(f.toURI().toString()));
+                            if (f.exists()) ivImagePreview.setImage(new Image(f.toURI().toString(), true));
                             else ivImagePreview.setImage(null);
                         }
                     } else {
@@ -223,7 +223,7 @@ public class ActiviteBackController {
         File f = fc.showOpenDialog(tfActNom.getScene().getWindow());
         if (f != null) {
             tfActImage.setText(f.getAbsolutePath());
-            ivImagePreview.setImage(new Image(f.toURI().toString()));
+            ivImagePreview.setImage(new Image(f.toURI().toString(), true));
         }
     }
 

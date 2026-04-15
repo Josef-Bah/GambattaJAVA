@@ -88,10 +88,10 @@ public class ActiviteFrontController {
             
             if (dbImage != null && !dbImage.trim().isEmpty()) {
                 if (dbImage.startsWith("http") || dbImage.startsWith("file:")) {
-                    finalImg = new Image(dbImage);
+                    finalImg = new Image(dbImage, true);
                 } else {
                     java.io.File fb = new java.io.File(dbImage);
-                    if (fb.exists()) finalImg = new Image(fb.toURI().toString());
+                    if (fb.exists()) finalImg = new Image(fb.toURI().toString(), true);
                     else {
                         try {
                             java.net.URL dbUrl = getClass().getResource("/activites/images/" + dbImage);
@@ -113,7 +113,7 @@ public class ActiviteFrontController {
                 if (fileName != null) {
                     try {
                          java.net.URL resUrl = getClass().getResource("/activites/images/" + fileName);
-                         if (resUrl != null) finalImg = new Image(resUrl.toExternalForm());
+                         if (resUrl != null) finalImg = new Image(resUrl.toExternalForm(), true);
                     } catch (Exception ez) {}
                 }
             }
@@ -121,7 +121,7 @@ public class ActiviteFrontController {
             // Fallback for custom games (GOLF, WOW, TENNIS, ISRAAA) to guarantee unique images!
             if (finalImg == null || finalImg.isError()) {
                 int seed = Math.abs(a.getNoma().hashCode());
-                finalImg = new Image("https://picsum.photos/seed/" + seed + "/320/180");
+                finalImg = new Image("https://picsum.photos/seed/" + seed + "/320/180", true);
             }
             
             imageView.setImage(finalImg);
