@@ -12,6 +12,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -60,64 +62,135 @@ public class ActiviteFrontController {
     }
 
     private VBox createCard(activite a) {
-        VBox card = new VBox(15);
-        card.setPrefWidth(280);
+        VBox card = new VBox();
+        card.setPrefWidth(300);
         card.getStyleClass().add("card");
+        
+        // Interactive E-Sport effect
+        card.setOnMouseEntered(e -> {
+            card.setScaleX(1.04);
+            card.setScaleY(1.04);
+            card.setStyle("-fx-effect: dropshadow(gaussian, #FFD700, 25, 0.4, 0, 0);");
+        });
+        card.setOnMouseExited(e -> {
+            card.setScaleX(1.0);
+            card.setScaleY(1.0);
+            card.setStyle("");
+        });
 
-        // Top Row (Name & Heart)
-        HBox topRow = new HBox();
-        topRow.setAlignment(Pos.CENTER_LEFT);
-        Label name = new Label(a.getNoma());
+        // 1. IMAGE HEADER with Overlays (StackPane)
+        StackPane imageHeader = new StackPane();
+        imageHeader.setPrefHeight(170);
+        
+        ImageView imageView = new ImageView();
+        try {
+            String dbImage = a.getImagea();
+            Image img = null;
+            
+            // For local development reliability, directly reference the src folder paths
+            String basePath = "src/main/resources/activites/images/";
+            
+            if (dbImage != null && !dbImage.trim().isEmpty()) {
+                if (dbImage.startsWith("http") || dbImage.startsWith("file:")) {
+                    img = new Image(dbImage);
+                } else {
+                    java.io.File file = new java.io.File(dbImage);
+                    if (file.exists()) img = new Image(file.toURI().toString());
+                }
+            }
+            
+            // Smart Match if no specific image
+            if (img == null || img.isError()) {
+                String noma = a.getNoma().toLowerCase();
+                String fileName = "default.png";
+                if (noma.contains("nba") || noma.contains("2k")) fileName = "nba.png";
+                else if (noma.contains("call of duty") || noma.contains("cod") || noma.contains("black ops")) fileName = "cod.png";
+                else if (noma.contains("fifa") || noma.contains("fc")) fileName = "fifa.png";
+                else if (noma.contains("counter") || noma.contains("csgo") || noma.contains("cs")) fileName = "csgo.png";
+                
+                java.io.File fileLocal = new java.io.File(basePath + fileName);
+                if (fileLocal.exists()) {
+                    img = new Image(fileLocal.toURI().toString());
+                } else {
+                    img = new Image(getClass().getResourceAsStream("/activites/images/" + fileName));
+                }
+            }
+            if (img != null) imageView.setImage(img);
+        } catch (Exception ex) {
+            System.out.println("Image err: " + ex.getMessage());
+        }
+        
+        imageView.setFitWidth(300);
+        imageView.setFitHeight(170);
+        imageView.setPreserveRatio(false);
+
+        // Gradient Overlay over the image
+        VBox gradientOverlay = new VBox();
+        gradientOverlay.setStyle("-fx-background-color: linear-gradient(to top, rgba(15,23,42,1) 0%, rgba(15,23,42,0) 100%);");
+        gradientOverlay.setAlignment(Pos.BOTTOM_LEFT);
+        gradientOverlay.setPadding(new javafx.geometry.Insets(15));
+        
+        Label name = new Label(a.getNoma().toUpperCase());
         name.getStyleClass().add("card-title");
-        name.setWrapText(true);
-        name.setMaxWidth(200);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        Button btnFav = new Button(a.isAfav() ? "❤️" : "🤍");
-        btnFav.getStyleClass().add("btn-fav");
-        btnFav.setOnAction(e -> toggleFav(a, btnFav));
-
-        topRow.getChildren().addAll(name, spacer, btnFav);
-
-        // Subtitle / Type
-        Label type = new Label(a.getTypea() + " - " + a.getAdresse());
+        name.setStyle("-fx-font-size: 22px; -fx-text-fill: #FFFFFF;");
+        
+        Label type = new Label(a.getTypea() + " • " + a.getAdresse());
         type.getStyleClass().add("card-desc");
+        type.setStyle("-fx-text-fill: #94a3b8;");
 
-        // Actions
-        HBox actions1 = new HBox(10);
-        actions1.setAlignment(Pos.CENTER);
-        Button btnReserver = new Button("Réserver");
+        gradientOverlay.getChildren().addAll(name, type);
+        imageHeader.getChildren().addAll(imageView, gradientOverlay);
+
+        // 2. ACTIONS AREA
+        VBox actionsArea = new VBox(15);
+        actionsArea.setPadding(new javafx.geometry.Insets(15));
+        
+        // Primary Button
+        Button btnReserver = new Button("RÉSERVER LA SESSION");
         btnReserver.getStyleClass().add("btn-primary");
         btnReserver.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(btnReserver, Priority.ALWAYS);
+        btnReserver.setStyle("-fx-font-size: 15px; -fx-padding: 12px;");
         btnReserver.setOnAction(e -> reserver(a));
 
-        Button btnDetails = new Button("Détails");
+        // Secondary Buttons
+        HBox secondaryActions = new HBox(10);
+        secondaryActions.setAlignment(Pos.CENTER);
+        
+        Button btnDetails = new Button("Info");
         btnDetails.getStyleClass().add("btn-secondary");
         btnDetails.setOnAction(e -> showDetails(a));
-
-        actions1.getChildren().addAll(btnReserver, btnDetails);
-
-        // Icons row
-        HBox actions2 = new HBox(10);
-        actions2.setAlignment(Pos.CENTER_LEFT);
         
-        Button btnMap = new Button("📍");
-        btnMap.getStyleClass().add("btn-icon");
-        btnMap.setTooltip(new Tooltip("Emplacement"));
+        Button btnMap = new Button("Map");
+        btnMap.getStyleClass().add("btn-secondary");
         btnMap.setOnAction(e -> showMap(a));
 
-        Button btnCalendar = new Button("📅");
-        btnCalendar.getStyleClass().add("btn-icon");
-        btnCalendar.setTooltip(new Tooltip("Calendrier"));
+        Button btnCalendar = new Button("Date");
+        btnCalendar.getStyleClass().add("btn-secondary");
         btnCalendar.setOnAction(e -> showCalendar());
 
-        actions2.getChildren().addAll(btnMap, btnCalendar);
+        Button btnFav = new Button(a.isAfav() ? "★ Fav" : "☆ Fav");
+        btnFav.getStyleClass().add("btn-secondary");
+        if(a.isAfav()) btnFav.setStyle("-fx-text-fill: #FFD700; -fx-border-color: #FFD700;");
+        btnFav.setOnAction(e -> toggleFavText(a, btnFav));
 
-        card.getChildren().addAll(topRow, type, actions1, actions2);
+        secondaryActions.getChildren().addAll(btnDetails, btnMap, btnCalendar, btnFav);
+
+        actionsArea.getChildren().addAll(btnReserver, secondaryActions);
+
+        card.getChildren().addAll(imageHeader, actionsArea);
+        card.setPadding(new javafx.geometry.Insets(0)); // Remove default padding to let image bleed to edges
         return card;
+    }
+    
+    private void toggleFavText(activite a, Button btn) {
+        a.setAfav(!a.isAfav());
+        activiteService.update(a);
+        btn.setText(a.isAfav() ? "★ Fav" : "☆ Fav");
+        if(a.isAfav()) {
+            btn.setStyle("-fx-text-fill: #FFD700; -fx-border-color: #FFD700;");
+        } else {
+            btn.setStyle("");
+        }
     }
 
     private void reserver(activite a) {
