@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="1000.0"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gambatta.tn.ui.buvette.buvController"
+            stylesheets="@style.css">
+
+    <!-- TOP -->
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding:10;">
+            <Label text="🛒 Shop" style="-fx-font-size:20px; -fx-font-weight:bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="searchField" promptText="Search..." prefWidth="250"/>
+            <Button text="Search" onAction="#search"/>
+        </HBox>
+    </top>
+
+    <!-- PRODUCTS -->
+    <center>
+        <ListView fx:id="productList"/>
+    </center>
+
+    <!-- CART -->
+    <right>
+        <VBox spacing="10" prefWidth="300" style="-fx-padding:10; -fx-background-color:#1e293b;">
+            <Label text="🛒 Cart" style="-fx-text-fill:white; -fx-font-size:16px;"/>
+            <ListView fx:id="cartList"/>
+            <Label fx:id="totalLabel" text="Total: 0 DT" style="-fx-text-fill:white;"/>
+            <Button text="Checkout" onAction="#checkout"/>
+        </VBox>
+    </right>
+
+    <!-- ADD BUTTON -->
+    <bottom>
+        <HBox alignment="CENTER" style="-fx-padding:10;">
+            <Button text="Add to Cart" onAction="#addToCart"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
