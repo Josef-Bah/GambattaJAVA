@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.controllers.InscritournoiController"
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.ui.InscritournoiController"
             prefWidth="1000" prefHeight="700" styleClass="container" stylesheets="@style.css">
 
     <VBox spacing="25" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">

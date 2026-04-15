@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.controllers.EquipeController"
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.ui.EquipeController"
             prefWidth="1000" prefHeight="700" styleClass="container" stylesheets="@style.css">
 
     <VBox spacing="25" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">
@@ -16,15 +16,9 @@
 
         <VBox spacing="20" styleClass="card" style="-fx-padding: 20;">
             <HBox spacing="15" alignment="CENTER_LEFT">
-                <TextField fx:id="txtNom" promptText="Nom de l'équipe" HBox.hgrow="ALWAYS"/>
-                <TextField fx:id="txtLeader" promptText="Nom du leader" HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnAjouter" text="ENREGISTRER" styleClass="btn-primary"/>
-                <Button fx:id="btnTournoi" text="VOIR TOURNOIS" styleClass="btn-secondary"/>
-            </HBox>
-
-            <HBox spacing="15" alignment="CENTER_LEFT">
                 <TextField fx:id="txtSearch" promptText="Rechercher par nom..." prefWidth="300"/>
                 <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnTournoi" text="VOIR TOURNOIS" styleClass="btn-secondary"/>
                 <Button fx:id="btnPDF" text="EXPORTER PDF" styleClass="btn-outline"/>
                 <Button text="STATS" onAction="#showStats" styleClass="btn-secondary"/>
                 <Button fx:id="btnNouvelleEquipe" text="+ NOUVELLE ÉQUIPE" styleClass="btn-primary"/>

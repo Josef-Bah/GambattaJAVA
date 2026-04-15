@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.controllers.RejoindreEquipeController"
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.ui.RejoindreEquipeController"
             prefWidth="1000" prefHeight="700" styleClass="container" stylesheets="@style.css">
 
     <VBox spacing="40" AnchorPane.topAnchor="80" AnchorPane.leftAnchor="150" AnchorPane.rightAnchor="150" alignment="CENTER">
