@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -100,17 +101,28 @@ public class EquipeController {
 
     @FXML
     public void showStats(ActionEvent event) {
-        long total = equipes.size();
-        long enAttente = equipes.stream().filter(e -> "EN_ATTENTE".equals(e.getStatus())).count();
-        long valide = equipes.stream().filter(e -> "VALIDE".equals(e.getStatus())).count();
-
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Statistiques des Équipes");
-        alert.setHeaderText("Résumé des participations");
-        alert.setContentText("Total d'équipes : " + total + "\n" +
-                             "En attente : " + enAttente + "\n" +
-                             "Validées : " + valide);
-        alert.showAndWait();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/StatsInterface.fxml"));
+            AnchorPane root = loader.load();
+            
+            StatsController controller = loader.getController();
+            
+            java.util.Map<String, Long> stats = new java.util.HashMap<>();
+            stats.put("EN_ATTENTE", equipes.stream().filter(e -> "EN_ATTENTE".equals(e.getStatus())).count());
+            stats.put("VALIDE", equipes.stream().filter(e -> "VALIDE".equals(e.getStatus())).count());
+            
+            controller.setData("Statistiques des Équipes", stats, "EN_ATTENTE", "VALIDE");
+            
+            Stage stage = new Stage();
+            stage.setTitle("Tableau de Bord des Équipes");
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de charger les statistiques.");
+        }
     }
 
     private void showEditDialog(equipe e) {

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.StatsController"
+            prefWidth="800" prefHeight="600" styleClass="container" stylesheets="@style.css">
+
+    <VBox spacing="30" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
+        
+        <VBox spacing="5" alignment="CENTER">
+            <Label fx:id="lblTitle" text="Tableau de Bord des Statistiques" styleClass="title-label"/>
+            <Label text="Visualisation en temps réel des données." styleClass="subtitle-label"/>
+        </VBox>
+
+        <HBox spacing="20" alignment="CENTER">
+            <!-- Total Card -->
+            <VBox styleClass="card" alignment="CENTER" prefWidth="180" spacing="10">
+                <Label text="TOTAL" styleClass="subtitle-label" style="-fx-font-size: 12px;"/>
+                <Label fx:id="lblTotal" text="0" styleClass="title-label" style="-fx-font-size: 36px;"/>
+            </VBox>
+            
+            <!-- Specific Stat Card 1 -->
+            <VBox styleClass="card" alignment="CENTER" prefWidth="180" spacing="10" style="-fx-border-color: #ffd700;">
+                <Label fx:id="lblStatTitle1" text="EN ATTENTE" styleClass="subtitle-label" style="-fx-font-size: 12px;"/>
+                <Label fx:id="lblStatVal1" text="0" styleClass="title-label" style="-fx-font-size: 36px; -fx-text-fill: #ffd700;"/>
+            </VBox>
+            
+            <!-- Specific Stat Card 2 -->
+            <VBox styleClass="card" alignment="CENTER" prefWidth="180" spacing="10" style="-fx-border-color: #4CAF50;">
+                <Label fx:id="lblStatTitle2" text="VALIDÉ" styleClass="subtitle-label" style="-fx-font-size: 12px;"/>
+                <Label fx:id="lblStatVal2" text="0" styleClass="title-label" style="-fx-font-size: 36px; -fx-text-fill: #4CAF50;"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="20" VBox.vgrow="ALWAYS" alignment="CENTER">
+            <PieChart fx:id="pieChart" title="Répartition par Statut" clockwise="true" labelsVisible="true" labelLineLength="20" legendVisible="true" HBox.hgrow="ALWAYS" />
+        </HBox>
+        
+        <HBox alignment="CENTER">
+            <Button text="FERMER" onAction="#handleClose" styleClass="btn-secondary" prefWidth="150"/>
+        </HBox>
+
+    </VBox>
+</AnchorPane>

@@ -10,6 +10,10 @@ import gambatta.tn.services.tournoi.InscritournoiService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -113,11 +117,29 @@ public class InscritournoiController {
     }
 
     private void showStats() {
-        long accepted = inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_ACCEPTED)).count();
-        long pending = inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_PENDING)).count();
-        long refused = inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_REFUSED)).count();
-
-        showAlert("Acceptées: " + accepted + "\nEn attente: " + pending + "\nRefusées: " + refused);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/StatsInterface.fxml"));
+            AnchorPane root = loader.load();
+            
+            StatsController controller = loader.getController();
+            
+            java.util.Map<String, Long> stats = new java.util.HashMap<>();
+            stats.put(inscriptiontournoi.STATUS_ACCEPTED, inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_ACCEPTED)).count());
+            stats.put(inscriptiontournoi.STATUS_PENDING, inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_PENDING)).count());
+            stats.put(inscriptiontournoi.STATUS_REFUSED, inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_REFUSED)).count());
+            
+            controller.setData("Statistiques des Inscriptions", stats, inscriptiontournoi.STATUS_PENDING, inscriptiontournoi.STATUS_ACCEPTED);
+            
+            Stage stage = new Stage();
+            stage.setTitle("Tableau de Bord des Inscriptions");
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Impossible de charger les statistiques.");
+        }
     }
 
     private void filterInscriptions(String search) {

@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.layout.AnchorPane;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -164,14 +165,29 @@ public class TournoiController {
 
     @FXML
     public void showStats(ActionEvent event) {
-        long enAttente = tournois.stream().filter(t -> "EN_ATTENTE".equals(t.getStatutt())).count();
-        long valide = tournois.stream().filter(t -> "VALIDE".equals(t.getStatutt())).count();
-        long termine = tournois.stream().filter(t -> "TERMINE".equals(t.getStatutt())).count();
-
-        showAlert("Statistiques des Tournois", 
-            "Tournois en attente : " + enAttente + "\n" +
-            "Tournois validés : " + valide + "\n" +
-            "Tournois terminés : " + termine);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/StatsInterface.fxml"));
+            AnchorPane root = loader.load();
+            
+            StatsController controller = loader.getController();
+            
+            java.util.Map<String, Long> stats = new java.util.HashMap<>();
+            stats.put("EN_ATTENTE", tournois.stream().filter(t -> "EN_ATTENTE".equals(t.getStatutt())).count());
+            stats.put("VALIDE", tournois.stream().filter(t -> "VALIDE".equals(t.getStatutt())).count());
+            stats.put("TERMINE", tournois.stream().filter(t -> "TERMINE".equals(t.getStatutt())).count());
+            
+            controller.setData("Statistiques des Tournois", stats, "EN_ATTENTE", "VALIDE");
+            
+            Stage stage = new Stage();
+            stage.setTitle("Tableau de Bord des Tournois");
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible de charger les statistiques.");
+        }
     }
 
     @FXML
