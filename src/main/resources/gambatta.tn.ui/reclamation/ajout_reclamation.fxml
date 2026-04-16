@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.*?>
+<?import java.net.URL?>
+
+<StackPane prefWidth="750.0" prefHeight="800.0" style="-fx-background-color: #020617;"
+           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="gambatta.tn.ui.reclamation.AjoutController">
+
+    <stylesheets>
+        <URL value="@../style.css" />
+    </stylesheets>
+
+    <children>
+        <Pane style="-fx-background-color: linear-gradient(from 0px 0px to 20px 20px, reflect, rgba(14, 165, 233, 0.05) 1px, transparent 1px);" />
+
+        <Pane style="-fx-background-color: radial-gradient(center 50% 50%, radius 60%, rgba(14, 165, 233, 0.1) 0%, transparent 100%);" />
+
+        <AnchorPane mouseTransparent="true">
+            <Polyline points="0,40,0,0,40,0" stroke="#0ea5e9" strokeWidth="3" fill="transparent" AnchorPane.topAnchor="15" AnchorPane.leftAnchor="15" />
+            <Polyline points="-40,0,0,0,0,40" stroke="#0ea5e9" strokeWidth="3" fill="transparent" AnchorPane.topAnchor="15" AnchorPane.rightAnchor="15" />
+            <Polyline points="0,-40,0,0,40,0" stroke="#0ea5e9" strokeWidth="3" fill="transparent" AnchorPane.bottomAnchor="15" AnchorPane.leftAnchor="15" />
+            <Polyline points="-40,0,0,0,0,-40" stroke="#0ea5e9" strokeWidth="3" fill="transparent" AnchorPane.bottomAnchor="15" AnchorPane.rightAnchor="15" />
+        </AnchorPane>
+
+        <BorderPane style="-fx-padding: 35;">
+
+            <top>
+                <VBox spacing="10" BorderPane.alignment="CENTER">
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <Polygon points="0,0,20,0,30,15,10,15" fill="#0ea5e9" />
+                        <Label text="SYSTEM_INITIALIZATION // NEW_SECURE_CHANNEL" style="-fx-text-fill: #0ea5e9; -fx-font-size: 11px; -fx-font-weight: 900; -fx-letter-spacing: 4px;" />
+                    </HBox>
+
+                    <HBox alignment="BOTTOM_LEFT" spacing="20" style="-fx-border-color: transparent transparent rgba(14, 165, 233, 0.3) transparent; -fx-border-width: 0 0 2 0; -fx-padding: 0 0 15 0;">
+                        <Label text="INITIALISER UN TICKET" styleClass="title" style="-fx-text-fill: white; -fx-font-size: 32px; -fx-effect: dropshadow(three-pass-box, rgba(14,165,233,0.4), 15, 0, 0, 0);" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label text="[ TRANSMISSION AU SUPPORT ]" style="-fx-text-fill: #0ea5e9; -fx-font-family: 'Consolas'; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                    </HBox>
+                </VBox>
+            </top>
+
+            <center>
+                <VBox spacing="25" style="-fx-padding: 30 20 0 20;">
+
+                    <VBox spacing="8" style="-fx-background-color: rgba(30,41,59,0.4); -fx-border-color: rgba(14, 165, 233, 0.5); -fx-border-width: 0 0 0 3; -fx-padding: 10 15;">
+                        <Label text="&gt; PARAM_01 : OBJET DU TICKET" style="-fx-text-fill: #94a3b8; -fx-font-family: 'Consolas'; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                        <TextField fx:id="txtTitre" promptText="Ex: Problème de connexion..." style="-fx-background-color: transparent; -fx-text-fill: white; -fx-prompt-text-fill: #475569; -fx-font-family: 'Consolas'; -fx-font-size: 16px; -fx-font-weight: bold; -fx-border-color: rgba(255,255,255,0.1); -fx-border-width: 0 0 1 0; -fx-padding: 5 0;" />
+                    </VBox>
+
+                    <VBox spacing="8" style="-fx-background-color: rgba(30,41,59,0.4); -fx-border-color: rgba(14, 165, 233, 0.5); -fx-border-width: 0 0 0 3; -fx-padding: 10 15;">
+                        <Label text="&gt; PARAM_02 : SERVICE CONCERNÉ" style="-fx-text-fill: #94a3b8; -fx-font-family: 'Consolas'; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                        <ComboBox fx:id="comboCategorie" promptText="Sélectionnez un service..." prefWidth="500.0" style="-fx-background-color: rgba(2,6,23,0.8); -fx-text-fill: white; -fx-border-color: rgba(14, 165, 233, 0.3); -fx-border-width: 1; -fx-padding: 5; -fx-font-family: 'Consolas';" />
+                    </VBox>
+
+                    <VBox spacing="8" VBox.vgrow="ALWAYS" style="-fx-background-color: rgba(30,41,59,0.4); -fx-border-color: rgba(14, 165, 233, 0.5); -fx-border-width: 0 0 0 3; -fx-padding: 10 15;">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="&gt; PARAM_03 : DATA_PAYLOAD (DÉTAILS)" style="-fx-text-fill: #94a3b8; -fx-font-family: 'Consolas'; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button text="[ EXECUTE IA_ENHANCEMENT ]" onAction="#handleAmeliorerIA" style="-fx-background-color: rgba(251,191,36,0.1); -fx-text-fill: #fbbf24; -fx-border-color: #fbbf24; -fx-border-width: 1; -fx-border-radius: 3; -fx-font-family: 'Consolas'; -fx-font-weight: bold; -fx-font-size: 10px; -fx-cursor: hand;" />
+                        </HBox>
+                        <TextArea fx:id="txtDescription" promptText="Décrivez le log ou le problème en détail..." prefHeight="160" wrapText="true" style="-fx-control-inner-background: rgba(2,6,23,0.8); -fx-background-color: transparent; -fx-text-fill: #cbd5e1; -fx-prompt-text-fill: #475569; -fx-font-family: 'Consolas'; -fx-font-size: 13px; -fx-border-color: rgba(14, 165, 233, 0.3); -fx-border-width: 1; -fx-padding: 5;" />
+                    </VBox>
+
+                    <VBox spacing="10" style="-fx-background-color: rgba(30,41,59,0.4); -fx-border-color: rgba(14, 165, 233, 0.5); -fx-border-width: 0 0 0 3; -fx-padding: 10 15;">
+                        <Label text="&gt; PARAM_04 : MEDIA_ATTACHMENT (PREUVE)" style="-fx-text-fill: #94a3b8; -fx-font-family: 'Consolas'; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-border-color: rgba(255,255,255,0.1); -fx-border-style: dashed; -fx-border-width: 1.5; -fx-padding: 15; -fx-background-color: rgba(2,6,23,0.5);">
+                            <Button text="ATTACH_FILE..." onAction="#handleChoisirFichier" style="-fx-background-color: #334155; -fx-text-fill: white; -fx-font-family: 'Consolas'; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 6 12;" />
+                            <Label fx:id="lblCheminFichier" text="[ NO_FILE_DETECTED ]" style="-fx-text-fill: #64748b; -fx-font-family: 'Consolas'; -fx-font-size: 11px;" />
+                        </HBox>
+                    </VBox>
+
+                </VBox>
+            </center>
+
+            <bottom>
+                <HBox spacing="20" alignment="CENTER_RIGHT" style="-fx-padding: 30 20 0 0; -fx-border-color: transparent transparent transparent transparent;">
+                    <Button text="ABORT_INIT" onAction="#handleAnnuler" style="-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-text-fill: #ef4444; -fx-font-weight: 900; -fx-font-family: 'Segoe UI Black'; -fx-border-radius: 4; -fx-padding: 12 25; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(239,68,68,0.4), 10, 0, 0, 0);" />
+
+                    <Button text="TRANSMIT DATA" onAction="#handleValider" style="-fx-background-color: #0ea5e9; -fx-text-fill: #020617; -fx-font-weight: 900; -fx-font-family: 'Segoe UI Black'; -fx-border-radius: 4; -fx-padding: 12 35; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(14,165,233,0.6), 20, 0, 0, 0);" />
+                </HBox>
+            </bottom>
+
+        </BorderPane>
+    </children>
+</StackPane>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.*?>
+<?import java.net.URL?>
+
+<VBox prefHeight="850.0" prefWidth="1300.0" styleClass="root"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="gambatta.tn.ui.reclamation.ReclamationController">
+
+    <stylesheets>
+        <URL value="@../style.css" />
+    </stylesheets>
+
+    <HBox alignment="CENTER_LEFT" prefHeight="30.0"
+          style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: transparent transparent #FFD700 transparent; -fx-border-width: 0 0 1 0;">
+        <padding><Insets left="20" right="20"/></padding>
+        <children>
+            <Label text="SYSTEM_STATUS: ONLINE" style="-fx-text-fill: #10b981; -fx-font-size: 9px; -fx-font-weight: bold; -fx-letter-spacing: 2px;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label text="GAMBATTA_PROTOCOL_v2.0" style="-fx-text-fill: #475569; -fx-font-size: 9px; -fx-letter-spacing: 1px;" />
+        </children>
+    </HBox>
+
+    <VBox VBox.vgrow="ALWAYS" spacing="20">
+        <padding><Insets top="25" right="30" bottom="30" left="30"/></padding>
+
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <children>
+                <StackPane alignment="CENTER_LEFT">
+                    <children>
+                        <Polygon points="0,0, 320,0, 280,80, 0,80" style="-fx-fill: rgba(255, 215, 0, 0.1); -fx-stroke: #FFD700; -fx-stroke-width: 2;" />
+                        <VBox alignment="CENTER_LEFT">
+                            <padding><Insets left="30" top="10"/></padding>
+                            <children>
+                                <Label text="COMMAND" styleClass="title" style="-fx-font-size: 28px;" />
+                                <Label text="CENTRE DE RÉCLAMATIONS" styleClass="subtitle" style="-fx-text-fill: #FFD700; -fx-font-size: 10px; -fx-font-weight: 900;" />
+                            </children>
+                        </VBox>
+                    </children>
+                </StackPane>
+
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="+ NEW TICKET" styleClass="btn-primary" prefHeight="45" prefWidth="180" onAction="#handleAjouter" />
+                <Button text="LOGOUT" onAction="#handleLogout"
+                        style="-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-border-radius: 5; -fx-cursor: hand;" />
+            </children>
+        </HBox>
+
+        <VBox spacing="15" style="-fx-background-color: rgba(15, 23, 42, 0.5); -fx-background-radius: 15; -fx-border-color: rgba(14, 165, 233, 0.2); -fx-border-width: 1.5; -fx-padding: 20; -fx-effect: dropshadow(three-pass-box, rgba(14, 165, 233, 0.1), 15, 0, 0, 0);">
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label text="SCANNER DE FLUX :" style="-fx-text-fill: #94a3b8; -fx-font-weight: 900; -fx-font-size: 12px; -fx-letter-spacing: 1px;"/>
+                    <TextField promptText="🔍 Rechercher un log, un statut, un utilisateur..." styleClass="search-field" prefWidth="400" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button text="SYNCHRONISER LE FLUX" styleClass="btn-secondary" onAction="#chargerTableau" />
+                </HBox>
+
+                <Separator style="-fx-opacity: 0.1; -fx-background-color: #0ea5e9;"/>
+
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <children>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS" style="-fx-background-color: rgba(30, 41, 59, 0.3); -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: rgba(255, 255, 255, 0.05); -fx-border-width: 1;">
+                            <Label text="STATUT DU TICKET" style="-fx-text-fill: #94a3b8; -fx-font-weight: 900; -fx-font-size: 10px; -fx-letter-spacing: 1.5px;"/>
+                            <HBox spacing="10">
+                                <ToggleButton text="TOUS" selected="true" style="-fx-background-color: rgba(14, 165, 233, 0.1); -fx-text-fill: white; -fx-background-radius: 5; -fx-padding: 8 15; -fx-font-weight: bold;"/>
+                                <ToggleButton text="EN ATTENTE" style="-fx-background-color: transparent; -fx-text-fill: #f59e0b; -fx-border-color: #f59e0b; -fx-border-radius: 5; -fx-padding: 8 15;"/>
+                                <ToggleButton text="RÉSOLU" style="-fx-background-color: transparent; -fx-text-fill: #10b981; -fx-border-color: #10b981; -fx-border-radius: 5; -fx-padding: 8 15;"/>
+                                <ToggleButton text="ESCALADÉ" style="-fx-background-color: transparent; -fx-text-fill: #a855f7; -fx-border-color: #a855f7; -fx-border-radius: 5; -fx-padding: 8 15;"/>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="8" style="-fx-background-color: rgba(30, 41, 59, 0.3); -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: rgba(255, 255, 255, 0.05); -fx-border-width: 1;">
+                            <Label text="SERVICE CONCERNÉ" style="-fx-text-fill: #94a3b8; -fx-font-weight: 900; -fx-font-size: 10px; -fx-letter-spacing: 1.5px;"/>
+                            <ComboBox promptText="Sélectionnez un service..." style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-text-fill: white; -fx-border-color: rgba(14, 165, 233, 0.3); -fx-border-width: 1.5; -fx-border-radius: 8; -fx-padding: 5;"/>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <Separator style="-fx-opacity: 0.3; -fx-background-color: #FFD700; -fx-border-width: 0;"/>
+
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
+            <content>
+                <FlowPane fx:id="cardsContainer" hgap="20" vgap="20" style="-fx-padding: 10; -fx-background-color: transparent;">
+                </FlowPane>
+            </content>
+        </ScrollPane>
+
+    </VBox>
+</VBox>

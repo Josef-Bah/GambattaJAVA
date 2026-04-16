@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.effect.*?>
+<?import java.net.URL?>
+
+<StackPane prefWidth="1200.0" prefHeight="800.0" style="-fx-background-color: #020617;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.reclamation.AdminDashboardController">
+    <stylesheets>
+        <URL value="@style.css" />
+    </stylesheets>
+
+    <children>
+        <Pane mouseTransparent="true" styleClass="grid-bg" />
+        <Pane mouseTransparent="true" styleClass="glow-bg" />
+
+        <BorderPane style="-fx-padding: 25;">
+            <top>
+                <VBox spacing="20">
+                    <children>
+                        <HBox alignment="CENTER_LEFT" spacing="15">
+                            <Label text="● SYSTEM_STATUS: OPERATIONAL" styleClass="sys-status" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label text="GAMBATTA_INTRA_NET // 2026" styleClass="sys-version" />
+                            <Button text="LOGOUT" onAction="#handleLogout" styleClass="btn-logout" />
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="30">
+                            <StackPane styleClass="header-polygon">
+                                <VBox spacing="0" style="-fx-padding: 12 50 12 25;">
+                                    <Label text="COMMAND" styleClass="header-title" />
+                                    <Label text="CENTRE DE RÉCLAMATIONS" styleClass="header-subtitle" />
+                                </VBox>
+                            </StackPane>
+
+                            <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" styleClass="search-bar">
+                                <Label text="  SCAN_FLOW &gt; " style="-fx-text-fill: #38bdf8; -fx-font-family: 'Consolas'; -fx-font-weight: bold;" />
+                                <TextField fx:id="searchField" promptText="Rechercher un log ou un identifiant..." styleClass="cyber-input" HBox.hgrow="ALWAYS" />
+                                <Button text="SYNC_DATABASE" styleClass="btn-sync" />
+                            </HBox>
+                        </HBox>
+
+                        <HBox spacing="15" alignment="CENTER_LEFT">
+                            <Label text="FILTRER_PAR:" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            <ToggleButton text="ALL_LOGS" styleClass="cyber-toggle, toggle-active" />
+                            <ToggleButton text="PENDING" styleClass="cyber-toggle, toggle-orange" />
+                            <ToggleButton text="RESOLVED" styleClass="cyber-toggle, toggle-green" />
+                            <ComboBox promptText="MODULE_SÉLECTION" styleClass="cyber-combo" prefWidth="200" />
+                        </HBox>
+                    </children>
+                </VBox>
+            </top>
+
+            <center>
+                <ScrollPane fitToWidth="true" styleClass="cyber-scroll" BorderPane.alignment="CENTER">
+                    <content>
+                        <FlowPane fx:id="cardsContainer" hgap="25" vgap="25" style="-fx-padding: 20 0;" />
+                    </content>
+                </ScrollPane>
+            </center>
+        </BorderPane>
+    </children>
+</StackPane>

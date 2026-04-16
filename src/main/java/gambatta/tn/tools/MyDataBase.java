@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MyDataBase {
-    String url ="jdbc:mysql://localhost:3306/Gambatta";
+    String url ="jdbc:mysql://localhost:3306/gambatta_db";
     String user="root";
     String mdp ="";
     private Connection cnx;

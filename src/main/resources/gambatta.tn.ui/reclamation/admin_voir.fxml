@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox prefWidth="650.0" prefHeight="750.0" spacing="20" style="-fx-background-color: #020617; -fx-padding: 30; -fx-border-color: #38bdf8; -fx-border-width: 1;" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.reclamation.AdminVoirController">
+    <children>
+        <HBox alignment="CENTER_LEFT">
+            <Label text="RAPPORT D'INCIDENT DÉTAILLÉ" style="-fx-text-fill: #38bdf8; -fx-font-weight: 900; -fx-letter-spacing: 2px; -fx-font-size: 14px;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="lblSentiment" text="ANALYSE..." style="-fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 5 15; -fx-background-radius: 5;" />
+        </HBox>
+
+        <Label fx:id="lblTitre" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" text="TITRE DU TICKET" wrapText="true" />
+
+        <Separator opacity="0.2" />
+
+        <GridPane hgap="40" vgap="15" style="-fx-background-color: #0f172a; -fx-padding: 15; -fx-background-radius: 5; -fx-border-color: #1e293b;">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="50" />
+                <ColumnConstraints percentWidth="50" />
+            </columnConstraints>
+
+            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <Label text="ÉMETTEUR :" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                <Label fx:id="lblAuteur" style="-fx-text-fill: #cbd5e1; -fx-font-weight: bold;" text="Inconnu" />
+            </VBox>
+
+            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <Label text="DATE DE SOUMISSION :" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                <Label fx:id="lblDate" style="-fx-text-fill: #cbd5e1;" text="--/--/----" />
+            </VBox>
+
+            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                <Label text="CATÉGORIE :" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                <Label fx:id="lblCategorie" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold;" text="Non classé" />
+            </VBox>
+
+            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <Label text="STATUT ACTUEL :" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                <Label fx:id="lblStatut" style="-fx-text-fill: white; -fx-background-color: #334155; -fx-padding: 2 8; -fx-background-radius: 3;" text="En attente" />
+            </VBox>
+        </GridPane>
+
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+            <VBox spacing="20">
+
+                <VBox spacing="10">
+                    <Label text="DESCRIPTION DU PROBLÈME :" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold;" />
+                    <Label fx:id="lblDescription" wrapText="true" style="-fx-text-fill: #f8fafc; -fx-background-color: #0f172a; -fx-padding: 20; -fx-background-radius: 5; -fx-border-color: #1e293b; -fx-line-spacing: 5;" />
+                </VBox>
+
+                <VBox spacing="10">
+                    <Label text="HISTORIQUE DES ÉCHANGES :" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold;" />
+                    <VBox fx:id="vboxHistorique" spacing="10" style="-fx-background-color: #0f172a; -fx-padding: 15; -fx-background-radius: 5; -fx-border-color: #1e293b;">
+                    </VBox>
+                </VBox>
+
+                <VBox spacing="10">
+                    <Label text="PIÈCE JOINTE (PREUVE) :" style="-fx-text-fill: #38bdf8; -fx-font-weight: bold;" />
+                    <StackPane style="-fx-background-color: #0f172a; -fx-padding: 10; -fx-border-color: #1e293b; -fx-background-radius: 5;">
+                        <ImageView fx:id="imgPreuve" fitWidth="500.0" preserveRatio="true" />
+                        <Label fx:id="lblNoImage" text="Aucune image fournie par l'utilisateur." style="-fx-text-fill: #64748b;" visible="false" />
+                    </StackPane>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+
+        <HBox alignment="CENTER_RIGHT">
+            <Button text="FERMER LE DOSSIER" onAction="#handleFermer" style="-fx-background-color: transparent; -fx-border-color: #38bdf8; -fx-text-fill: #38bdf8; -fx-font-weight: bold; -fx-cursor: hand;" />
+        </HBox>
+    </children>
+</VBox>
