@@ -1,23 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="gambatta.tn.ui.DetailsActiviteController"
-            styleClass="root">
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gambatta.tn.ui.DetailsActiviteController"
+      styleClass="root" stylesheets="@style.css" spacing="0" prefWidth="550" prefHeight="650">
 
-    <top>
-        <Label fx:id="activityName" styleClass="title"/>
-    </top>
-
-    <center>
-        <VBox>
-            <Label fx:id="activityDescription"/>
-            <Label fx:id="activityStatus"/>
+    <StackPane prefHeight="250">
+        <ImageView fx:id="ivHero" fitWidth="550" fitHeight="250" preserveRatio="false"/>
+        <VBox alignment="BOTTOM_LEFT" style="-fx-background-color: linear-gradient(to top, #020617 0%, transparent 100%);">
+            <padding><javafx.geometry.Insets top="20" right="20" bottom="20" left="20"/></padding>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label fx:id="lblType" style="-fx-background-color: #e6c86e; -fx-text-fill: #020617; -fx-padding: 5 15; -fx-background-radius: 12; -fx-font-weight: bold;"/>
+                <Label fx:id="lblDispo" style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-padding: 5 15; -fx-background-radius: 12;"/>
+            </HBox>
+            <Label fx:id="lblNom" styleClass="title" style="-fx-font-size: 32px;"/>
         </VBox>
-    </center>
+    </StackPane>
 
-    <bottom>
-        <Button text="Retour" onAction="#handleRetour"/>
-    </bottom>
-</BorderPane>
+    <VBox spacing="20" style="-fx-padding: 30;" VBox.vgrow="ALWAYS">
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="📍 Emplacement :" style="-fx-text-fill: #94a3b8; -fx-font-weight: bold;"/>
+            <Label fx:id="lblAdresse" style="-fx-text-fill: white; -fx-font-size: 16px;"/>
+        </HBox>
+        
+        <Label text="À propos de l'activité" style="-fx-text-fill: #e6c86e; -fx-font-weight: bold; -fx-font-size: 18px;"/>
+        
+        <TextArea fx:id="taDesc" editable="false" wrapText="true" VBox.vgrow="ALWAYS" 
+                  style="-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-text-fill: #cbd5e1; -fx-font-size: 15px; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 10; -fx-padding: 10;"/>
+
+        <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 20 0 0 0;">
+            <Button text="Retour" onAction="#handleRetour" styleClass="btn-secondary"/>
+            <Button text="Réserver Maintenant" onAction="#handleReserver" styleClass="btn-primary" style="-fx-font-size: 16px; -fx-padding: 12 30;"/>
+        </HBox>
+    </VBox>
+</VBox>

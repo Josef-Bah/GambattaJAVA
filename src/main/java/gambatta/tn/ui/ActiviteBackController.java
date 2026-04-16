@@ -13,9 +13,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.image.*;
 import javafx.stage.FileChooser;
 import java.io.File;
-import javafx.scene.image.Image;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.chart.PieChart;
@@ -34,12 +35,14 @@ public class ActiviteBackController {
 
     // --- TAB ACTIVITES ---
     @FXML private TableView<activite> tableActivites;
+    @FXML private TableColumn<activite, Integer> colActId;
+    @FXML private TableColumn<activite, String> colActImage;
     @FXML private TableColumn<activite, String> colActNom;
     @FXML private TableColumn<activite, String> colActType;
-    @FXML private TableColumn<activite, String> colActAdresse;
+    @FXML private TableColumn<activite, String> colActDispo;
     @FXML private TextField tfSearchActivites;
 
-    
+    @FXML private VBox vboxForm;
     @FXML private TextField tfActNom;
     @FXML private TextField tfActType;
     @FXML private TextField tfActDispo;
@@ -80,11 +83,96 @@ public class ActiviteBackController {
     private javafx.collections.ObservableList<ReservationActivite> masterReservations = FXCollections.observableArrayList();
 
     @FXML
+    void toggleForm() {
+        boolean v = vboxForm.isVisible();
+        vboxForm.setVisible(!v);
+        vboxForm.setManaged(!v);
+    }
+
+    @FXML
     public void initialize() {
         // Init Activites table
+        colActId.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("id"));
+        
+        colActImage.setCellFactory(param -> new TableCell<activite, String>() {
+            private final ImageView imgV = new ImageView();
+            private final HBox wrapper = new HBox(imgV);
+            {
+                imgV.setFitWidth(80); imgV.setFitHeight(50); imgV.setPreserveRatio(false);
+                javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(80, 50);
+                clip.setArcWidth(10); clip.setArcHeight(10);
+                imgV.setClip(clip);
+                wrapper.setAlignment(javafx.geometry.Pos.CENTER);
+            }
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow().getItem() == null) { setGraphic(null); }
+                else {
+                    activite a = getTableRow().getItem();
+                    Image finalImg = null;
+                    if(a.getImagea() != null && !a.getImagea().isEmpty()){
+                        try{
+                            if (a.getImagea().startsWith("http") || a.getImagea().startsWith("file:")) { finalImg = new Image(a.getImagea(), true); } 
+                            else { File f = new File(a.getImagea()); if (f.exists()) finalImg = new Image(f.toURI().toString(), true); }
+                        }catch(Exception e){}
+                    }
+                    if(finalImg == null || finalImg.isError()) finalImg = new Image("https://picsum.photos/seed/" + Math.abs(a.getNoma().hashCode()) + "/300/200", true);
+                    imgV.setImage(finalImg);
+                    setGraphic(wrapper);
+                }
+            }
+        });
+
         colActNom.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getNoma()));
-        colActType.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getTypea()));
-        colActAdresse.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getAdresse()));
+        colActNom.setCellFactory(param -> new TableCell<activite, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setGraphic(null); }
+                else {
+                    Label lbl = new Label(item.toUpperCase());
+                    lbl.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;");
+                    setGraphic(lbl);
+                }
+            }
+        });
+        
+        colActType.setCellFactory(param -> new TableCell<activite, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow().getItem() == null) { setGraphic(null); }
+                else {
+                    activite a = getTableRow().getItem();
+                    Label typeLbl = new Label(a.getTypea().toUpperCase());
+                    typeLbl.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-font-weight: bold;");
+                    Label badge = new Label(a.getTypea().substring(0, 1).toUpperCase() + a.getTypea().substring(1).toLowerCase());
+                    badge.setStyle("-fx-background-color: rgba(46, 213, 115, 0.15); -fx-text-fill: #2ed573; -fx-padding: 3 12; -fx-background-radius: 12; -fx-font-size: 11px;");
+                    HBox box = new HBox(15, typeLbl, badge);
+                    box.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                    setGraphic(box);
+                }
+            }
+        });
+
+        colActDispo.setCellFactory(param -> new TableCell<activite, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow().getItem() == null) { setGraphic(null); }
+                else {
+                    activite a = getTableRow().getItem();
+                    Label badge = new Label(a.getDispoa() != null && !a.getDispoa().isEmpty() ? a.getDispoa() : "Disponible");
+                    badge.setStyle("-fx-background-color: rgba(46, 213, 115, 0.2); -fx-text-fill: #2ed573; -fx-padding: 4 10; -fx-background-radius: 12; -fx-font-weight: bold;");
+                    HBox box = new HBox(badge);
+                    box.setAlignment(javafx.geometry.Pos.CENTER);
+                    setGraphic(box);
+                }
+            }
+        });
+
+
         
         tableActivites.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null) {
@@ -283,9 +371,103 @@ public class ActiviteBackController {
     @FXML void deleteActivite() {
         activite selected = tableActivites.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            activiteService.delete(selected.getId());
-            refreshAll();
+            try {
+                // Supression en cascade : on supprime d'abord les enfants
+                masterRules.stream()
+                    .filter(r -> r.getActiviteId() == selected.getId())
+                    .forEach(r -> rulesService.delete(r.getId()));
+                    
+                masterReservations.stream()
+                    .filter(r -> r.getActiviteId() == selected.getId())
+                    .forEach(r -> reservationService.delete(r.getId()));
+                    
+                // Ensuite on supprime le parent
+                activiteService.delete(selected.getId());
+                refreshAll();
+                
+                tfActNom.clear();
+                tfActType.clear();
+                tfActDispo.clear();
+                tfActAdresse.clear();
+                taActDesc.clear();
+                tfActImage.clear();
+            } catch (Exception ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Erreur lors de la suppression en cascade.");
+                alert.show();
+            }
         }
+    }
+
+    @FXML void suggestActivitiesAI() {
+        // Simulation d'une proposition par Intelligence Artificielle (Gemini/ChatGPT etc.)
+        String[] noms = {"Tournoi Valorant", "League of Legends Cup", "FIFA 24 Championship", "CS:GO Pro League", "Rocket League 3v3"};
+        String[] types = {"Esports", "MOBA", "Sports", "FPS", "Arcade"};
+        String[] dispos = {"Weekends", "Tous les jours", "Samedi soir", "Dimanche matin", "Vendredi"};
+        String[] adresses = {"Salle A", "Main Stage", "Console Area", "PC Room 1", "Streaming Room"};
+        String[] desc = {
+            "Un tournoi compétitif intense avec de nombreux prix à gagner.", 
+            "Bataille stratégique 5v5 pour la domination régionale.",
+            "Tournoi en 1v1 ou 2v2 sur le dernier opus de FIFA.",
+            "Compétition tactique à haute tension pour les puristes.",
+            "Des matchs rapides et techniques en équipe."
+        };
+                         
+        int rand = (int)(Math.random() * noms.length);
+        
+        tfActNom.setText(noms[rand]);
+        tfActType.setText(types[rand]);
+        tfActDispo.setText(dispos[rand]);
+        tfActAdresse.setText(adresses[rand]);
+        taActDesc.setText(desc[rand] + " [Généré par IA]");
+        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Suggestion IA");
+        alert.setHeaderText("L'IA a généré une suggestion d'activité !");
+        alert.setContentText("Les champs ont été remplis automatiquement. Vous pouvez les modifier et cliquer sur 'Ajouter'.");
+        alert.show();
+    }
+
+    @FXML
+    void handleVoiceSearch() {
+        try {
+            tfSearchActivites.setPromptText("🎙 Écoute en cours (5s)...");
+            tfSearchActivites.setText("");
+            new Thread(() -> {
+                try {
+                    String psCommand = "Add-Type -AssemblyName System.Speech; " +
+                        "$recognizer = New-Object System.Speech.Recognition.SpeechRecognitionEngine; " +
+                        "$recognizer.LoadGrammar((New-Object System.Speech.Recognition.DictationGrammar)); " +
+                        "$recognizer.SetInputToDefaultAudioDevice(); " +
+                        "$result = $recognizer.Recognize((New-TimeSpan -Seconds 5)); " +
+                        "if ($result -ne $null) { Write-Output $result.Text }";
+                    
+                    ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-Command", psCommand);
+                    pb.redirectErrorStream(true);
+                    Process process = pb.start();
+                    
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()));
+                    StringBuilder out = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        out.append(line).append(" ");
+                    }
+                    process.waitFor();
+                    String recognizedText = out.toString().trim();
+                    
+                    javafx.application.Platform.runLater(() -> {
+                        tfSearchActivites.setPromptText("Rechercher par nom, type...");
+                        if (!recognizedText.isEmpty()) {
+                            tfSearchActivites.setText(recognizedText);
+                        } else {
+                            tfSearchActivites.setPromptText("Bruit non reconnu...");
+                        }
+                    });
+                } catch (Exception e) {
+                    javafx.application.Platform.runLater(() -> tfSearchActivites.setPromptText("Erreur micro"));
+                }
+            }).start();
+        } catch (Exception e) {}
     }
 
     // --- RULES HANDLERS ---
@@ -356,9 +538,9 @@ public class ActiviteBackController {
         }
     }
 
-    @FXML void handleBackFront() {
+    @FXML void handleLogout() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/activites/ActiviteFront.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/activites/Portal.fxml"));
             tableActivites.getScene().setRoot(root);
         } catch (Exception e) {
             e.printStackTrace();

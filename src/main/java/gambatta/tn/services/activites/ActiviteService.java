@@ -18,7 +18,7 @@ public class ActiviteService {
     // ✅ CREATE
     public void add(activite a) {
 
-        String sql = "INSERT INTO activite (noma, typea, dispoa, descria, imagea, adresse, afav) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO activite (noma, typea, dispoa, descria, imagea, adresse, afav, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try {
             PreparedStatement ps = cnx.prepareStatement(sql);
@@ -30,6 +30,9 @@ public class ActiviteService {
             ps.setString(5, a.getImagea());
             ps.setString(6, a.getAdresse());
             ps.setBoolean(7, a.isAfav());
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            ps.setTimestamp(8, now);
+            ps.setTimestamp(9, now);
 
             ps.executeUpdate();
 
@@ -63,6 +66,8 @@ public class ActiviteService {
                 a.setImagea(rs.getString("imagea"));
                 a.setAdresse(rs.getString("adresse"));
                 a.setAfav(rs.getBoolean("afav"));
+                a.setCreated_at(rs.getTimestamp("created_at"));
+                a.setUpdated_at(rs.getTimestamp("updated_at"));
 
                 list.add(a);
             }
@@ -94,7 +99,7 @@ public class ActiviteService {
     // ✅ UPDATE
     public void update(activite a) {
 
-        String sql = "UPDATE activite SET noma=?, typea=?, dispoa=?, descria=?, imagea=?, adresse=?, afav=? WHERE id=?";
+        String sql = "UPDATE activite SET noma=?, typea=?, dispoa=?, descria=?, imagea=?, adresse=?, afav=?, updated_at=? WHERE id=?";
 
         try {
             PreparedStatement ps = cnx.prepareStatement(sql);
@@ -106,7 +111,8 @@ public class ActiviteService {
             ps.setString(5, a.getImagea());
             ps.setString(6, a.getAdresse());
             ps.setBoolean(7, a.isAfav());
-            ps.setInt(8, a.getId());
+            ps.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
+            ps.setInt(9, a.getId());
 
             ps.executeUpdate();
 

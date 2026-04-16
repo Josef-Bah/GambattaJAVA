@@ -5,19 +5,20 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="gambatta.tn.ui.ActiviteFrontController"
-            styleClass="root" stylesheets="@style.css">
+            styleClass="root" stylesheets="@style.css"
+            style="-fx-background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&amp;w=2070'); -fx-background-size: cover; -fx-background-position: center center;">
 
     <top>
         <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-background-color: rgba(30, 41, 59, 0.9); -fx-padding: 15 30 15 30; -fx-border-color: #334155; -fx-border-width: 0 0 1 0;">
             <Label text="GAMBATTA" styleClass="title" style="-fx-font-size: 24px;"/>
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="👨‍💻 Back-Office" onAction="#handleBackOffice" styleClass="btn-secondary"/>
+            <Button text="🚪 Déconnexion" onAction="#handleLogout" styleClass="btn-secondary" style="-fx-text-fill: #ff4757; -fx-border-color: rgba(255,71,87,0.5);"/>
             <Button text="📅 Mes Réservations" onAction="#handleMesReservations" styleClass="btn-primary"/>
         </HBox>
     </top>
 
     <center>
-        <VBox spacing="25" style="-fx-padding: 15;">
+        <VBox spacing="25" style="-fx-padding: 30; -fx-background-color: rgba(5, 11, 20, 0.85);">
             
             <HBox alignment="CENTER_LEFT" spacing="15">
                 <VBox>
@@ -27,6 +28,7 @@
                 <Region HBox.hgrow="ALWAYS" />
                 
                 <TextField fx:id="searchBar" promptText="🔍 Rechercher une activité..." styleClass="search-field" prefWidth="250" onKeyReleased="#handleSearch"/>
+                <Button text="🎤" styleClass="btn-icon" onAction="#handleVoiceSearch" />
                 
                 <ComboBox fx:id="sortCombo" promptText="Trier par..." styleClass="search-field" onAction="#handleSort"/>
                 

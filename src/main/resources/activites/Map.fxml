@@ -2,24 +2,55 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Rectangle?>
-<?import javafx.scene.paint.Color?>
+<?import javafx.scene.effect.DropShadow?>
 
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="gambatta.tn.ui.MapController"
-      alignment="CENTER" spacing="20" style="-fx-background-color: #020617; -fx-padding: 30;" stylesheets="@style.css">
+      alignment="CENTER" spacing="10" style="-fx-background-color: #050b14; -fx-padding: 30;" stylesheets="@style.css" prefWidth="750" prefHeight="500">
 
-    <Label fx:id="locationLabel" styleClass="title" />
-    <Label text="Voici où se trouve cette activité au sein du complexe" styleClass="subtitle"/>
+    <Label text="Carte du Complexe Gambatta" styleClass="title" style="-fx-font-size: 28px;"/>
+    <Label fx:id="locationLabel" text="Adresse Introuvable" style="-fx-text-fill: #e6c86e; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 0 0 20 0;"/>
 
-    <!-- Placeholder for an image map -->
-    <StackPane>
-        <Rectangle width="500" height="250" arcWidth="20" arcHeight="20" fill="#1e293b" stroke="#e6c86e" strokeWidth="2" />
-        <Label text="🗺️ Carte du complexe en 2D" style="-fx-text-fill: white; -fx-font-size: 20px;"/>
+    <StackPane VBox.vgrow="ALWAYS">
+        <!-- Base de la carte -->
+        <Rectangle width="650" height="300" fill="#0f172a" stroke="#334155" strokeWidth="2" arcWidth="15" arcHeight="15"/>
         
-        <!-- Placeholder Pin -->
-        <Label text="📍" style="-fx-text-fill: red; -fx-font-size: 30px;" translateY="-30" translateX="50"/>
+        <GridPane hgap="15" vgap="15" alignment="CENTER" maxWidth="620" maxHeight="270">
+            <rowConstraints>
+                <RowConstraints percentHeight="50"/>
+                <RowConstraints percentHeight="50"/>
+            </rowConstraints>
+            <columnConstraints>
+                <ColumnConstraints percentWidth="33.3"/>
+                <ColumnConstraints percentWidth="33.3"/>
+                <ColumnConstraints percentWidth="33.3"/>
+            </columnConstraints>
+            
+            <!-- Zone 1 : Terrain -->
+            <StackPane fx:id="paneTerrain1" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-background-color: #1e293b; -fx-background-radius: 10;">
+                <Label text="Terrain 1&#10;(Tennis/Foot/Padel)" textAlignment="CENTER" style="-fx-text-fill: #94a3b8;"/>
+                <Label fx:id="pin1" text="📍" style="-fx-text-fill: #ff4757; -fx-font-size: 35px;" visible="false" translateY="-15"/>
+            </StackPane>
+
+            <!-- Zone 2 : Main Stage -->
+            <StackPane fx:id="paneMainStage" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="2" style="-fx-background-color: #1e293b; -fx-background-radius: 10; -fx-border-color: rgba(255,215,0,0.3); -fx-border-radius: 10;">
+                <Label text="Main Stage / Grand Aréna" style="-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-font-size: 20px;"/>
+                <Label fx:id="pin2" text="📍" style="-fx-text-fill: #ff4757; -fx-font-size: 40px;" visible="false" translateY="-20"/>
+            </StackPane>
+
+            <!-- Zone 3 : Salle PC -->
+            <StackPane fx:id="paneSallePC" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" style="-fx-background-color: #1e293b; -fx-background-radius: 10;">
+                <Label text="PC Room (LAN / FPS)" style="-fx-text-fill: #94a3b8;"/>
+                <Label fx:id="pin3" text="📍" style="-fx-text-fill: #ff4757; -fx-font-size: 35px;" visible="false" translateY="-15"/>
+            </StackPane>
+
+            <!-- Zone 4 : Zone Console -->
+            <StackPane fx:id="paneConsole" GridPane.columnIndex="2" GridPane.rowIndex="1" style="-fx-background-color: #1e293b; -fx-background-radius: 10;">
+                <Label text="Console Area" style="-fx-text-fill: #94a3b8;"/>
+                <Label fx:id="pin4" text="📍" style="-fx-text-fill: #ff4757; -fx-font-size: 35px;" visible="false" translateY="-15"/>
+            </StackPane>
+        </GridPane>
     </StackPane>
 
-    <Button fx:id="closeBtn" text="Fermer" onAction="#closeWindow" styleClass="btn-primary" />
-
+    <Button fx:id="closeBtn" text="Fermer la carte" onAction="#closeWindow" styleClass="btn-secondary" style="-fx-padding: 10 30; -fx-margin-top: 20;"/>
 </VBox>

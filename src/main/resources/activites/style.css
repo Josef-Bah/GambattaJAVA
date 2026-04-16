@@ -44,34 +44,41 @@
 
 /* BUTTONS */
 .btn-primary {
-    -fx-background-color: linear-gradient(to right, #e6c86e, #f39c12);
+    -fx-background-color: linear-gradient(to bottom right, #FFD700, #ff9f43);
     -fx-text-fill: #020617;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 10;
-    -fx-padding: 10 20 10 20;
-    -fx-effect: dropshadow(gaussian, rgba(230,200,110,0.4), 8, 0, 0, 0);
+    -fx-font-size: 15px;
+    -fx-font-weight: 900;
+    -fx-background-radius: 8;
+    -fx-border-color: #FFD700;
+    -fx-border-radius: 8;
+    -fx-padding: 12 25 12 25;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.4), 10, 0, 0, 0);
 }
 .btn-primary:hover {
-    -fx-background-color: linear-gradient(to right, #f39c12, #e6c86e);
+    -fx-background-color: linear-gradient(to bottom right, #ff9f43, #FFD700);
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 20, 0, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
     -fx-cursor: hand;
-    -fx-translate-y: -2;
 }
 
 .btn-secondary {
-    -fx-background-color: transparent;
-    -fx-text-fill: #e6c86e;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-    -fx-border-color: #e6c86e;
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-padding: 10 20 10 20;
+    -fx-background-color: rgba(255, 215, 0, 0.1);
+    -fx-text-fill: #FFD700;
+    -fx-font-size: 15px;
+    -fx-font-weight: 900;
+    -fx-border-color: #FFD700;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 12 25 12 25;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.3), 10, 0, 0, 0);
 }
 .btn-secondary:hover {
-    -fx-background-color: rgba(230, 200, 110, 0.15);
+    -fx-background-color: rgba(255, 215, 0, 0.25);
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 20, 0, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
     -fx-cursor: hand;
-    -fx-translate-y: -2;
 }
 
 .btn-icon {

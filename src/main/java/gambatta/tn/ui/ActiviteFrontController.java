@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class ActiviteFrontController {
 
@@ -55,14 +56,22 @@ public class ActiviteFrontController {
 
     private void displayActivities(List<activite> list) {
         activitiesPane.getChildren().clear();
-        for (activite a : list) {
+        
+        // Trier pour mettre les favoris en haut ! (coeur de l'activite favoris devient au premier)
+        List<activite> sortedList = list.stream()
+                .sorted(Comparator.comparing(activite::isAfav).reversed()
+                        .thenComparing(activite::getNoma))
+                .collect(Collectors.toList());
+
+        for (activite a : sortedList) {
             activitiesPane.getChildren().add(createCard(a));
         }
     }
 
     private VBox createCard(activite a) {
         VBox card = new VBox();
-        card.setPrefWidth(320); // Slightly wider to fill screen better
+        card.setPrefWidth(380); // Much wider to fill screen better
+        card.setMaxWidth(380);
         card.getStyleClass().add("card");
         
         // Interactive E-Sport effect
@@ -79,58 +88,18 @@ public class ActiviteFrontController {
 
         // 1. IMAGE HEADER with Overlays (StackPane)
         StackPane imageHeader = new StackPane();
-        imageHeader.setPrefHeight(180);
+        imageHeader.setPrefHeight(220);
         
         ImageView imageView = new ImageView();
         try {
-            String dbImage = a.getImagea();
-            Image finalImg = null;
-            
-            if (dbImage != null && !dbImage.trim().isEmpty()) {
-                if (dbImage.startsWith("http") || dbImage.startsWith("file:")) {
-                    finalImg = new Image(dbImage, true);
-                } else {
-                    java.io.File fb = new java.io.File(dbImage);
-                    if (fb.exists()) finalImg = new Image(fb.toURI().toString(), true);
-                    else {
-                        try {
-                            java.net.URL dbUrl = getClass().getResource("/activites/images/" + dbImage);
-                            if (dbUrl != null) finalImg = new Image(dbUrl.toExternalForm());
-                        } catch (Exception x) { }
-                    }
-                }
-            }
-            
-            // Smart Match if no specific image
-            if (finalImg == null || finalImg.isError()) {
-                String noma = a.getNoma().toLowerCase();
-                String fileName = null;
-                if (noma.contains("nba") || noma.contains("2k")) fileName = "nba.png";
-                else if (noma.contains("call of duty") || noma.contains("cod") || noma.contains("black ops")) fileName = "cod.png";
-                else if (noma.contains("fifa") || noma.contains("fc")) fileName = "fifa.png";
-                else if (noma.contains("counter") || noma.contains("csgo") || noma.contains("cs")) fileName = "csgo.png";
-                
-                if (fileName != null) {
-                    try {
-                         java.net.URL resUrl = getClass().getResource("/activites/images/" + fileName);
-                         if (resUrl != null) finalImg = new Image(resUrl.toExternalForm(), true);
-                    } catch (Exception ez) {}
-                }
-            }
-            
-            // Fallback for custom games (GOLF, WOW, TENNIS, ISRAAA) to guarantee unique images!
-            if (finalImg == null || finalImg.isError()) {
-                int seed = Math.abs(a.getNoma().hashCode());
-                finalImg = new Image("https://picsum.photos/seed/" + seed + "/320/180", true);
-            }
-            
-            imageView.setImage(finalImg);
+            String imgUrl = getImageUrlForActivite(a);
+            imageView.setImage(new Image(imgUrl, true));
         } catch (Exception ex) {
             System.out.println("Image loading err: " + ex.getMessage());
         }
         
-        imageView.setFitWidth(320);
-        imageView.setFitHeight(180);
+        imageView.setFitWidth(380);
+        imageView.setFitHeight(220);
         imageView.setPreserveRatio(false);
 
         // Gradient Overlay over the image
@@ -141,14 +110,24 @@ public class ActiviteFrontController {
         
         Label name = new Label(a.getNoma().toUpperCase());
         name.getStyleClass().add("card-title");
-        name.setStyle("-fx-font-size: 22px; -fx-text-fill: #FFFFFF;");
+        name.setStyle("-fx-font-size: 26px; -fx-text-fill: #FFFFFF; -fx-font-weight: 900; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 5, 0, 0, 2);");
         
         Label type = new Label(a.getTypea() + " • " + a.getAdresse());
         type.getStyleClass().add("card-desc");
         type.setStyle("-fx-text-fill: #94a3b8;");
 
         gradientOverlay.getChildren().addAll(name, type);
+        
         imageHeader.getChildren().addAll(imageView, gradientOverlay);
+
+        // BADGE FAVORIS EN HAUT DROITE SI C'EST UN FAVORI
+        if (a.isAfav()) {
+            Label favBadge = new Label("⭐ FAVORIS");
+            favBadge.setStyle("-fx-background-color: #FFD700; -fx-text-fill: #1e293b; -fx-font-weight: 900; -fx-padding: 5 10; -fx-background-radius: 20;");
+            StackPane.setAlignment(favBadge, Pos.TOP_RIGHT);
+            StackPane.setMargin(favBadge, new javafx.geometry.Insets(10));
+            imageHeader.getChildren().add(favBadge);
+        }
 
         // 2. ACTIONS AREA
         VBox actionsArea = new VBox(15);
@@ -161,11 +140,12 @@ public class ActiviteFrontController {
         btnReserver.getStyleClass().add("btn-primary");
         btnReserver.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(btnReserver, Priority.ALWAYS);
-        btnReserver.setStyle("-fx-font-size: 15px; -fx-padding: 12px;");
+        btnReserver.setStyle("-fx-font-size: 16px; -fx-padding: 14px; -fx-font-weight: bold;");
         btnReserver.setOnAction(e -> reserver(a));
 
         Button btnDetails = new Button("Détails");
         btnDetails.getStyleClass().add("btn-secondary");
+        btnDetails.setStyle("-fx-font-size: 15px; -fx-padding: 14px;");
         btnDetails.setOnAction(e -> showDetails(a));
         
         primaryActions.getChildren().addAll(btnReserver, btnDetails);
@@ -184,7 +164,7 @@ public class ActiviteFrontController {
         btnCalendar.setTooltip(new Tooltip("Calendrier"));
         btnCalendar.setOnAction(e -> showCalendar());
 
-        Button btnFav = new Button(a.isAfav() ? "❤️" : "🤍");
+        Button btnFav = new Button(a.isAfav() ? "❤" : "♡");
         btnFav.getStyleClass().add("btn-fav");
         btnFav.setStyle("-fx-font-size: 20px;");
         btnFav.setTooltip(new Tooltip("Favoris"));
@@ -202,43 +182,115 @@ public class ActiviteFrontController {
     private void toggleFavText(activite a, Button btn) {
         a.setAfav(!a.isAfav());
         activiteService.update(a);
-        btn.setText(a.isAfav() ? "❤️" : "🤍");
+        btn.setText(a.isAfav() ? "❤" : "♡");
+        // Reload all activities to apply the exact sorting
+        loadActivities();
     }
 
     private void reserver(activite a) {
-        ReservationActivite r = new ReservationActivite(
-                new Date(),
-                "10:00",
-                "EN_ATTENTE",
-                a.getId(),
-                1,
-                null
-        );
-        reservationService.add(r);
-        alert("Succès", "Demande de réservation envoyée pour " + a.getNoma());
+        boolean userConfirmed = true;
+
+        if (a.getTypea() != null && a.getTypea().toLowerCase().contains("sport")) {
+            Alert weatherAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            weatherAlert.setTitle("Météo & Confirmation");
+            weatherAlert.setHeaderText(null);
+            
+            VBox weatherBox = new VBox(15);
+            weatherBox.setAlignment(Pos.CENTER);
+            weatherBox.setStyle("-fx-background-color: linear-gradient(to bottom, #1c2541, #0b132b); -fx-padding: 30; -fx-background-radius: 20;");
+            
+            Label locLabel = new Label("📍 Emplacement: " + a.getAdresse());
+            locLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 14px;");
+
+            Label tempLabel = new Label("22°C 🌤");
+            tempLabel.setStyle("-fx-text-fill: white; -fx-font-size: 48px; -fx-font-weight: bold;");
+
+            Label condLabel = new Label("Temps idéal pour faire du sport !\\nVent faible, partiellement nuageux.");
+            condLabel.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 14px;");
+            condLabel.setAlignment(Pos.CENTER);
+            condLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+
+            Label qLabel = new Label("Voulez-vous vraiment réserver ?");
+            qLabel.setStyle("-fx-text-fill: #f59e0b; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;");
+
+            weatherBox.getChildren().addAll(locLabel, tempLabel, condLabel, qLabel);
+            
+            weatherAlert.getDialogPane().setContent(weatherBox);
+            weatherAlert.getDialogPane().setStyle("-fx-background-color: #0b132b; -fx-border-color: #f59e0b; -fx-border-width: 2px; -fx-border-radius: 10px;");
+            
+            ButtonType btnYes = new ButtonType("Oui, Réserver", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
+            ButtonType btnNo = new ButtonType("Annuler", javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE);
+            weatherAlert.getButtonTypes().setAll(btnYes, btnNo);
+
+            Optional<ButtonType> result = weatherAlert.showAndWait();
+            if (!result.isPresent() || result.get() != btnYes) {
+                userConfirmed = false;
+            }
+        }
+
+        if (userConfirmed) {
+            ReservationActivite r = new ReservationActivite(
+                    new Date(),
+                    "10:00",
+                    "EN_ATTENTE",
+                    a.getId(),
+                    1,
+                    null
+            );
+            reservationService.add(r);
+            
+            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+            successAlert.setTitle("Réservation confirmée");
+            successAlert.setHeaderText(null);
+            
+            VBox box = new VBox(10);
+            box.setStyle("-fx-background-color: #0f172a; -fx-padding: 20;");
+            Label lbl = new Label("Demande de réservation envoyée pour " + a.getNoma() + ".");
+            lbl.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+            lbl.setWrapText(true);
+            box.getChildren().add(lbl);
+            successAlert.getDialogPane().setContent(box);
+            successAlert.getDialogPane().setStyle("-fx-background-color: #0f172a;");
+
+            successAlert.showAndWait();
+        }
     }
 
     private void showDetails(activite a) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Détails de l'activité");
-        alert.setHeaderText(a.getNoma());
-        
-        VBox content = new VBox(10);
-        content.getChildren().add(new Label("Type: " + a.getTypea()));
-        content.getChildren().add(new Label("Disponibilité: " + a.getDispoa()));
-        content.getChildren().add(new Label("Description: \n" + a.getDescria()));
-        content.getChildren().add(new Label("Adresse: " + a.getAdresse()));
-        
-        alert.getDialogPane().setContent(content);
-        alert.show();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/activites/DetailsActivite.fxml"));
+            Parent root = loader.load();
+            
+            DetailsActiviteController controller = loader.getController();
+            
+            // On récupère exactement la même URL !
+            String imgUrl = getImageUrlForActivite(a);
+            
+            controller.setActivityDetails(a, imgUrl);
+
+            Stage stage = new Stage();
+            stage.setTitle("Détails - " + a.getNoma());
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            alert("Erreur", "Veuillez implémenter DetailsActivite.fxml. " + ex.getMessage());
+        }
     }
 
     private void showMap(activite a) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/activites/Map.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/activites/Map.fxml"));
+            Parent root = loader.load();
+
+            MapController controller = loader.getController();
+            controller.setActivityLocation(a.getAdresse());
+
             Stage stage = new Stage();
             stage.setTitle("Emplacement - " + a.getNoma());
-            stage.setScene(new Scene(root, 600, 400));
+            stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
         } catch (Exception ex) {
@@ -263,6 +315,49 @@ public class ActiviteFrontController {
                 .filter(a -> a.getNoma().toLowerCase().contains(kw) || a.getTypea().toLowerCase().contains(kw))
                 .collect(Collectors.toList());
         displayActivities(filtered);
+    }
+
+    @FXML
+    void handleVoiceSearch() {
+        try {
+            searchBar.setPromptText("🎙 Écoute en cours (5s)...");
+            searchBar.setText("");
+            new Thread(() -> {
+                try {
+                    String psCommand = "Add-Type -AssemblyName System.Speech; " +
+                        "$recognizer = New-Object System.Speech.Recognition.SpeechRecognitionEngine; " +
+                        "$recognizer.LoadGrammar((New-Object System.Speech.Recognition.DictationGrammar)); " +
+                        "$recognizer.SetInputToDefaultAudioDevice(); " +
+                        "$result = $recognizer.Recognize((New-TimeSpan -Seconds 5)); " +
+                        "if ($result -ne $null) { Write-Output $result.Text }";
+                    
+                    ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-Command", psCommand);
+                    pb.redirectErrorStream(true);
+                    Process process = pb.start();
+                    
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()));
+                    StringBuilder out = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        out.append(line).append(" ");
+                    }
+                    process.waitFor();
+                    String recognizedText = out.toString().trim();
+                    
+                    javafx.application.Platform.runLater(() -> {
+                        searchBar.setPromptText("🔍 Rechercher une activité...");
+                        if (!recognizedText.isEmpty()) {
+                            searchBar.setText(recognizedText);
+                            handleSearch();
+                        } else {
+                            searchBar.setPromptText("Bruit non reconnu...");
+                        }
+                    });
+                } catch (Exception e) {
+                    javafx.application.Platform.runLater(() -> searchBar.setPromptText("Erreur micro"));
+                }
+            }).start();
+        } catch (Exception e) {}
     }
 
     @FXML
@@ -384,8 +479,8 @@ public class ActiviteFrontController {
     }
 
     @FXML
-    void handleBackOffice() {
-        navigate("/activites/ActiviteBack.fxml");
+    void handleLogout() {
+        navigate("/activites/Portal.fxml");
     }
 
     private void navigate(String path) {
@@ -404,5 +499,34 @@ public class ActiviteFrontController {
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.showAndWait();
+    }
+
+    private String getImageUrlForActivite(activite a) {
+        String dbImage = a.getImagea();
+        if (dbImage != null && !dbImage.trim().isEmpty()) {
+            if (dbImage.startsWith("http") || dbImage.startsWith("file:")) return dbImage;
+            java.io.File fb = new java.io.File(dbImage);
+            if (fb.exists()) return fb.toURI().toString();
+            try {
+                java.net.URL dbUrl = getClass().getResource("/activites/images/" + dbImage);
+                if (dbUrl != null) return dbUrl.toExternalForm();
+            } catch (Exception x) { }
+        }
+        
+        String noma = a.getNoma().toLowerCase();
+        String fileName = null;
+        if (noma.contains("nba") || noma.contains("2k")) fileName = "nba.png";
+        else if (noma.contains("call of duty") || noma.contains("cod") || noma.contains("black ops")) fileName = "cod.png";
+        else if (noma.contains("fifa") || noma.contains("fc")) fileName = "fifa.png";
+        else if (noma.contains("counter") || noma.contains("csgo") || noma.contains("cs")) fileName = "csgo.png";
+        
+        if (fileName != null) {
+            try {
+                 java.net.URL resUrl = getClass().getResource("/activites/images/" + fileName);
+                 if (resUrl != null) return resUrl.toExternalForm();
+            } catch (Exception ez) {}
+        }
+        
+        return "https://picsum.photos/seed/" + Math.abs(a.getNoma().hashCode()) + "/380/220";
     }
 }

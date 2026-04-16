@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.effect.DropShadow?>
+
+<VBox fx:id="rootVBox" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gambatta.tn.ui.PortalController"
+      styleClass="root" stylesheets="@style.css"
+      style="-fx-background-image: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&amp;w=2070'); -fx-background-size: cover; -fx-background-position: center center;"
+      alignment="CENTER" spacing="50">
+
+    <VBox alignment="CENTER" spacing="10" style="-fx-background-color: rgba(15, 23, 42, 0.85); -fx-padding: 40; -fx-background-radius: 20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 20, 0, 0, 10);" maxWidth="600">
+        
+        <Label text="Bienvenue sur GAMBATTA" styleClass="title" style="-fx-font-size: 36px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+        <Label text="Veuillez sélectionner votre espace de connexion" styleClass="subtitle" style="-fx-font-size: 16px; -fx-text-fill: #94a3b8;"/>
+
+        <HBox spacing="30" alignment="CENTER" style="-fx-padding: 40 0 10 0;">
+            <!-- User Login -->
+            <VBox alignment="CENTER" spacing="20" styleClass="card" style="-fx-cursor: hand; -fx-padding: 30; -fx-pref-width: 250;" onMouseClicked="#handleUserLogin">
+                <Label text="👤" style="-fx-font-size: 60px; -fx-text-fill: #3b82f6;"/>
+                <Label text="ESPACE CLIENT" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Label text="Réserver des activités, consulter le catalogue" style="-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-text-alignment: center;" wrapText="true"/>
+                <Button text="Connexion User" onAction="#handleUserLogin" styleClass="btn-primary" prefWidth="200"/>
+            </VBox>
+
+            <!-- Admin Login -->
+            <VBox alignment="CENTER" spacing="20" styleClass="card" style="-fx-cursor: hand; -fx-padding: 30; -fx-pref-width: 250;" onMouseClicked="#handleAdminLogin">
+                <Label text="👨‍💻" style="-fx-font-size: 60px; -fx-text-fill: #FFD700;"/>
+                <Label text="ESPACE ADMIN" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Label text="Gérer les activités, valider les réservations" style="-fx-font-size: 13px; -fx-text-fill: #94a3b8; -fx-text-alignment: center;" wrapText="true"/>
+                <Button text="Connexion Admin" onAction="#handleAdminLogin" styleClass="btn-secondary" prefWidth="200"/>
+            </VBox>
+        </HBox>
+    </VBox>
+</VBox>

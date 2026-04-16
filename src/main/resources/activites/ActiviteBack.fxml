@@ -9,7 +9,7 @@
 
     <top>
         <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-background-color: #1e293b; -fx-padding: 15 30 15 30; -fx-border-color: #334155; -fx-border-width: 0 0 1 0;">
-            <Button text="⬅ Front-Office" onAction="#handleBackFront" styleClass="btn-secondary"/>
+            <Button text="🚪 Déconnexion" onAction="#handleLogout" styleClass="btn-secondary" style="-fx-text-fill: #ff4757; -fx-border-color: rgba(255,71,87,0.5);"/>
             <Label text="GAMBATTA - ADMIN DASHBOARD" styleClass="title" style="-fx-font-size: 24px;"/>
         </HBox>
     </top>
@@ -18,42 +18,78 @@
         <TabPane>
             <!-- TAB 1: ACTIVITES -->
             <Tab text="Gestion Activités" closable="false">
-                <VBox spacing="10">
-                    <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-padding: 10 20 0 20;">
-                        <TextField fx:id="tfSearchActivites" promptText="🔍 Rechercher Activité..." styleClass="search-field" prefWidth="300"/>
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Button text="📄 Exporter PDF" onAction="#exportActivitesPDF" styleClass="btn-secondary"/>
-                    </HBox>
-                    <HBox spacing="20" style="-fx-padding: 10 20 20 20;" VBox.vgrow="ALWAYS">
-                        <TableView fx:id="tableActivites" HBox.hgrow="ALWAYS" styleClass="search-field">
-                            <columns>
-                                <TableColumn fx:id="colActNom" text="Nom" prefWidth="150" />
-                                <TableColumn fx:id="colActType" text="Type" prefWidth="150" />
-                                <TableColumn fx:id="colActAdresse" text="Adresse" prefWidth="150" />
-                            </columns>
-                        </TableView>
-                        <VBox spacing="10" prefWidth="350" styleClass="card">
-                            <Label text="Détails" styleClass="card-title"/>
-                            <TextField fx:id="tfActNom" promptText="Nom" styleClass="search-field"/>
-                            <TextField fx:id="tfActType" promptText="Type" styleClass="search-field"/>
-                            <TextField fx:id="tfActDispo" promptText="Disponibilité" styleClass="search-field"/>
-                            <TextField fx:id="tfActAdresse" promptText="Adresse" styleClass="search-field"/>
-                            <TextArea fx:id="taActDesc" promptText="Description" prefRowCount="4" styleClass="search-field"/>
+                <ScrollPane fitToWidth="true" style="-fx-background-color: #050b14; -fx-background: #050b14;">
+                    <VBox spacing="20" style="-fx-padding: 30; -fx-background-color: #050b14;">
+                        
+                        <!-- CARD HEADER MATCHING SCREENSHOT -->
+                        <VBox style="-fx-background-color: #1e293b; -fx-background-radius: 15; -fx-padding: 25; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 5);" spacing="20">
                             
-                            <HBox spacing="10" alignment="CENTER_LEFT">
-                                <TextField fx:id="tfActImage" promptText="Image (Chemin URL)" editable="false" styleClass="search-field" HBox.hgrow="ALWAYS"/>
-                                <Button text="Parcourir..." onAction="#handleSelectImage" styleClass="btn-secondary"/>
+                            <HBox alignment="CENTER_LEFT">
+                                <VBox spacing="5">
+                                    <Label text="Registre des Activités" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;"/>
+                                    <Label text="Interface Administrative Gambatta" style="-fx-text-fill: #94a3b8; -fx-font-size: 14px;"/>
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <HBox spacing="15" alignment="CENTER">
+                                    <Button text="📄" styleClass="btn-icon" onAction="#exportActivitesPDF" style="-fx-background-color: #0f172a;"/>
+                                    <Button text="📊" styleClass="btn-icon" style="-fx-background-color: #0f172a;"/>
+                                    <Button text="+" styleClass="btn-primary" style="-fx-background-radius: 50%; -fx-min-width: 45px; -fx-min-height: 45px; -fx-font-size: 20px;" onAction="#toggleForm"/>
+                                </HBox>
                             </HBox>
-                            <ImageView fx:id="ivImagePreview" fitWidth="310" fitHeight="120" preserveRatio="false" />
+                            
+                            <!-- SEARCH & FILTERS ROW -->
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <TextField fx:id="tfSearchActivites" promptText="Rechercher par nom, type..." 
+                                           style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-background-radius: 20; -fx-pref-height: 45px; -fx-padding: 0 20;" HBox.hgrow="ALWAYS"/>
+                                <Button text="🔍" styleClass="btn-icon" style="-fx-background-color: #0f172a; -fx-min-width: 45px; -fx-min-height: 45px;"/>
+                                <Button text="🎤" onAction="#handleVoiceSearch" styleClass="btn-icon" style="-fx-background-color: #0f172a; -fx-min-width: 45px; -fx-min-height: 45px;"/>
+                                <Button text="🗑" styleClass="btn-icon" style="-fx-background-color: #0f172a; -fx-min-width: 45px; -fx-min-height: 45px;"/>
+                                <Region prefWidth="20"/>
+                                <Button text="📅" styleClass="btn-icon" style="-fx-background-color: rgba(255,255,255,0.1); -fx-min-width: 40px; -fx-min-height: 40px;"/>
+                                <Button text="≡" styleClass="btn-icon" style="-fx-background-color: rgba(255,255,255,0.1); -fx-min-width: 40px; -fx-min-height: 40px;"/>
+                            </HBox>
 
-                            <HBox spacing="10" alignment="CENTER">
-                                <Button text="Ajouter" onAction="#addActivite" styleClass="btn-primary"/>
-                                <Button text="Modifier" onAction="#updateActivite" styleClass="btn-secondary"/>
-                                <Button text="Sup" onAction="#deleteActivite" styleClass="btn-secondary" style="-fx-text-fill: red;"/>
+                            <!-- TABLE AND FORM HBOX -->
+                            <HBox spacing="20" VBox.vgrow="ALWAYS">
+                                
+                                <!-- TABLE VIEW -->
+                                <TableView fx:id="tableActivites" styleClass="search-field" style="-fx-background-color: transparent; -fx-border-width: 0; -fx-fixed-cell-size: 65px; -fx-control-inner-background: transparent; -fx-table-cell-border-color: rgba(255,255,255,0.05);" prefHeight="600" HBox.hgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="colActId" text="ID" prefWidth="60" style="-fx-alignment: CENTER; -fx-font-weight: bold; -fx-text-fill: #3b82f6;" />
+                                        <TableColumn fx:id="colActImage" text="IMAGE" prefWidth="120" style="-fx-alignment: CENTER;" />
+                                        <TableColumn fx:id="colActNom" text="NOM" prefWidth="200" />
+                                        <TableColumn fx:id="colActType" text="TYPE" prefWidth="200" />
+                                        <TableColumn fx:id="colActDispo" text="DISPO" prefWidth="150" style="-fx-alignment: CENTER;" />
+                                    </columns>
+                                </TableView>
+
+                                <!-- ALWAYS VISIBLE FORM FOR ADD/EDIT ON THE RIGHT -->
+                                <VBox fx:id="vboxForm" spacing="10" prefWidth="350" styleClass="card" HBox.hgrow="NEVER">
+                                    <Label text="Détails" styleClass="card-title"/>
+                                    <TextField fx:id="tfActNom" promptText="Nom" styleClass="search-field"/>
+                                    <TextField fx:id="tfActType" promptText="Type" styleClass="search-field"/>
+                                    <TextField fx:id="tfActDispo" promptText="Disponibilité" styleClass="search-field"/>
+                                    <TextField fx:id="tfActAdresse" promptText="Emplacement dans le complexe (ex: Terrain A)" styleClass="search-field"/>
+                                    <TextArea fx:id="taActDesc" promptText="Description" prefRowCount="4" styleClass="search-field"/>
+                                    
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <TextField fx:id="tfActImage" promptText="Image URL" editable="false" styleClass="search-field" HBox.hgrow="ALWAYS"/>
+                                        <Button text="Parcourir" onAction="#handleSelectImage" styleClass="btn-secondary"/>
+                                    </HBox>
+                                    <ImageView fx:id="ivImagePreview" fitWidth="310" fitHeight="120" preserveRatio="false" />
+
+                                    <HBox spacing="10" alignment="CENTER">
+                                        <Button text="Ajouter" onAction="#addActivite" styleClass="btn-primary"/>
+                                        <Button text="Modifier" onAction="#updateActivite" styleClass="btn-secondary"/>
+                                        <Button text="Sup" onAction="#deleteActivite" styleClass="btn-secondary" style="-fx-text-fill: #ff4757;"/>
+                                    </HBox>
+                                    <Button text="🤖 Proposer par IA" onAction="#suggestActivitiesAI" prefWidth="Infinity" styleClass="btn-secondary" style="-fx-text-fill: #9c88ff; -fx-border-color: #9c88ff; -fx-margin-top: 10px;"/>
+                                </VBox>
+                                
                             </HBox>
                         </VBox>
-                    </HBox>
-                </VBox>
+                    </VBox>
+                </ScrollPane>
             </Tab>
 
             <!-- TAB 2: RULES -->
