@@ -12,6 +12,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -112,10 +114,43 @@ public class ShopController {
         card.setPrefWidth(220);
         card.setAlignment(Pos.CENTER_LEFT);
 
-        // Placeholder for image
-        Region imgRegion = new Region();
-        imgRegion.setPrefSize(180, 150);
-        imgRegion.setStyle("-fx-background-color:#f8fafc; -fx-background-radius:10;");
+        // Image display logic pointing strictly to our new local path
+        StackPane imgWrapper = new StackPane();
+        imgWrapper.setPrefSize(180, 150);
+        imgWrapper.setStyle("-fx-background-color:#f8fafc; -fx-background-radius:10;");
+        
+        ImageView imgView = new ImageView();
+        imgView.setFitWidth(180);
+        imgView.setFitHeight(150);
+        imgView.setPreserveRatio(true);
+        imgWrapper.getChildren().add(imgView);
+
+        // Restoring robust image loading logic with multiple fallbacks
+        String imgName = p.getImagep();
+        if (imgName != null && !imgName.isEmpty()) {
+            try {
+                // Priority 1: Local project folder (New uploads)
+                java.io.File localFile = new java.io.File("uploads/produits/" + imgName);
+                if (localFile.exists()) {
+                    imgView.setImage(new javafx.scene.image.Image(localFile.toURI().toString(), true));
+                } else {
+                    // Priority 2: Symfony Dev Server
+                    String symfonyUrl = "http://127.0.0.1:8000/uploads/produits/" + imgName;
+                    javafx.scene.image.Image symfonyImg = new javafx.scene.image.Image(symfonyUrl, true);
+                    
+                    // Priority 3: XAMPP / Apache Fallback
+                    symfonyImg.errorProperty().addListener((obs, oldV, isError) -> {
+                        if (java.lang.Boolean.TRUE.equals(isError)) {
+                            String xamppUrl = "http://127.0.0.1/Gambatta/public/uploads/produits/" + imgName;
+                            imgView.setImage(new javafx.scene.image.Image(xamppUrl, true));
+                        }
+                    });
+                    imgView.setImage(symfonyImg);
+                }
+            } catch (Exception ex) {
+                // Silently fail and keep empty/gray if no source works
+            }
+        }
 
         String pName = p.getNomp() == null ? "Produit sans nom" : p.getNomp();
         Label name = new Label(pName);
@@ -135,7 +170,7 @@ public class ShopController {
         btnAdd.setStyle("-fx-background-color:#021b61; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:10; -fx-padding:10;");
         btnAdd.setOnAction(e -> addToCart(p));
 
-        card.getChildren().addAll(imgRegion, name, price, kcal, btnAdd);
+        card.getChildren().addAll(imgWrapper, name, price, kcal, btnAdd);
         return card;
     }
 

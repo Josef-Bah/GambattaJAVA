@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="03a0b707-64b1-4160-9b99-fb160fc0c882" name="Changes" comment="Interface v2.0">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/IntelliLang.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/mains/ProduitFX.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/mains/ProduitFX.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/CrudProduitController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/CrudProduitController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/ShopController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/ShopController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/buvette/CrudProduitManagement.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/buvette/CrudProduitManagement.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" show_ignored="true" />
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_C:/Users/youss/OneDrive/Documents/GitHub/GambattaJAVA" value="3C8E351xnIsiptYKsfGrinR0zM5" />
+    </persistenceIdMap>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="module-info" />
+        <option value="FxmlFile" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="PREVIEW_PUSH_PROTECTED_ONLY" value="true" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Josef-Bah&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Josef-Bah/GambattaJAVA.git&quot;,
+    &quot;accountId&quot;: &quot;580c8e66-1718-4e02-9332-566f54724cdb&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="3C8E351xnIsiptYKsfGrinR0zM5" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.ProduitFX.executor&quot;: &quot;Debug&quot;,
+    &quot;Application.main.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Gambatta [--module-path...].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Gambatta [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Gambatta.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;buvette&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\youss\OneDrive\Documents\GitHub\GambattaJAVA\src\main\java\gambatta\tn\ui\buvette" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="ProduitFX" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="gambatta.tn.mains.ProduitFX" />
+      <module name="Gambatta" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="gambatta.tn.mains.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.ProduitFX" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.25557.131" />
+        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-IU-252.25557.131" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="03a0b707-64b1-4160-9b99-fb160fc0c882" name="Changes" comment="" />
+      <created>1775758595908</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1775758595908</updated>
+      <workItem from="1775828799267" duration="243000" />
+      <workItem from="1776187564467" duration="5626000" />
+      <workItem from="1776203768229" duration="295000" />
+      <workItem from="1776204094488" duration="2184000" />
+      <workItem from="1776206305711" duration="11261000" />
+      <workItem from="1776219930407" duration="99000" />
+      <workItem from="1776262046269" duration="4181000" />
+      <workItem from="1776267760723" duration="3991000" />
+      <workItem from="1776290167024" duration="997000" />
+      <workItem from="1776291438025" duration="1612000" />
+      <workItem from="1776363788034" duration="4388000" />
+      <workItem from="1776368532733" duration="5761000" />
+      <workItem from="1776414495998" duration="2716000" />
+      <workItem from="1776418059281" duration="120000" />
+      <workItem from="1776418206531" duration="2152000" />
+    </task>
+    <task id="LOCAL-00001" summary="commit">
+      <option name="closed" value="true" />
+      <created>1775759065040</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1775759065040</updated>
+    </task>
+    <task id="LOCAL-00002" summary="crud T v1">
+      <option name="closed" value="true" />
+      <created>1775787471318</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1775787471318</updated>
+    </task>
+    <task id="LOCAL-00003" summary="crud T menu">
+      <option name="closed" value="true" />
+      <created>1775787803213</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1775787803213</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Interface v1">
+      <option name="closed" value="true" />
+      <created>1776219806183</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1776219806183</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Interface v2.0">
+      <option name="closed" value="true" />
+      <created>1776375165245</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1776375165246</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="commit" />
+    <MESSAGE value="crud T v1" />
+    <MESSAGE value="crud T menu" />
+    <MESSAGE value="Interface v1" />
+    <MESSAGE value="Interface v2.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="Interface v2.0" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.IllegalStateException" package="java.lang" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>

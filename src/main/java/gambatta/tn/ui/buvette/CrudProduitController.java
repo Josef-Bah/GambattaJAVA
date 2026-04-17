@@ -38,8 +38,11 @@ public class CrudProduitController {
     @FXML private TextField fieldPrix;
     @FXML private TextField fieldStock;
     @FXML private TextField fieldRef;
+    @FXML private Label imageNameLabel;
 
     @FXML private Label statusLabel;
+    
+    private java.io.File selectedImageFile = null;
 
     private final ProduitService ps = new ProduitService();
     private ObservableList<produit> masterData = FXCollections.observableArrayList();
@@ -61,6 +64,9 @@ public class CrudProduitController {
                 fieldPrix.setText(String.valueOf(selected.getPrixp()));
                 fieldStock.setText(String.valueOf(selected.getStockp()));
                 fieldRef.setText(String.valueOf(selected.getReferencep()));
+                selectedImageFile = null;
+                String iName = selected.getImagep();
+                imageNameLabel.setText((iName != null && !iName.isEmpty()) ? iName : "Aucune image sélectionnée");
             }
         });
 
@@ -142,9 +148,34 @@ public class CrudProduitController {
     }
 
     @FXML
+    public void chooseImage() {
+        javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+        fileChooser.setTitle("Choisir l'image du produit");
+        fileChooser.getExtensionFilters().addAll(
+                new javafx.stage.FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp")
+        );
+        java.io.File file = fileChooser.showOpenDialog(null);
+        if (file != null) {
+            selectedImageFile = file;
+            imageNameLabel.setText(file.getName());
+        }
+    }
+
+    private String processImageUpload() throws Exception {
+        if (selectedImageFile == null) {
+            return imageNameLabel.getText().equals("Aucune image sélectionnée") ? "" : imageNameLabel.getText();
+        }
+        String fileName = System.currentTimeMillis() + "_" + selectedImageFile.getName();
+        java.nio.file.Path dest = java.nio.file.Paths.get("uploads/produits/", fileName);
+        java.nio.file.Files.copy(selectedImageFile.toPath(), dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        return fileName;
+    }
+
+    @FXML
     public void addProduit() {
         try {
-            produit p = buildFromForm();
+            String imgName = processImageUpload();
+            produit p = buildFromForm(imgName);
             ps.add(p);
             statusLabel.setText("✅ Product added!");
             clearForm();
@@ -159,7 +190,10 @@ public class CrudProduitController {
         produit selected = produitTable.getSelectionModel().getSelectedItem();
         if (selected == null) { statusLabel.setText("⚠️ Select a product first."); return; }
         try {
-            produit p = buildFromForm();
+            String imgName = processImageUpload();
+            if (imgName.isEmpty()) imgName = selected.getImagep() != null ? selected.getImagep() : "";
+            
+            produit p = buildFromForm(imgName);
             p.setId(selected.getId());
             ps.update(p);
             statusLabel.setText("✅ Product updated!");
@@ -188,14 +222,14 @@ public class CrudProduitController {
         statusLabel.setText(" Refreshed.");
     }
 
-    private produit buildFromForm() {
+    private produit buildFromForm(String imageName) {
         return new produit(
             fieldNom.getText(),
             fieldDesc.getText(),
             Double.parseDouble(fieldPrix.getText()),
             Integer.parseInt(fieldStock.getText()),
             LocalDateTime.now(),
-            "",
+            imageName,
             Integer.parseInt(fieldRef.getText())
         );
     }
@@ -203,5 +237,7 @@ public class CrudProduitController {
     private void clearForm() {
         fieldNom.clear(); fieldDesc.clear(); fieldPrix.clear();
         fieldStock.clear(); fieldRef.clear();
+        selectedImageFile = null;
+        imageNameLabel.setText("Aucune image sélectionnée");
     }
 }

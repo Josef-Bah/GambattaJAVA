@@ -49,6 +49,10 @@
         <TextField fx:id="fieldStock" promptText="Stock"       prefWidth="70"/>
         <TextField fx:id="fieldRef"   promptText="Référence"   prefWidth="90"/>
     </HBox>
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="🖼️ Choisir une Image" onAction="#chooseImage" styleClass="btn-secondary"/>
+        <Label fx:id="imageNameLabel" text="Aucune image sélectionnée" style="-fx-text-fill:#94a3b8;"/>
+    </HBox>
 
     <HBox spacing="10">
         <Button text="➕ Add"    onAction="#addProduit" styleClass="btn-primary"/>
