@@ -4,8 +4,13 @@ import gambatta.tn.entites.reclamation.reclamation;
 import gambatta.tn.entites.reclamation.response;
 import gambatta.tn.services.reclamation.ServiceReclamation;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 public class AdminTraiterController {
@@ -17,6 +22,9 @@ public class AdminTraiterController {
     @FXML private TextArea txtReponse;
     @FXML private VBox vboxHistorique;
 
+    // Référence aux boutons pour les effets Hover
+    @FXML private Button btnUpdateStatut, btnAssigner, btnFermer, btnAmeliorer, btnReponseInteractive, btnReponseUnique;
+
     private reclamation currentRec;
     private AdminDashboardController parent;
     private ServiceReclamation service = new ServiceReclamation();
@@ -26,7 +34,7 @@ public class AdminTraiterController {
         comboStatut.getItems().addAll("En attente", "En cours", "Résolu", "Fermé");
         comboAssignation.getItems().addAll("Non assigné", "Support Technique", "Service Financier", "Modération");
 
-        // --- 1. CONFIGURATION DE LA SAISIE RAPIDE ---
+        // 1. CONFIGURATION DE LA SAISIE RAPIDE
         comboSaisieRapide.getItems().addAll(
                 "Bonjour, nous avons bien reçu votre demande.",
                 "Merci de nous fournir une capture d'écran du problème.",
@@ -34,20 +42,31 @@ public class AdminTraiterController {
                 "Le problème est maintenant résolu. Merci de votre patience."
         );
 
-        // Ajoute le texte sélectionné dans la TextArea automatiquement
         comboSaisieRapide.setOnAction(e -> {
             String template = comboSaisieRapide.getValue();
             if (template != null && !template.isEmpty()) {
                 String currentText = txtReponse.getText();
                 txtReponse.setText(currentText + (currentText.isEmpty() ? "" : "\n") + template);
-
-                // CORRECTION DU CRASH : On utilise Platform.runLater pour laisser
-                // JavaFX terminer son animation avant de vider la sélection
                 javafx.application.Platform.runLater(() -> {
                     comboSaisieRapide.getSelectionModel().clearSelection();
                 });
             }
         });
+
+        // 2. ACTIVATION DES EFFETS NÉON (HOVER) POUR TOUS LES BOUTONS
+        setupNeonHover(btnUpdateStatut, "#0ea5e9", "transparent");
+        setupNeonHover(btnAssigner, "#f59e0b", "transparent");
+        setupNeonHover(btnAmeliorer, "#10b981", "transparent");
+        setupNeonHover(btnReponseInteractive, "#f59e0b", "transparent");
+        setupSolidHover(btnReponseUnique, "#38bdf8", "#020617");
+
+        // Bouton Fermer (Spécial Rouge épais)
+        if(btnFermer != null) {
+            String baseFermer = "-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-width: 2; -fx-padding: 12; -fx-cursor: hand;";
+            String hoverFermer = "-fx-background-color: #ef4444; -fx-border-color: #ef4444; -fx-text-fill: white; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-width: 2; -fx-padding: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.6), 15, 0, 0, 0);";
+            btnFermer.setOnMouseEntered(e -> btnFermer.setStyle(hoverFermer));
+            btnFermer.setOnMouseExited(e -> btnFermer.setStyle(baseFermer));
+        }
     }
 
     public void initData(reclamation r, AdminDashboardController parent) {
@@ -59,93 +78,110 @@ public class AdminTraiterController {
         chargerHistorique();
     }
 
+    // --- 3. HISTORIQUE EN BULLES DE CHAT (STYLE DISCORD) ---
     private void chargerHistorique() {
         vboxHistorique.getChildren().clear();
+
         if (currentRec.getResponses() == null || currentRec.getResponses().isEmpty()) {
-            Label noMessage = new Label("Aucun message. Initiez la conversation.");
-            noMessage.setStyle("-fx-text-fill: #64748b; -fx-font-style: italic;");
+            Label noMessage = new Label("[ AUCUN MESSAGE. INITIEZ LA COMMUNICATION. ]");
+            noMessage.setStyle("-fx-text-fill: #64748b; -fx-font-family: 'Consolas', monospace; -fx-font-size: 11px;");
             vboxHistorique.getChildren().add(noMessage);
             return;
         }
 
         for (response rep : currentRec.getResponses()) {
-            VBox bulle = new VBox(5);
-            bulle.setStyle("-fx-background-color: #1e293b; -fx-padding: 10; -fx-background-radius: 8; -fx-border-color: #334155;");
+            HBox chatRow = new HBox(15);
+            chatRow.setAlignment(Pos.TOP_LEFT);
 
-            String dateStr = (rep.getDaterep() != null) ? rep.getDaterep().toString() : "";
-            Label lblHeader = new Label("Admin - " + dateStr);
-            lblHeader.setStyle("-fx-text-fill: #38bdf8; -fx-font-size: 10px; -fx-font-weight: bold;");
+            // Avatar Admin
+            StackPane avatarBox = new StackPane();
+            Circle avatarBg = new Circle(18, javafx.scene.paint.Color.web("rgba(56, 189, 248, 0.2)"));
+            avatarBg.setStroke(javafx.scene.paint.Color.web("#0ea5e9"));
+            avatarBg.setStrokeWidth(1.5);
+            Label avatarLetter = new Label("A");
+            avatarLetter.setStyle("-fx-text-fill: #0ea5e9; -fx-font-weight: 900; -fx-font-size: 16px;");
+            avatarBox.getChildren().addAll(avatarBg, avatarLetter);
+
+            // Bulle Message
+            VBox bulle = new VBox(5);
+            bulle.setStyle("-fx-background-color: rgba(30, 41, 59, 0.8); -fx-padding: 12 18; -fx-background-radius: 0 15 15 15; -fx-border-color: rgba(255,255,255,0.05); -fx-border-radius: 0 15 15 15;");
+            HBox.setHgrow(bulle, Priority.ALWAYS);
+
+            HBox infoRow = new HBox(10);
+            infoRow.setAlignment(Pos.BASELINE_LEFT);
+            Label lblNom = new Label("ADMIN_GAMBATTA");
+            lblNom.setStyle("-fx-text-fill: #fcc033; -fx-font-weight: 900; -fx-font-size: 11px; -fx-font-family: 'Consolas', monospace;");
+
+            String dateStr = (rep.getDaterep() != null) ? rep.getDaterep().toString() : "--";
+            Label lblDateMsg = new Label(dateStr);
+            lblDateMsg.setStyle("-fx-text-fill: #64748b; -fx-font-family: 'Consolas', monospace; -fx-font-size: 9px;");
+
+            infoRow.getChildren().addAll(lblNom, lblDateMsg);
 
             Label lblContenu = new Label(rep.getContenurep());
-            lblContenu.setStyle("-fx-text-fill: white;");
+            lblContenu.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-line-spacing: 3;");
             lblContenu.setWrapText(true);
 
-            bulle.getChildren().addAll(lblHeader, lblContenu);
-            vboxHistorique.getChildren().add(bulle);
+            bulle.getChildren().addAll(infoRow, lblContenu);
+            chatRow.getChildren().addAll(avatarBox, bulle);
+            vboxHistorique.getChildren().add(chatRow);
         }
     }
 
-    // --- 2. AMÉLIORATION DE TEXTE (Simulation IA) ---
+    // --- 4. UTILITAIRES DE DESIGN JAVA (Puisque CSS bloqué) ---
+    private void setupNeonHover(Button btn, String colorHex, String baseBg) {
+        if (btn == null) return;
+        String base = "-fx-background-color: " + baseBg + "; -fx-border-color: " + colorHex + "; -fx-text-fill: " + colorHex + "; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 8 15; -fx-cursor: hand;";
+        String hover = "-fx-background-color: " + colorHex + "; -fx-border-color: " + colorHex + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 8 15; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, " + colorHex + ", 15, 0, 0, 0);";
+        btn.setStyle(base);
+        btn.setOnMouseEntered(e -> btn.setStyle(hover));
+        btn.setOnMouseExited(e -> btn.setStyle(base));
+    }
+
+    private void setupSolidHover(Button btn, String bgColorHex, String textColor) {
+        if (btn == null) return;
+        String base = "-fx-background-color: " + bgColorHex + "; -fx-border-color: " + bgColorHex + "; -fx-text-fill: " + textColor + "; -fx-font-weight: 900; -fx-background-radius: 20; -fx-border-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;";
+        String hover = "-fx-background-color: white; -fx-border-color: white; -fx-text-fill: " + bgColorHex + "; -fx-font-weight: 900; -fx-background-radius: 20; -fx-border-radius: 20; -fx-padding: 10 20; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, " + bgColorHex + ", 20, 0, 0, 0);";
+        btn.setStyle(base);
+        btn.setOnMouseEntered(e -> btn.setStyle(hover));
+        btn.setOnMouseExited(e -> btn.setStyle(base));
+    }
+
+    // --- 5. LOGIQUE MÉTIER (Intacte) ---
     @FXML
     private void handleAmeliorerTexte() {
         String text = txtReponse.getText().trim();
         if (text.isEmpty()) return;
-
-        // Met la première lettre en majuscule, ajoute des formules de politesse
-        String texteAmeliore = "Bonjour,\n\n" +
-                text.substring(0, 1).toUpperCase() + text.substring(1) +
-                "\n\nCordialement,\nL'équipe Support";
-
+        String texteAmeliore = "Bonjour,\n\n" + text.substring(0, 1).toUpperCase() + text.substring(1) + "\n\nCordialement,\nL'équipe Support Gambatta";
         txtReponse.setText(texteAmeliore);
     }
 
-    // --- 3. RÉPONSE INTERACTIVE (Garder le ticket ouvert) ---
     @FXML
     private void handleReponseInteractive() {
         if (!creerEtSauvegarderReponse()) return;
-
-        // On passe automatiquement le ticket "En cours" (attente de réponse du client)
         currentRec.setStatutrec("En cours");
         service.modifier(currentRec);
-
         txtReponse.clear();
         chargerHistorique();
         if (parent != null) parent.chargerTableau();
     }
 
-    // --- 4. RÉPONSE UNIQUE (Fermeture du ticket) ---
     @FXML
     private void handleReponseUnique() {
         if (!creerEtSauvegarderReponse()) return;
-
-        // On passe le ticket en "Résolu" car c'est une réponse unique et finale
         currentRec.setStatutrec("Résolu");
         service.modifier(currentRec);
-
         if (parent != null) parent.chargerTableau();
-        handleAnnuler(); // Ferme la fenêtre
+        handleAnnuler();
     }
 
-    /**
-     * Méthode utilitaire pour éviter de dupliquer le code de création de réponse
-     */
     private boolean creerEtSauvegarderReponse() {
         String texteSaisi = txtReponse.getText();
-        if (texteSaisi == null || texteSaisi.trim().isEmpty()) {
-            return false;
-        }
-
-        // 1. Création de l'entité réponse
+        if (texteSaisi == null || texteSaisi.trim().isEmpty()) return false;
         response nouvelleReponse = new response();
         nouvelleReponse.setContenurep(texteSaisi.trim());
-
-        // 2. LIAISON CRUCIALE : On attache la réponse à l'objet réclamation actuel
-        // Cette méthode addResponse fait automatiquement le nouvelleReponse.setReclamation(this)
         currentRec.addResponse(nouvelleReponse);
-
-        // 3. APPEL AU SERVICE : On passe l'objet réponse qui contient maintenant l'ID du ticket
         service.ajouterReponse(nouvelleReponse);
-
         return true;
     }
 
@@ -164,5 +200,4 @@ public class AdminTraiterController {
     @FXML private void handleAnnuler() {
         ((Stage) comboStatut.getScene().getWindow()).close();
     }
-
 }

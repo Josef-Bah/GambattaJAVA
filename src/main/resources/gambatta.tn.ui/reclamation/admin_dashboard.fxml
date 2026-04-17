@@ -5,59 +5,120 @@
 <?import javafx.scene.effect.*?>
 <?import java.net.URL?>
 
-<StackPane prefWidth="1200.0" prefHeight="800.0" style="-fx-background-color: #020617;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.reclamation.AdminDashboardController">
+<StackPane prefWidth="1200.0" prefHeight="600.0" style="-fx-base: #0f172a; -fx-background-color: #020617; -fx-font-family: 'Segoe UI', sans-serif;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.reclamation.AdminDashboardController">
     <stylesheets>
         <URL value="@style.css" />
     </stylesheets>
 
     <children>
-        <Pane mouseTransparent="true" styleClass="grid-bg" />
-        <Pane mouseTransparent="true" styleClass="glow-bg" />
+        <Pane mouseTransparent="true" style="-fx-background-color: linear-gradient(from 0px 0px to 30px 30px, reflect, rgba(56, 189, 248, 0.03) 1px, transparent 1px);" />
+        <Pane mouseTransparent="true" style="-fx-background-color: radial-gradient(center 50% 50%, radius 70%, rgba(14, 165, 233, 0.06) 0%, transparent 100%);" />
 
-        <BorderPane style="-fx-padding: 25;">
+        <BorderPane style="-fx-padding: 30;">
             <top>
-                <VBox spacing="20">
+                <VBox spacing="25" style="-fx-padding: 0 0 25 0; -fx-border-color: transparent transparent rgba(56, 189, 248, 0.1) transparent; -fx-border-width: 0 0 1 0;">
                     <children>
+
                         <HBox alignment="CENTER_LEFT" spacing="15">
-                            <Label text="● SYSTEM_STATUS: OPERATIONAL" styleClass="sys-status" />
+                            <Circle radius="4" fill="#10b981" style="-fx-effect: dropshadow(gaussian, rgba(16,185,129,0.8), 8, 0, 0, 0);" />
+                            <Label text="SYSTÈME OPÉRATIONNEL" style="-fx-text-fill: #10b981; -fx-font-size: 11px; -fx-font-weight: bold; -fx-letter-spacing: 1px;" />
                             <Region HBox.hgrow="ALWAYS" />
-                            <Label text="GAMBATTA_INTRA_NET // 2026" styleClass="sys-version" />
-                            <Button text="LOGOUT" onAction="#handleLogout" styleClass="btn-logout" />
+                            <Label text="GAMBATTA_CORE // V.2.0" style="-fx-text-fill: rgba(255,255,255,0.2); -fx-font-family: 'Consolas', monospace; -fx-font-size: 11px; -fx-letter-spacing: 2px;" />
+                            <Button text="DÉCONNEXION" onAction="#handleLogout" style="-fx-background-color: rgba(239, 68, 68, 0.1); -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-background-radius: 15; -fx-border-radius: 15; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 6 18;" />
                         </HBox>
 
-                        <HBox alignment="CENTER_LEFT" spacing="30">
-                            <StackPane styleClass="header-polygon">
-                                <VBox spacing="0" style="-fx-padding: 12 50 12 25;">
-                                    <Label text="COMMAND" styleClass="header-title" />
-                                    <Label text="CENTRE DE RÉCLAMATIONS" styleClass="header-subtitle" />
-                                </VBox>
-                            </StackPane>
+                        <HBox alignment="CENTER_LEFT" spacing="25">
+                            <VBox spacing="2" alignment="CENTER_LEFT" style="-fx-background-color: linear-gradient(to bottom right, #fcc033, #f59e0b); -fx-background-radius: 15; -fx-padding: 15 35; -fx-effect: dropshadow(gaussian, rgba(245, 158, 11, 0.4), 15, 0, 0, 0);">
+                                <Label text="COMMAND" style="-fx-text-fill: #020617; -fx-font-size: 26px; -fx-font-weight: 900; -fx-letter-spacing: 1px;" />
+                                <Label text="CENTRE DE RÉCLAMATIONS" style="-fx-text-fill: rgba(2, 6, 23, 0.7); -fx-font-size: 10px; -fx-font-weight: 900;" />
+                            </VBox>
 
-                            <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" styleClass="search-bar">
-                                <Label text="  SCAN_FLOW &gt; " style="-fx-text-fill: #38bdf8; -fx-font-family: 'Consolas'; -fx-font-weight: bold;" />
-                                <TextField fx:id="searchField" promptText="Rechercher un log ou un identifiant..." styleClass="cyber-input" HBox.hgrow="ALWAYS" />
-                                <Button text="SYNC_DATABASE" styleClass="btn-sync" />
+                            <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: rgba(56, 189, 248, 0.4); -fx-border-width: 1.5; -fx-border-radius: 25; -fx-background-radius: 25; -fx-padding: 6 6 6 20; -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.15), 15, 0, 0, 0);">
+                                <Label text="SCAN_FLUX &gt; " style="-fx-text-fill: #38bdf8; -fx-font-family: 'Consolas', monospace; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                                <TextField fx:id="searchField" promptText="Rechercher un log, un ID..." style="-fx-background-color: transparent; -fx-text-fill: white; -fx-prompt-text-fill: #64748b; -fx-font-size: 13px;" HBox.hgrow="ALWAYS" />
+                                <Button text="SYNCHRONISER" onAction="#chargerTableau" style="-fx-background-color: #0ea5e9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand;" />
                             </HBox>
                         </HBox>
 
                         <HBox spacing="15" alignment="CENTER_LEFT">
-                            <Label text="FILTRER_PAR:" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" />
-                            <ToggleButton text="ALL_LOGS" styleClass="cyber-toggle, toggle-active" />
-                            <ToggleButton text="PENDING" styleClass="cyber-toggle, toggle-orange" />
-                            <ToggleButton text="RESOLVED" styleClass="cyber-toggle, toggle-green" />
-                            <ComboBox promptText="MODULE_SÉLECTION" styleClass="cyber-combo" prefWidth="200" />
+                            <Label text="FILTRER_PAR :" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" />
+
+                            <ToggleButton text="TOUS LES LOGS" style="-fx-background-color: rgba(14, 165, 233, 0.2); -fx-border-color: #0ea5e9; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 6 20; -fx-background-radius: 20; -fx-border-radius: 20; -fx-cursor: hand;" />
+                            <ToggleButton text="EN ATTENTE" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: rgba(245, 158, 11, 0.3); -fx-text-fill: #f59e0b; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 6 20; -fx-background-radius: 20; -fx-border-radius: 20; -fx-cursor: hand;" />
+                            <ToggleButton text="RÉSOLUS" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: rgba(16, 185, 129, 0.3); -fx-text-fill: #10b981; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 6 20; -fx-background-radius: 20; -fx-border-radius: 20; -fx-cursor: hand;" />
+
+                            <Region HBox.hgrow="ALWAYS" />
+
+                            <ComboBox promptText="SÉLECTION_MODULE" prefWidth="200" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: #334155; -fx-background-radius: 20; -fx-border-radius: 20; -fx-text-fill: white; -fx-font-size: 11px;" />
                         </HBox>
                     </children>
                 </VBox>
             </top>
 
             <center>
-                <ScrollPane fitToWidth="true" styleClass="cyber-scroll" BorderPane.alignment="CENTER">
+                <ScrollPane fx:id="cyberScroll" fitToWidth="true" style="-fx-background: #020617; -fx-background-color: transparent;" BorderPane.alignment="CENTER">
                     <content>
-                        <FlowPane fx:id="cardsContainer" hgap="25" vgap="25" style="-fx-padding: 20 0;" />
+                        <FlowPane fx:id="cardsContainer" hgap="30" vgap="30" style="-fx-background-color: transparent; -fx-padding: 10 20 20 5;" />
                     </content>
                 </ScrollPane>
             </center>
+
+            <right>
+                <VBox spacing="20" prefWidth="320" BorderPane.alignment="CENTER" style="-fx-background-color: rgba(15, 23, 42, 0.6); -fx-border-color: rgba(56, 189, 248, 0.2); -fx-border-width: 1.5; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 25; -fx-margin: 0 0 0 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 0);">
+                    <Label text="&gt; ANALYSE_SYSTÈME" style="-fx-text-fill: #fcc033; -fx-font-family: 'Consolas', monospace; -fx-font-size: 16px; -fx-font-weight: 900;" />
+
+                    <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: rgba(30, 41, 59, 0.4); -fx-border-color: rgba(255, 255, 255, 0.05); -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 15;">
+                        <StackPane>
+                            <Circle radius="22" fill="rgba(14, 165, 233, 0.2)" />
+                            <Circle radius="18" fill="#0ea5e9" />
+                            <Label text="∑" style="-fx-text-fill: #020617; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                        </StackPane>
+                        <VBox alignment="CENTER_LEFT">
+                            <Label text="TICKETS TOTAUX" style="-fx-text-fill: #cbd5e1; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                            <Label fx:id="lblTotal" text="0" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: 900;" />
+                        </VBox>
+                    </HBox>
+
+                    <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: rgba(30, 41, 59, 0.4); -fx-border-color: rgba(255, 255, 255, 0.05); -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 15;">
+                        <StackPane>
+                            <Circle radius="22" fill="rgba(245, 158, 11, 0.2)" />
+                            <Circle radius="18" fill="#f59e0b" />
+                            <Label text="!" style="-fx-text-fill: #020617; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                        </StackPane>
+                        <VBox alignment="CENTER_LEFT">
+                            <Label text="EN ATTENTE" style="-fx-text-fill: #cbd5e1; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                            <Label fx:id="lblEnAttente" text="0" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: 900;" />
+                        </VBox>
+                    </HBox>
+
+                    <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: rgba(30, 41, 59, 0.4); -fx-border-color: rgba(255, 255, 255, 0.05); -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 15;">
+                        <StackPane>
+                            <Circle radius="22" fill="rgba(16, 185, 129, 0.2)" />
+                            <Circle radius="18" fill="#10b981" />
+                            <Label text="✓" style="-fx-text-fill: #020617; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                        </StackPane>
+                        <VBox alignment="CENTER_LEFT">
+                            <Label text="RÉSOLUS" style="-fx-text-fill: #cbd5e1; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                            <Label fx:id="lblResolu" text="0" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: 900;" />
+                        </VBox>
+                    </HBox>
+
+                    <Region VBox.vgrow="ALWAYS" />
+
+                    <VBox spacing="8" style="-fx-background-color: rgba(0, 0, 0, 0.4); -fx-border-color: #334155; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 15;">
+                        <Label text="[ SYS_LOGS_ACTIFS ]" style="-fx-text-fill: #0ea5e9; -fx-font-family: 'Consolas', monospace; -fx-font-size: 10px;" />
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Circle radius="3" fill="#10b981" />
+                            <Label text="Latence BDD : 12ms" style="-fx-text-fill: #64748b; -fx-font-family: 'Consolas', monospace; -fx-font-size: 10px;" />
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Circle radius="3" fill="#10b981" />
+                            <Label text="Analyse des flux : 100%" style="-fx-text-fill: #64748b; -fx-font-family: 'Consolas', monospace; -fx-font-size: 10px;" />
+                        </HBox>
+                        <Label text="&gt; En attente de commande..." style="-fx-text-fill: #10b981; -fx-font-family: 'Consolas', monospace; -fx-font-size: 10px;" />
+                    </VBox>
+                </VBox>
+            </right>
         </BorderPane>
     </children>
 </StackPane>
