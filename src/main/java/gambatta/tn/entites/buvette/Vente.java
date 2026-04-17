@@ -1,4 +1,4 @@
 package gambatta.tn.entites.buvette;
 
-public class vente {
+public class Vente {
 }
