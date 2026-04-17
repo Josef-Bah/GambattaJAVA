@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gambatta.tn.ui.UserDashboardController"
+            styleClass="root" prefWidth="1280" prefHeight="720">
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox spacing="16" style="-fx-padding: 30 20 30 20; -fx-background-color: rgba(15,23,42,0.95); -fx-min-width: 220;">
+            <Label text="⚡ GAMBATTA" styleClass="title" style="-fx-font-size: 22px;"/>
+            <Label text="Administration" styleClass="subtitle"/>
+            <Separator style="-fx-background-color: rgba(255,215,0,0.3);"/>
+            <Button text="👥  Utilisateurs" styleClass="btn-primary" maxWidth="180" onAction="#showUsers"/>
+            <Button text="🚪  Déconnexion" styleClass="btn-secondary" maxWidth="180" onAction="#logout"/>
+        </VBox>
+    </left>
+
+    <!-- MAIN CONTENT -->
+    <center>
+        <VBox spacing="20" style="-fx-padding: 30;">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <Label text="Gestion des Utilisateurs" styleClass="card-title"
+                       style="-fx-font-size: 26px;"/>
+                <HBox HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="searchField" promptText="🔍 Rechercher..."
+                           styleClass="search-field" prefWidth="250"
+                           onKeyReleased="#handleSearch"/>
+                <Button text="＋ AJOUTER" styleClass="btn-primary"
+                        onAction="#showAddDialog"/>
+            </HBox>
+
+            <!-- Message feedback -->
+            <Label fx:id="feedbackLabel" text=""
+                   style="-fx-text-fill: #2ed573; -fx-font-size: 13px;"/>
+
+            <!-- TABLE -->
+            <TableView fx:id="userTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colId"        text="ID"       prefWidth="50"/>
+                    <TableColumn fx:id="colFirstName"  text="Prénom"   prefWidth="130"/>
+                    <TableColumn fx:id="colLastName"   text="Nom"      prefWidth="130"/>
+                    <TableColumn fx:id="colEmail"      text="Email"    prefWidth="220"/>
+                    <TableColumn fx:id="colTel"        text="Tél"      prefWidth="120"/>
+                    <TableColumn fx:id="colRole"       text="Rôle"     prefWidth="160"/>
+                    <TableColumn fx:id="colActions"    text="Actions"  prefWidth="160"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="gambatta.tn.ui.HomeUserController"
+           prefWidth="1280.0"
+           prefHeight="760.0"
+           stylesheets="@style.css"
+           styleClass="home-root">
+
+    <children>
+        <AnchorPane styleClass="home-hero-bg"/>
+
+        <BorderPane prefWidth="1280.0" prefHeight="760.0">
+
+            <top>
+                <HBox alignment="CENTER_LEFT" styleClass="home-navbar" spacing="24.0">
+                    <padding>
+                        <Insets top="18.0" right="28.0" bottom="18.0" left="28.0"/>
+                    </padding>
+
+                    <children>
+                        <Label text="🎮 GAMBATTA" styleClass="home-logo"/>
+
+                        <Pane HBox.hgrow="ALWAYS"/>
+
+                        <Label text="Accueil" styleClass="home-nav-item-active"/>
+                        <Label text="Tournois" styleClass="home-nav-item"/>
+                        <Label text="Activité" styleClass="home-nav-item"/>
+                        <Label text="Buvette" styleClass="home-nav-item"/>
+                        <Label text="Réclamation" styleClass="home-nav-item"/>
+
+                        <Pane HBox.hgrow="ALWAYS"/>
+
+                        <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                            <children>
+                                <Button text="👤"
+                                        onAction="#openProfile"
+                                        styleClass="home-profile-btn"/>
+
+                                <Button text="🚪"
+                                        onAction="#logout"
+                                        styleClass="home-logout-btn"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+            </top>
+
+            <center>
+                <VBox alignment="CENTER" spacing="22.0">
+                    <children>
+                        <Label text="Bienvenue chez" styleClass="home-title-white"/>
+                        <Label text="GAMBATTA" styleClass="home-title-gold"/>
+
+                        <Label fx:id="welcomeLabel"
+                               text="Le premier complexe e-sports professionnel en Tunisie."
+                               styleClass="home-subtitle"/>
+
+                        <HBox alignment="CENTER" spacing="18.0">
+                            <children>
+                                <Button text="Rejoindre maintenant" styleClass="home-primary-btn"/>
+                                <Button text="Découvrir" styleClass="home-secondary-btn"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </center>
+
+        </BorderPane>
+    </children>
+</StackPane>

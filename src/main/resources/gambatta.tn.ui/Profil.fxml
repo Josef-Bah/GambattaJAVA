@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="gambatta.tn.ui.ProfilController"
+           styleClass="root" prefWidth="1280" prefHeight="720">
+
+    <VBox alignment="CENTER" spacing="30">
+
+        <Label text="⚡ GAMBATTA" styleClass="title"/>
+
+        <VBox styleClass="card" alignment="CENTER" spacing="20"
+              maxWidth="500" minWidth="500">
+
+            <Label text="👤 MON PROFIL" styleClass="card-title" style="-fx-font-size: 22px;"/>
+
+            <!-- Infos affichées -->
+            <VBox spacing="12" maxWidth="420">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Prénom :" style="-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-min-width: 130;"/>
+                    <Label fx:id="firstNameLabel" styleClass="card-desc"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Nom :" style="-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-min-width: 130;"/>
+                    <Label fx:id="lastNameLabel" styleClass="card-desc"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Email :" style="-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-min-width: 130;"/>
+                    <Label fx:id="emailLabel" styleClass="card-desc"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Téléphone :" style="-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-min-width: 130;"/>
+                    <Label fx:id="numTelLabel" styleClass="card-desc"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Rôle :" style="-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-min-width: 130;"/>
+                    <Label fx:id="roleLabel" styleClass="card-desc"/>
+                </HBox>
+            </VBox>
+
+            <HBox spacing="12" alignment="CENTER">
+                <Button text="✏ MODIFIER" styleClass="btn-primary"
+                        onAction="#goToEdit"/>
+                <Button text="🚪 DÉCONNEXION" styleClass="btn-secondary"
+                        onAction="#logout"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</StackPane>

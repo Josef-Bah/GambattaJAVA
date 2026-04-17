@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import java.lang.String?>
+
+<StackPane fx:id="rootPane"
+           xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="gambatta.tn.ui.RegisterController"
+           stylesheets="@style.css"
+           styleClass="auth-root">
+
+    <children>
+
+        <AnchorPane prefWidth="1280.0" prefHeight="800.0" styleClass="auth-overlay">
+            <children>
+
+                <Circle fx:id="bubble1" layoutX="120.0" layoutY="130.0" radius="45.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-1"/>
+                    </styleClass>
+                </Circle>
+
+                <Circle fx:id="bubble2" layoutX="760.0" layoutY="150.0" radius="55.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-2"/>
+                    </styleClass>
+                </Circle>
+
+                <Circle fx:id="bubble3" layoutX="180.0" layoutY="520.0" radius="50.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-3"/>
+                    </styleClass>
+                </Circle>
+
+                <Circle fx:id="bubble4" layoutX="700.0" layoutY="500.0" radius="40.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-1"/>
+                    </styleClass>
+                </Circle>
+
+                <Circle fx:id="bubble5" layoutX="470.0" layoutY="90.0" radius="35.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-2"/>
+                    </styleClass>
+                </Circle>
+
+                <Circle fx:id="bubble6" layoutX="1040.0" layoutY="120.0" radius="38.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-4"/>
+                    </styleClass>
+                </Circle>
+
+                <Circle fx:id="bubble7" layoutX="1080.0" layoutY="310.0" radius="62.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-1"/>
+                    </styleClass>
+                </Circle>
+
+                <Circle fx:id="bubble8" layoutX="980.0" layoutY="620.0" radius="48.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-2"/>
+                    </styleClass>
+                </Circle>
+
+                <Circle fx:id="bubble9" layoutX="300.0" layoutY="220.0" radius="24.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-3"/>
+                    </styleClass>
+                </Circle>
+
+                <Circle fx:id="bubble10" layoutX="340.0" layoutY="640.0" radius="28.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-4"/>
+                    </styleClass>
+                </Circle>
+
+                <Circle fx:id="bubble11" layoutX="860.0" layoutY="70.0" radius="20.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-3"/>
+                    </styleClass>
+                </Circle>
+
+                <Circle fx:id="bubble12" layoutX="90.0" layoutY="330.0" radius="26.0">
+                    <styleClass>
+                        <String fx:value="bubble"/>
+                        <String fx:value="bubble-2"/>
+                    </styleClass>
+                </Circle>
+
+            </children>
+        </AnchorPane>
+
+        <VBox spacing="18.0" alignment="CENTER">
+            <children>
+
+                <Label text="Gambatta" styleClass="brand-title"/>
+
+                <VBox maxWidth="700.0"
+                      prefWidth="700.0"
+                      spacing="16.0"
+                      styleClass="auth-card-rectangle"
+                      alignment="CENTER_LEFT">
+                    <padding>
+                        <Insets top="24" right="28" bottom="24" left="28"/>
+                    </padding>
+
+                    <children>
+                        <Label text="Créer un compte" styleClass="auth-title"/>
+                        <Label text="Inscris-toi pour accéder à la plateforme" styleClass="auth-subtitle"/>
+
+                        <HBox spacing="22.0" alignment="TOP_CENTER">
+                            <children>
+
+                                <VBox spacing="10.0">
+                                    <children>
+                                        <VBox spacing="4">
+                                            <children>
+                                                <Label text="Nom" styleClass="auth-label"/>
+                                                <TextField fx:id="nomField"
+                                                           promptText="Entrer votre nom"
+                                                           styleClass="auth-field"
+                                                           prefWidth="290.0"
+                                                           maxWidth="290.0"/>
+                                                <Label fx:id="nomValidationLabel" text="" styleClass="field-help"/>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="4">
+                                            <children>
+                                                <Label text="Prénom" styleClass="auth-label"/>
+                                                <TextField fx:id="prenomField"
+                                                           promptText="Entrer votre prénom"
+                                                           styleClass="auth-field"
+                                                           prefWidth="290.0"
+                                                           maxWidth="290.0"/>
+                                                <Label fx:id="prenomValidationLabel" text="" styleClass="field-help"/>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="4">
+                                            <children>
+                                                <Label text="Email" styleClass="auth-label"/>
+                                                <TextField fx:id="emailField"
+                                                           promptText="Entrer votre email"
+                                                           styleClass="auth-field"
+                                                           prefWidth="290.0"
+                                                           maxWidth="290.0"/>
+                                                <Label fx:id="emailValidationLabel" text="" styleClass="field-help"/>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+
+                                <VBox spacing="10.0">
+                                    <children>
+                                        <VBox spacing="4">
+                                            <children>
+                                                <Label text="Numéro de téléphone" styleClass="auth-label"/>
+                                                <TextField fx:id="numTelField"
+                                                           promptText="Entrer votre numéro"
+                                                           styleClass="auth-field"
+                                                           prefWidth="290.0"
+                                                           maxWidth="290.0"/>
+                                                <Label fx:id="numTelValidationLabel" text="" styleClass="field-help"/>
+                                            </children>
+                                        </VBox>
+
+                                        <VBox spacing="4">
+                                            <children>
+                                                <Label text="Mot de passe" styleClass="auth-label"/>
+                                                <PasswordField fx:id="passwordField"
+                                                               promptText="Créer un mot de passe"
+                                                               styleClass="auth-field"
+                                                               prefWidth="290.0"
+                                                               maxWidth="290.0"/>
+                                                <Label fx:id="passwordValidationLabel" text="" styleClass="field-help"/>
+                                            </children>
+                                        </VBox>
+
+
+                                        <VBox spacing="4">
+                                            <children>
+                                                <Label text="Confirmer mot de passe" styleClass="auth-label"/>
+                                                <PasswordField fx:id="confirmPasswordField"
+                                                               promptText="Confirmer le mot de passe"
+                                                               styleClass="auth-field"
+                                                               prefWidth="290.0"
+                                                               maxWidth="290.0"/>
+                                                <Label fx:id="confirmPasswordValidationLabel" text="" styleClass="field-help"/>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </VBox>
+
+                            </children>
+                        </HBox>
+
+                        <Label fx:id="errorLabel" text="" styleClass="auth-error"/>
+
+                        <VBox spacing="12.0" alignment="CENTER">
+                            <children>
+                                <Button text="S'inscrire"
+                                        onAction="#handleRegister"
+                                        styleClass="auth-btn"
+                                        prefWidth="290.0"
+                                        maxWidth="290.0"/>
+
+                                <Button text="Déjà un compte ? Se connecter"
+                                        onAction="#goToLogin"
+                                        styleClass="auth-link-btn"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+
+            </children>
+        </VBox>
+
+    </children>
+</StackPane>

@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gambatta.tn.ui.AdminProfileController"
+            prefWidth="1280.0" prefHeight="760.0"
+            stylesheets="@style.css"
+            styleClass="root">
+
+    <left>
+        <VBox styleClass="sidebar-classic" spacing="18.0">
+            <padding>
+                <Insets top="26.0" right="18.0" bottom="26.0" left="18.0"/>
+            </padding>
+
+            <children>
+                <Label text="GAMBATTA" styleClass="sidebar-brand"/>
+                <Label text="Backoffice Admin" styleClass="sidebar-subtitle"/>
+
+                <Separator />
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label text="Navigation" styleClass="sidebar-section-title"/>
+
+                        <HBox spacing="10.0" alignment="CENTER_LEFT" styleClass="sidebar-item">
+                            <children>
+                                <Label text="👥" styleClass="sidebar-item-icon"/>
+                                <Hyperlink text="Utilisateurs"
+                                           onAction="#backToDashboard"
+                                           styleClass="sidebar-link"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+
+                <Pane VBox.vgrow="ALWAYS"/>
+
+                <Separator />
+
+                <VBox spacing="10.0">
+                    <children>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT" styleClass="sidebar-item-active">
+                            <children>
+                                <Label text="👤" styleClass="sidebar-item-icon"/>
+                                <Label text="Mon compte" styleClass="sidebar-item-text-active"/>
+                            </children>
+                        </HBox>
+
+                        <HBox spacing="10.0" alignment="CENTER_LEFT" styleClass="sidebar-bottom-item">
+                            <children>
+                                <Label text="⇦" styleClass="sidebar-item-icon"/>
+                                <Hyperlink text="Déconnexion"
+                                           onAction="#logout"
+                                           styleClass="sidebar-link-danger"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="18.0" styleClass="admin-main-clean">
+            <padding>
+                <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
+            </padding>
+
+            <children>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <VBox spacing="4.0">
+                            <children>
+                                <Label text="Mon compte administrateur" styleClass="dashboard-title-clean"/>
+                                <Label fx:id="welcomeLabel" text="Bienvenue" styleClass="dashboard-subtitle-clean"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- VRAIES STATISTIQUES -->
+                <HBox spacing="16.0">
+                    <children>
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Total utilisateurs" styleClass="stat-title-clean"/>
+                                <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value-clean"/>
+                            </children>
+                        </VBox>
+
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Admins" styleClass="stat-title-clean"/>
+                                <Label fx:id="totalAdminsLabel" text="0" styleClass="stat-value-clean"/>
+                            </children>
+                        </VBox>
+
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Utilisateurs simples" styleClass="stat-title-clean"/>
+                                <Label fx:id="totalSimpleUsersLabel" text="0" styleClass="stat-value-clean"/>
+                            </children>
+                        </VBox>
+
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Connexions aujourd'hui" styleClass="stat-title-clean"/>
+                                <Label fx:id="loginsTodayLabel" text="0" styleClass="stat-value-clean"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- SEULE LA PARTIE BASSE CHANGE -->
+                <VBox spacing="16.0" VBox.vgrow="ALWAYS" styleClass="users-panel-clean">
+                    <children>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label text="Modifier mes informations" styleClass="section-title-clean"/>
+                            </children>
+                        </HBox>
+
+                        <Label fx:id="feedbackLabel" text="" styleClass="admin-feedback"/>
+
+                        <HBox spacing="28.0" alignment="CENTER_LEFT">
+                            <children>
+
+                                <!-- PHOTO A GAUCHE -->
+                                <VBox spacing="14.0" alignment="TOP_CENTER" prefWidth="260.0">
+                                    <children>
+                                        <StackPane styleClass="profile-photo-wrapper">
+                                            <children>
+                                                <ImageView fx:id="profileImageView"
+                                                           fitWidth="190.0"
+                                                           fitHeight="190.0"
+                                                           preserveRatio="true"
+                                                           smooth="true"
+                                                           styleClass="profile-image"/>
+                                            </children>
+                                        </StackPane>
+                                    </children>
+                                </VBox>
+
+                                <!-- FORMULAIRE A DROITE -->
+                                <VBox spacing="14.0" HBox.hgrow="ALWAYS">
+                                    <children>
+
+                                        <HBox spacing="18.0">
+                                            <children>
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Prénom" styleClass="auth-label"/>
+                                                        <TextField fx:id="firstNameField"
+                                                                   styleClass="auth-field"
+                                                                   prefWidth="280.0"
+                                                                   maxWidth="280.0"/>
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Nom" styleClass="auth-label"/>
+                                                        <TextField fx:id="lastNameField"
+                                                                   styleClass="auth-field"
+                                                                   prefWidth="280.0"
+                                                                   maxWidth="280.0"/>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+
+                                        <HBox spacing="18.0">
+                                            <children>
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Email" styleClass="auth-label"/>
+                                                        <TextField fx:id="emailField"
+                                                                   styleClass="auth-field"
+                                                                   prefWidth="280.0"
+                                                                   maxWidth="280.0"/>
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Téléphone" styleClass="auth-label"/>
+                                                        <TextField fx:id="numTelField"
+                                                                   styleClass="auth-field"
+                                                                   prefWidth="280.0"
+                                                                   maxWidth="280.0"/>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+
+                                        <HBox spacing="18.0">
+                                            <children>
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Mot de passe" styleClass="auth-label"/>
+                                                        <PasswordField fx:id="passwordField"
+                                                                       styleClass="auth-field"
+                                                                       prefWidth="280.0"
+                                                                       maxWidth="280.0"/>
+                                                    </children>
+                                                </VBox>
+
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Rôle" styleClass="auth-label"/>
+                                                        <TextField fx:id="roleField"
+                                                                   editable="false"
+                                                                   focusTraversable="false"
+                                                                   styleClass="auth-field"
+                                                                   prefWidth="280.0"
+                                                                   maxWidth="280.0"/>
+                                                    </children>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- BOUTONS CENTRÉS -->
+                                        <VBox alignment="CENTER" spacing="0.0">
+                                            <children>
+                                                <HBox spacing="14.0"
+                                                      alignment="CENTER_LEFT"
+                                                      prefWidth="658.0"
+                                                      maxWidth="658.0">
+                                                    <children>
+                                                        <Button text="Enregistrer"
+                                                                onAction="#saveProfile"
+                                                                styleClass="auth-btn"
+                                                                prefWidth="220.0"/>
+                                                    </children>
+                                                </HBox>
+                                            </children>
+                                        </VBox>
+
+                                    </children>
+                                </VBox>
+
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>

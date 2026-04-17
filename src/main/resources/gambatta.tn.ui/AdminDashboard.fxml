@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gambatta.tn.ui.AdminDashboardController"
+            prefWidth="1280.0" prefHeight="760.0"
+            stylesheets="@style.css"
+            styleClass="root">
+
+    <left>
+        <VBox styleClass="sidebar-classic" spacing="18.0">
+            <padding>
+                <Insets top="26.0" right="18.0" bottom="26.0" left="18.0"/>
+            </padding>
+
+            <children>
+                <Label text="GAMBATTA" styleClass="sidebar-brand"/>
+                <Label text="Backoffice Admin" styleClass="sidebar-subtitle"/>
+
+                <Separator />
+
+                <VBox spacing="8.0">
+                    <children>
+                        <Label text="Navigation" styleClass="sidebar-section-title"/>
+
+                        <HBox spacing="10.0" alignment="CENTER_LEFT" styleClass="sidebar-item-active">
+                            <children>
+                                <Label text="👥" styleClass="sidebar-item-icon"/>
+                                <Label text="Utilisateurs" styleClass="sidebar-item-text-active"/>
+                            </children>
+                        </HBox>
+
+                    </children>
+                </VBox>
+
+                <Pane VBox.vgrow="ALWAYS"/>
+
+                <Separator />
+
+                <VBox spacing="10.0">
+                    <children>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT" styleClass="sidebar-bottom-item">
+                            <children>
+                                <Label text="👤" styleClass="sidebar-item-icon"/>
+                                <Hyperlink text="Mon compte" onAction="#openAdminProfile" styleClass="sidebar-link"/>
+                            </children>
+                        </HBox>
+
+                        <HBox spacing="10.0" alignment="CENTER_LEFT" styleClass="sidebar-bottom-item">
+                            <children>
+                                <Label text="⇦" styleClass="sidebar-item-icon"/>
+                                <Hyperlink text="Déconnexion" onAction="#logout" styleClass="sidebar-link-danger"/>
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="18.0" styleClass="admin-main-clean">
+            <padding>
+                <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
+            </padding>
+
+            <children>
+                <HBox alignment="CENTER_LEFT">
+                    <children>
+                        <VBox spacing="4.0">
+                            <children>
+                                <Label text="Admin Dashboard" styleClass="dashboard-title-clean"/>
+                                <Label fx:id="welcomeLabel" text="Bienvenue" styleClass="dashboard-subtitle-clean"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <HBox spacing="16.0">
+                    <children>
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Total utilisateurs" styleClass="stat-title-clean"/>
+                                <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value-clean"/>
+                            </children>
+                        </VBox>
+
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Admins" styleClass="stat-title-clean"/>
+                                <Label fx:id="totalAdminsLabel" text="0" styleClass="stat-value-clean"/>
+                            </children>
+                        </VBox>
+
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Utilisateurs simples" styleClass="stat-title-clean"/>
+                                <Label fx:id="totalSimpleUsersLabel" text="0" styleClass="stat-value-clean"/>
+                            </children>
+                        </VBox>
+
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label text="Connexions aujourd'hui" styleClass="stat-title-clean"/>
+                                <Label fx:id="loginsTodayLabel" text="0" styleClass="stat-value-clean"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <VBox spacing="16.0" VBox.vgrow="ALWAYS" styleClass="users-panel-clean">
+                    <children>
+                        <HBox alignment="CENTER_LEFT">
+                            <children>
+                                <Label text="Liste des utilisateurs" styleClass="section-title-clean"/>
+                                <Pane HBox.hgrow="ALWAYS"/>
+                                <TextField fx:id="searchField"
+                                           promptText="Rechercher par nom, email, rôle..."
+                                           onKeyReleased="#handleSearch"
+                                           styleClass="search-field-clean"
+                                           prefWidth="320.0"/>
+                            </children>
+                        </HBox>
+
+                        <Label fx:id="feedbackLabel" text="" styleClass="admin-feedback"/>
+
+                        <TableView fx:id="userTable"
+                                   VBox.vgrow="ALWAYS"
+                                   styleClass="admin-table-clean">
+
+                            <columns>
+                                <TableColumn fx:id="colId" text="ID" prefWidth="70.0"/>
+                                <TableColumn fx:id="colFirstName" text="Prénom" prefWidth="150.0"/>
+                                <TableColumn fx:id="colLastName" text="Nom" prefWidth="150.0"/>
+                                <TableColumn fx:id="colEmail" text="Email" prefWidth="280.0"/>
+                                <TableColumn fx:id="colTel" text="Téléphone" prefWidth="150.0"/>
+                                <TableColumn fx:id="colRole" text="Rôle" prefWidth="170.0"/>
+                                <TableColumn fx:id="colActions" text="Actions" prefWidth="140.0"/>
+                            </columns>
+                        </TableView>
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </center>
+</BorderPane>
