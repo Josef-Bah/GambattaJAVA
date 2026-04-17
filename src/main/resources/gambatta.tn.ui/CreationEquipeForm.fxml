@@ -57,7 +57,7 @@
                     <TextField fx:id="txtTitres" promptText="Ex: Champion 2023, Finaliste 2024..." />
                 </VBox>
 
-                <VBox spacing="8" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                <VBox spacing="8" GridPane.columnSpan="2" GridPane.rowIndex="4">
                     <Label text="OBJECTIFS DE L'ÉQUIPE" style="-fx-font-weight: bold;"/>
                     <TextArea fx:id="txtObjectifs" promptText="Décrivez l'ambition de votre équipe..." prefHeight="100" />
                 </VBox>

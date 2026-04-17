@@ -57,6 +57,7 @@ public class MainFX extends Application {
             stage.show();
         } catch (Exception ex) {
             ex.printStackTrace();
+            showErrorAlert("Erreur lors de l'ouverture de Tournoi:\n" + ex.getMessage());
         }
     }
 
@@ -71,6 +72,7 @@ public class MainFX extends Application {
             stage.show();
         } catch (Exception ex) {
             ex.printStackTrace();
+            showErrorAlert("Erreur lors de l'ouverture d'Equipe:\n" + ex.getMessage());
         }
     }
 
@@ -85,6 +87,7 @@ public class MainFX extends Application {
             stage.show();
         } catch (Exception ex) {
             ex.printStackTrace();
+            showErrorAlert("Erreur Inscription Tournoi:\n" + ex.getMessage());
         }
     }
 
@@ -99,10 +102,21 @@ public class MainFX extends Application {
             stage.show();
         } catch (Exception ex) {
             ex.printStackTrace();
+            showErrorAlert("Erreur Inscription Equipe:\n" + ex.getMessage());
         }
     }
 
     public static void main(String[] args) {
         launch();
+    }
+
+    private void showErrorAlert(String message) {
+        javafx.application.Platform.runLater(() -> {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+            alert.setTitle("Erreur de Base de Données");
+            alert.setHeaderText("Impossible d'ouvrir l'interface");
+            alert.setContentText(message + "\n\nAssurez-vous que votre serveur MySQL (ex: XAMPP/WAMP) est démarré et que la base 'gambatta_db' existe bien.");
+            alert.showAndWait();
+        });
     }
 }

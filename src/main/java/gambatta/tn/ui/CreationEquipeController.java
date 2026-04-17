@@ -57,10 +57,12 @@ public class CreationEquipeController {
         // Simuler un léger délai pour l'effet "génération"
         javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(1));
         pause.setOnFinished(e -> {
-            txtLogo.setText(logoUrl);
-            showAlert("Logo généré avec succès ! (Utilisation de l'API créative DiceBear)");
-            btnGenLogo.setDisable(false);
-            btnGenLogo.setText("GÉNÉRER MON LOGO");
+            javafx.application.Platform.runLater(() -> {
+                txtLogo.setText(logoUrl);
+                showAlert("Logo généré avec succès ! (Utilisation de l'API créative DiceBear)");
+                btnGenLogo.setDisable(false);
+                btnGenLogo.setText("GÉNÉRER MON LOGO");
+            });
         });
         pause.play();
     }
