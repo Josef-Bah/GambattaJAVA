@@ -1,50 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.ui.InscritournoiController"
-            prefWidth="1000" prefHeight="700" styleClass="container" stylesheets="@style.css">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gambatta.tn.ui.InscritournoiController"
+            styleClass="container" stylesheets="@style.css">
 
-    <VBox spacing="25" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20">
-        
-        <VBox spacing="5">
-            <Label text="Inscriptions aux Tournois" styleClass="title-label"/>
-            <Label text="Gérez les participations des équipes aux différents tournois." styleClass="subtitle-label"/>
-        </VBox>
-
-        <VBox spacing="20" styleClass="card" style="-fx-padding: 20;">
-            <HBox spacing="15" alignment="CENTER_LEFT">
-                <ComboBox fx:id="comboEquipe" promptText="Choisir une équipe" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                <ComboBox fx:id="comboTournoi" promptText="Choisir un tournoi" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                <Button fx:id="btnAjouter" text="INSCRIRE L'ÉQUIPE" styleClass="btn-primary"/>
-            </HBox>
-
-            <HBox spacing="15" alignment="CENTER_LEFT">
-                <TextField fx:id="txtSearch" promptText="Rechercher par équipe ou tournoi..." HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnPDF" text="EXPORTER PDF" styleClass="btn-outline"/>
-                <Button fx:id="btnStats" text="VOIR STATS" styleClass="btn-secondary"/>
-                <Button fx:id="btnSupprimer" text="RETIRER" styleClass="btn-danger"/>
-            </HBox>
-        </VBox>
-
-        <TableView fx:id="tableInscriptions" VBox.vgrow="ALWAYS">
-            <columns>
-                <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
-                <TableColumn fx:id="colEquipe" text="Nom de l'Équipe" prefWidth="250"/>
-                <TableColumn fx:id="colTournoi" text="Nom du Tournoi" prefWidth="250"/>
-                <TableColumn fx:id="colStatus" text="Statut de l'Inscription" prefWidth="150"/>
-            </columns>
-            <columnResizePolicy>
-                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-            </columnResizePolicy>
-        </TableView>
-
-        <HBox alignment="CENTER_RIGHT" style="-fx-padding: 10;">
-            <Button fx:id="btnChatbot" text="🤖 BESOIN D'AIDE ?" onAction="#handleOpenChatbot" 
-                    style="-fx-background-color: #ffd700; -fx-text-fill: #001f3f; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 20;"/>
+    <!-- ══ HEADER ══ -->
+    <top>
+        <HBox spacing="15" alignment="CENTER_LEFT"
+              style="-fx-background-color: #0a192f; -fx-padding: 15 30; -fx-border-color: #C5B358; -fx-border-width: 0 0 2 0;">
+            <Button text="← Retour" onAction="#goBack"
+                    style="-fx-background-color: transparent; -fx-text-fill: #C5B358; -fx-border-color: #C5B358; -fx-border-width: 1px; -fx-border-radius: 8; -fx-cursor: hand;"/>
+            <Label text="📝  Inscriptions aux Tournois"
+                   style="-fx-text-fill: #C5B358; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="txtSearch" promptText="🔍 Rechercher..." prefWidth="250" styleClass="text-field"/>
+            <Button fx:id="btnPDF" text="⬇ Exporter" styleClass="btn-outline"/>
+            <Button fx:id="btnStats" text="📊 Stats" styleClass="btn-secondary"/>
         </HBox>
+    </top>
 
-    </VBox>
-</AnchorPane>
+    <center>
+        <HBox>
+            <!-- ── DRAWER FORM ── -->
+            <VBox fx:id="drawerPanel"
+                  style="-fx-background-color: #0d1b2a; -fx-border-color: #C5B358; -fx-border-width: 0 2 0 0;"
+                  prefWidth="0" managed="false" visible="false">
+
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                            style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;">
+                    <VBox spacing="16" style="-fx-padding: 25;">
+
+                        <Label text="➕  Nouvelle Inscription"
+                               style="-fx-text-fill: #C5B358; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+                        <VBox spacing="5">
+                            <Label text="Équipe *" style="-fx-text-fill: white;"/>
+                            <ComboBox fx:id="comboEquipe" prefWidth="Infinity" maxWidth="Infinity" styleClass="text-field"/>
+                            <Label fx:id="errEquipe" text="" style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px;"/>
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Tournoi *" style="-fx-text-fill: white;"/>
+                            <ComboBox fx:id="comboTournoi" prefWidth="Infinity" maxWidth="Infinity" styleClass="text-field"/>
+                            <Label fx:id="errTournoi" text="" style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px;"/>
+                        </VBox>
+
+                        <HBox spacing="10" style="-fx-padding: 10 0 0 0;">
+                            <Button text="💾 Inscrire" onAction="#addInscription" styleClass="btn-primary" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                            <Button text="✖" onAction="#closeDrawer" styleClass="btn-outline" style="-fx-min-width: 40;"/>
+                        </HBox>
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+
+            <!-- ── TABLE ── -->
+            <VBox spacing="15" HBox.hgrow="ALWAYS" style="-fx-padding: 25;">
+                <HBox alignment="CENTER_RIGHT">
+                    <Button text="+ Inscrire une Équipe" onAction="#openDrawer" styleClass="btn-primary"
+                            style="-fx-font-size: 14px; -fx-padding: 12 24;"/>
+                </HBox>
+
+                <TableView fx:id="tableInscriptions" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colId"     text="ID"       prefWidth="55"/>
+                        <TableColumn fx:id="colEquipe" text="Équipe"   prefWidth="240"/>
+                        <TableColumn fx:id="colTournoi" text="Tournoi" prefWidth="240"/>
+                        <TableColumn fx:id="colStatus" text="Statut"   prefWidth="120"/>
+                        <TableColumn fx:id="colSupprimer" text="🗑 Retirer" prefWidth="120"/>
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
+                </TableView>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

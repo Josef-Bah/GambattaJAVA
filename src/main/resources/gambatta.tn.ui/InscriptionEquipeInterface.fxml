@@ -1,47 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="gambatta.tn.ui.InscriptionController"
-            prefWidth="1000" prefHeight="700" styleClass="container" stylesheets="@style.css">
-            
-    <VBox spacing="40" AnchorPane.topAnchor="40" AnchorPane.leftAnchor="40" AnchorPane.rightAnchor="40" alignment="TOP_CENTER">
-        
-        <VBox spacing="10" alignment="CENTER">
-            <Label text="PRÊT POUR L'AVENTURE ?" styleClass="title-label" />
-            <Label text="Choisissez comment vous souhaitez intégrer la compétition." styleClass="subtitle-label" />
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gambatta.tn.ui.InscriptionController"
+            styleClass="container" stylesheets="@style.css">
+
+    <!-- ══ HEADER ══ -->
+    <top>
+        <HBox spacing="15" alignment="CENTER_LEFT"
+              style="-fx-background-color: #0a192f; -fx-padding: 15 30; -fx-border-color: #C5B358; -fx-border-width: 0 0 2 0;">
+            <Button text="← Retour" onAction="#goBack"
+                    style="-fx-background-color: transparent; -fx-text-fill: #C5B358; -fx-border-color: #C5B358; -fx-border-width: 1px; -fx-border-radius: 8; -fx-cursor: hand;"/>
+            <Label text="🎮  Rejoindre l'Aventure"
+                   style="-fx-text-fill: #C5B358; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+        </HBox>
+    </top>
+
+    <!-- ══ CONTENT ══ -->
+    <center>
+        <VBox spacing="40" alignment="CENTER" style="-fx-padding: 60;">
+
+            <VBox spacing="10" alignment="CENTER">
+                <Label text="PRÊT POUR L'AVENTURE ?" styleClass="title-label"/>
+                <Label text="Choisissez comment vous souhaitez intégrer la compétition." styleClass="subtitle-label"/>
+            </VBox>
+
+            <HBox spacing="30" alignment="CENTER">
+
+                <!-- Card 1: Créer son équipe -->
+                <VBox spacing="20" styleClass="card" prefWidth="320" prefHeight="250" style="-fx-padding: 35;">
+                    <Label text="🏆" style="-fx-font-size: 36px;"/>
+                    <Label text="Créer mon Équipe" style="-fx-font-weight:bold; -fx-font-size:18; -fx-text-fill: #C5B358;"/>
+                    <Label text="Devenez capitaine, choisissez votre nom et invitez vos amis à vous rejoindre."
+                           wrapText="true" style="-fx-text-fill: #8892b0;"/>
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Button text="LANCER LA CRÉATION" onAction="#handleLancerCreation"
+                            styleClass="btn-primary" maxWidth="Infinity"/>
+                </VBox>
+
+                <!-- Card 2: Rejoindre une équipe -->
+                <VBox spacing="20" styleClass="card" prefWidth="320" prefHeight="250" style="-fx-padding: 35;">
+                    <Label text="👥" style="-fx-font-size: 36px;"/>
+                    <Label text="Rejoindre une Équipe" style="-fx-font-weight:bold; -fx-font-size:18; -fx-text-fill: #C5B358;"/>
+                    <Label text="Envoyez une demande pour intégrer une équipe existante en tant que joueur."
+                           wrapText="true" style="-fx-text-fill: #8892b0;"/>
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Button text="REJOINDRE UNE ÉQUIPE" onAction="#handleRejoindreEquipe"
+                            styleClass="btn-secondary" maxWidth="Infinity"/>
+                </VBox>
+
+                <!-- Card 3: Trouver un tournoi -->
+                <VBox spacing="20" styleClass="card" prefWidth="320" prefHeight="250" style="-fx-padding: 35;">
+                    <Label text="⚡" style="-fx-font-size: 36px;"/>
+                    <Label text="Trouver un Tournoi" style="-fx-font-weight:bold; -fx-font-size:18; -fx-text-fill: #C5B358;"/>
+                    <Label text="Consultez les tournois disponibles et inscrivez votre équipe à la compétition."
+                           wrapText="true" style="-fx-text-fill: #8892b0;"/>
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Button fx:id="btnTrouverTournoi" text="VOIR LES TOURNOIS"
+                            styleClass="btn-outline" maxWidth="Infinity"/>
+                </VBox>
+            </HBox>
         </VBox>
-
-        <HBox spacing="30" alignment="CENTER">
-            <!-- Rejoindre un tournoi -->
-            <VBox spacing="20" styleClass="card" prefWidth="300" style="-fx-padding: 30;">
-                <Label text="Rejoindre un Tournoi" style="-fx-font-weight:bold; -fx-font-size:18; -fx-text-fill: -fx-primary-color;" />
-                <Label text="Intégrez un groupe déjà formé et participez à un tournoi actif en tant que coéquipier." wrapText="true" style="-fx-text-fill: -fx-text-muted;" />
-                <Region VBox.vgrow="ALWAYS" />
-                <Button fx:id="btnTrouverTournoi" text="TROUVER UN TOURNOI" styleClass="btn-secondary" maxWidth="Infinity" />
-            </VBox>
-
-            <!-- Créer son équipe -->
-            <VBox spacing="20" styleClass="card" prefWidth="300" style="-fx-padding: 30;">
-                <Label text="Créer mon équipe" style="-fx-font-weight:bold; -fx-font-size:18; -fx-text-fill: -fx-primary-color;" />
-                <Label text="Devenez capitaine, choisissez votre nom et vos couleurs, puis invitez vos amis." wrapText="true" style="-fx-text-fill: -fx-text-muted;" />
-                <Region VBox.vgrow="ALWAYS" />
-                <Button fx:id="btnLancerCreation" text="LANCER LA CRÉATION" onAction="#handleLancerCreation" styleClass="btn-primary" maxWidth="Infinity" />
-            </VBox>
-
-            <!-- Rejoindre une équipe existante -->
-            <VBox spacing="20" styleClass="card" prefWidth="300" style="-fx-padding: 30;">
-                <Label text="Joueur individuel" style="-fx-font-weight:bold; -fx-font-size:18; -fx-text-fill: -fx-primary-color;" />
-                <Label text="Envoyez une demande rapide pour intégrer une équipe existante." wrapText="true" style="-fx-text-fill: -fx-text-muted;" />
-                <Region VBox.vgrow="ALWAYS" />
-                <Button fx:id="btnOuvrirRejoindre" text="REJOINDRE UNE ÉQUIPE" onAction="#handleRejoindreEquipe" styleClass="btn-secondary" maxWidth="Infinity" />
-            </VBox>
-        </HBox>
-        
-        <HBox alignment="CENTER" spacing="10" style="-fx-padding: 40 0 0 0;">
-             <Button text="← RETOUR À L'ACCUEIL" styleClass="btn-outline" />
-        </HBox>
-    </VBox>
-</AnchorPane>
+    </center>
+</BorderPane>

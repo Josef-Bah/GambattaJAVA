@@ -76,8 +76,14 @@ public class PlayerJoinRequestService {
         String sql = "INSERT INTO playerjoinrequest (playerName, equipe_id, status, createdAt) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pst = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, p.getPlayerName());
-            pst.setLong(2, p.getEquipe().getId());
-            pst.setString(3, p.getStatus());
+            // Utiliser idProperty().get() pour éviter le null quand id=0
+            long equipeId = p.getEquipe().idProperty().get();
+            if (equipeId == 0) {
+                System.err.println("[PlayerJoinRequestService] ERREUR: equipe_id est 0, l'équipe n'a pas d'id valide.");
+                return false;
+            }
+            pst.setLong(2, equipeId);
+            pst.setString(3, p.getStatus() != null ? p.getStatus() : playerjoinrequest.STATUS_PENDING);
             pst.setTimestamp(4, Timestamp.valueOf(p.getCreatedAt() != null ? p.getCreatedAt() : LocalDateTime.now()));
             
             pst.executeUpdate();
@@ -85,6 +91,7 @@ public class PlayerJoinRequestService {
             if (rs.next()) p.setId(rs.getLong(1));
             return true;
         } catch (SQLException ex) {
+            System.err.println("[PlayerJoinRequestService] SQL Error add: " + ex.getMessage());
             ex.printStackTrace();
         }
         return false;
@@ -94,13 +101,14 @@ public class PlayerJoinRequestService {
         String sql = "UPDATE playerjoinrequest SET playerName=?, equipe_id=?, status=?, createdAt=? WHERE id=?";
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setString(1, p.getPlayerName());
-            pst.setLong(2, p.getEquipe().getId());
+            long equipeId = p.getEquipe().idProperty().get();
+            pst.setLong(2, equipeId);
             pst.setString(3, p.getStatus());
             pst.setTimestamp(4, Timestamp.valueOf(p.getCreatedAt() != null ? p.getCreatedAt() : LocalDateTime.now()));
             pst.setLong(5, p.getId());
-            
             return pst.executeUpdate() > 0;
         } catch (SQLException ex) {
+            System.err.println("[PlayerJoinRequestService] SQL Error update: " + ex.getMessage());
             ex.printStackTrace();
         }
         return false;

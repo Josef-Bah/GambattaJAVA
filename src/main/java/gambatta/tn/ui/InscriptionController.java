@@ -23,53 +23,32 @@ public class InscriptionController {
 
     @FXML
     public void initialize() {
-        btnTrouverTournoi.setOnAction(e -> opentrouverTournoiWindow());
+        btnTrouverTournoi.setOnAction(e -> openWindow("/gambatta.tn.ui/trouverTournoiInterface.fxml", "Trouver un Tournoi"));
+    }
+
+    @FXML
+    public void goBack() {
+        ((Stage) btnTrouverTournoi.getScene().getWindow()).close();
     }
 
     @FXML
     private void handleLancerCreation() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/CreationEquipeForm.fxml"));
-            Scene scene = new Scene(loader.load(), 1000, 700);
-            scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
-
-            Stage stage = (Stage) btnLancerCreation.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("Créer mon équipe");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            showError("Erreur lors de l'ouverture du formulaire : " + ex.getMessage());
-        }
+        openWindow("/gambatta.tn.ui/CreationEquipeForm.fxml", "Créer mon équipe");
     }
 
     @FXML
     private void handleRejoindreEquipe() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/RejoindreEquipeForm.fxml"));
-            Scene scene = new Scene(loader.load(), 1000, 700);
-            scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
-
-            Stage stage = (Stage) btnOuvrirRejoindre.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("Rejoindre une équipe");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            showError("Erreur lors de l'ouverture du formulaire : " + ex.getMessage());
-        }
+        openWindow("/gambatta.tn.ui/RejoindreEquipeForm.fxml", "Rejoindre une équipe");
     }
 
-    private void opentrouverTournoiWindow() {
+    private void openWindow(String fxml, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/trouverTournoiInterface.fxml"));
-            Scene scene = new Scene(loader.load(), 1000, 700);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            Scene scene = new Scene(loader.load());
             scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
-            Stage stage = (Stage) btnTrouverTournoi.getScene().getWindow();
-            stage.setScene(scene);
-            stage.setTitle("Trouver un tournoi");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            showError("Impossible d'ouvrir l'interface de recherche de tournoi.");
-        }
+            Stage stage = new Stage();
+            stage.setTitle(title); stage.setScene(scene); stage.setMaximized(true); stage.show();
+        } catch (Exception ex) { ex.printStackTrace(); showError("Impossible d'ouvrir : " + title); }
     }
 
     private void showAlert(String message) {

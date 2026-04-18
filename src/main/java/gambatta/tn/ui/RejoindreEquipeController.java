@@ -1,99 +1,94 @@
 package gambatta.tn.ui;
 
 import gambatta.tn.entites.tournois.equipe;
-import gambatta.tn.entites.tournois.inscriptiontournoi;
+import gambatta.tn.entites.tournois.playerjoinrequest;
 import gambatta.tn.services.tournoi.EquipeService;
-import gambatta.tn.services.tournoi.InscritournoiService;
+import gambatta.tn.services.tournoi.PlayerJoinRequestService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 public class RejoindreEquipeController {
 
-    @FXML
-    private TextField txtPlayerName;
-    @FXML
-    private ComboBox<equipe> comboEquipeSelection;
+    @FXML private TextField      txtPlayerName;
+    @FXML private ComboBox<equipe> comboEquipeSelection;
+    @FXML private Label          errPlayerName;
+    @FXML private Label          errEquipe;
 
-    private EquipeService equipeService = new EquipeService();
-    private InscritournoiService inscritService = new InscritournoiService();
+    private EquipeService           equipeService = new EquipeService();
+    private PlayerJoinRequestService requestService = new PlayerJoinRequestService();
 
     @FXML
     public void initialize() {
-        // Charger les équipes dans la ComboBox
         comboEquipeSelection.setItems(FXCollections.observableArrayList(equipeService.findAll()));
     }
 
     @FXML
     private void handleEnvoyerDemande() {
-        String playerName = txtPlayerName.getText().trim();
+        if (!validate()) return;
+
+        String playerName    = txtPlayerName.getText().trim();
         equipe selectedEquipe = comboEquipeSelection.getSelectionModel().getSelectedItem();
 
-        if (playerName.isEmpty() || selectedEquipe == null) {
-            showWarning("Veuillez entrer votre nom et sélectionner une équipe.");
-            return;
-        }
+        // Utiliser PlayerJoinRequest (entité dédiée)
+        playerjoinrequest request = new playerjoinrequest();
+        request.setPlayerName(playerName);
+        request.setEquipe(selectedEquipe);
+        request.setStatus(playerjoinrequest.STATUS_PENDING);
 
-        inscriptiontournoi inscription = new inscriptiontournoi();
-        inscription.setEquipe(selectedEquipe);
-        inscription.setTournoi(null); 
-        inscription.setStatus(inscriptiontournoi.STATUS_PENDING);
-
-        boolean saved = inscritService.save(inscription);
-
-        if (saved) {
-            showAlert("Votre demande pour rejoindre l'équipe " + selectedEquipe.getNom() + " a été envoyée !");
-            navigateBack();
+        if (requestService.save(request)) {
+            showAlert(Alert.AlertType.INFORMATION, "✅ Demande envoyée",
+                    "Votre demande pour rejoindre \"" + selectedEquipe.getNom() + "\" a bien été envoyée !\nLe capitaine va examiner votre profil.");
+            clearForm();
         } else {
-            showError("Une erreur est survenue lors de l'envoi de votre demande.");
+            showAlert(Alert.AlertType.ERROR, "Erreur", "Une erreur est survenue lors de l'envoi de votre demande.");
         }
     }
 
     @FXML
     private void handleRetour() {
-        navigateBack();
-    }
-
-    private void navigateBack() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/InscriptionEquipeInterface.fxml"));
-            Scene scene = new Scene(loader.load(), 1000, 700);
+            Scene scene = new Scene(loader.load());
             scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
-
             Stage stage = (Stage) txtPlayerName.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle("Inscription Équipe");
+            stage.setMaximized(true);
         } catch (Exception ex) {
             ex.printStackTrace();
+            ((Stage) txtPlayerName.getScene().getWindow()).close();
         }
     }
 
-    private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    // ── VALIDATION ──────────────────────────────────────────
+
+    private boolean validate() {
+        clearErrors(); boolean ok = true;
+        String name = txtPlayerName.getText().trim();
+        if (name.isEmpty()) {
+            errPlayerName.setText("⚠ Votre nom est obligatoire."); ok = false;
+        } else if (name.length() < 2) {
+            errPlayerName.setText("⚠ Le nom doit avoir au moins 2 caractères."); ok = false;
+        }
+        if (comboEquipeSelection.getSelectionModel().getSelectedItem() == null) {
+            errEquipe.setText("⚠ Veuillez sélectionner une équipe."); ok = false;
+        }
+        return ok;
     }
 
-    private void showWarning(String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Attention");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void clearErrors() { errPlayerName.setText(""); errEquipe.setText(""); }
+
+    private void clearForm() {
+        txtPlayerName.clear();
+        comboEquipeSelection.getSelectionModel().clearSelection();
+        clearErrors();
     }
 
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erreur");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void showAlert(Alert.AlertType type, String title, String msg) {
+        Alert a = new Alert(type); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
 }

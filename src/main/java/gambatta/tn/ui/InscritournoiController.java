@@ -1,203 +1,204 @@
 package gambatta.tn.ui;
 
-import gambatta.tn.entites.tournois.inscriptiontournoi;
 import gambatta.tn.entites.tournois.equipe;
+import gambatta.tn.entites.tournois.inscriptiontournoi;
 import gambatta.tn.entites.tournois.tournoi;
-import javafx.scene.control.*;
 import gambatta.tn.services.tournoi.EquipeService;
-import gambatta.tn.services.tournoi.TournoiService;
 import gambatta.tn.services.tournoi.InscritournoiService;
+import gambatta.tn.services.tournoi.TournoiService;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.util.List;
 
 public class InscritournoiController {
 
-    @FXML private TableView<inscriptiontournoi> tableInscriptions;
-    @FXML private TableColumn<inscriptiontournoi, Long> colId;
-    @FXML private TableColumn<inscriptiontournoi, String> colEquipe;
-    @FXML private TableColumn<inscriptiontournoi, String> colTournoi;
-    @FXML private TableColumn<inscriptiontournoi, String> colStatus;
+    // ── Drawer fields ──
+    @FXML private VBox drawerPanel;
+    @FXML private ComboBox<equipe>   comboEquipe;
+    @FXML private ComboBox<tournoi>  comboTournoi;
+    @FXML private Label errEquipe;
+    @FXML private Label errTournoi;
 
-    @FXML private ComboBox<equipe> comboEquipe;
-    @FXML private ComboBox<tournoi> comboTournoi;
+    // ── Table ──
+    @FXML private TableView<inscriptiontournoi>              tableInscriptions;
+    @FXML private TableColumn<inscriptiontournoi, Long>      colId;
+    @FXML private TableColumn<inscriptiontournoi, String>    colEquipe;
+    @FXML private TableColumn<inscriptiontournoi, String>    colTournoi;
+    @FXML private TableColumn<inscriptiontournoi, String>    colStatus;
+    @FXML private TableColumn<inscriptiontournoi, Void>      colSupprimer;
+
     @FXML private TextField txtSearch;
+    @FXML private Button    btnPDF;
+    @FXML private Button    btnStats;
 
-    @FXML private Button btnAjouter;
-    @FXML private Button btnSupprimer;
-    @FXML private Button btnPDF;
-    @FXML private Button btnStats;
+    private InscritournoiService service          = new InscritournoiService();
+    private EquipeService        equipeService     = new EquipeService();
+    private TournoiService       tournoiService    = new TournoiService();
+    private ObservableList<inscriptiontournoi> inscriptions = FXCollections.observableArrayList();
+    private static final double DRAWER_WIDTH = 340;
 
-    private InscritournoiService service;
-    private EquipeService equipeService = new EquipeService();
-    private TournoiService tournoiService = new TournoiService();
-    private ObservableList<inscriptiontournoi> inscriptions;
-
+    @FXML
     public void initialize() {
-        service = new InscritournoiService();
-
+        // Peupler les combos
         comboEquipe.setItems(FXCollections.observableArrayList(equipeService.findAll()));
         comboTournoi.setItems(FXCollections.observableArrayList(tournoiService.findAll()));
 
-        colId.setCellValueFactory(data -> new javafx.beans.property.SimpleLongProperty(data.getValue().getId()).asObject());
-        colEquipe.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getEquipe().getNom()));
-        colTournoi.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getTournoi().getNomt()));
-        colStatus.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getStatus()));
+        // Colonnes
+        colId.setCellValueFactory(d -> new SimpleLongProperty(d.getValue().getId()).asObject());
+        colEquipe.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getEquipe().getNom()));
+        colTournoi.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getTournoi().getNomt()));
+        colStatus.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getStatus()));
 
-        loadInscriptions();
+        // Bouton Supprimer dans la table
+        colSupprimer.setCellFactory(p -> new TableCell<>() {
+            private final Button btn = new Button("🗑 Retirer");
+            { btn.setStyle("-fx-background-color: #3B0A0A; -fx-text-fill: #ff6b6b; -fx-cursor: hand; -fx-border-color: #8B1E2D; -fx-border-width:1; -fx-border-radius:6; -fx-background-radius:6;");
+              btn.setOnAction(e -> deleteInscription(getTableView().getItems().get(getIndex()))); }
+            @Override protected void updateItem(Void i, boolean empty) { super.updateItem(i, empty); setGraphic(empty ? null : btn); }
+        });
 
-        btnAjouter.setOnAction(e -> addInscription());
-        btnSupprimer.setOnAction(e -> deleteInscription());
+        // Boutons header
         btnPDF.setOnAction(e -> exportPDF());
         btnStats.setOnAction(e -> showStats());
 
-        txtSearch.textProperty().addListener((obs, oldVal, newVal) -> filterInscriptions(newVal));
+        // Search
+        txtSearch.textProperty().addListener((obs, o, n) -> filterInscriptions(n));
+
+        loadData();
     }
 
-    private void loadInscriptions() {
-        List<inscriptiontournoi> list = service.findAll();
-        inscriptions = FXCollections.observableArrayList(list);
+    // ── DRAWER ──────────────────────────────────────────────
+
+    @FXML public void openDrawer() {
+        comboEquipe.getSelectionModel().clearSelection();
+        comboTournoi.getSelectionModel().clearSelection();
+        clearErrors();
+        showDrawer();
+    }
+
+    @FXML public void closeDrawer() { hideDrawer(); }
+
+    private void showDrawer() {
+        drawerPanel.setVisible(true); drawerPanel.setManaged(true);
+        new Timeline(
+            new KeyFrame(Duration.ZERO,       new KeyValue(drawerPanel.prefWidthProperty(), 0)),
+            new KeyFrame(Duration.millis(250), new KeyValue(drawerPanel.prefWidthProperty(), DRAWER_WIDTH))
+        ).play();
+    }
+
+    private void hideDrawer() {
+        Timeline tl = new Timeline(
+            new KeyFrame(Duration.ZERO,       new KeyValue(drawerPanel.prefWidthProperty(), DRAWER_WIDTH)),
+            new KeyFrame(Duration.millis(200), new KeyValue(drawerPanel.prefWidthProperty(), 0))
+        );
+        tl.setOnFinished(e -> { drawerPanel.setVisible(false); drawerPanel.setManaged(false); });
+        tl.play();
+    }
+
+    // ── SAVE ────────────────────────────────────────────────
+
+    @FXML public void addInscription() {
+        clearErrors(); boolean ok = true;
+        equipe eq = comboEquipe.getSelectionModel().getSelectedItem();
+        tournoi t  = comboTournoi.getSelectionModel().getSelectedItem();
+        if (eq == null) { errEquipe.setText("⚠ Veuillez choisir une équipe.");  ok = false; }
+        if (t == null)  { errTournoi.setText("⚠ Veuillez choisir un tournoi."); ok = false; }
+        if (!ok) return;
+
+        inscriptiontournoi i = new inscriptiontournoi();
+        i.setEquipe(eq); i.setTournoi(t);
+        i.setStatus(inscriptiontournoi.STATUS_PENDING);
+
+        if (service.save(i)) {
+            inscriptions.add(i);
+            showAlert("Succès", eq.getNom() + " inscrite au tournoi " + t.getNomt() + " !");
+            closeDrawer();
+        } else {
+            errEquipe.setText("⚠ Cette équipe est déjà inscrite à ce tournoi.");
+        }
+    }
+
+    // ── DELETE ──────────────────────────────────────────────
+
+    private void deleteInscription(inscriptiontournoi i) {
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION,
+                "Retirer \"" + i.getEquipe().getNom() + "\" du tournoi \"" + i.getTournoi().getNomt() + "\" ?",
+                ButtonType.YES, ButtonType.NO);
+        a.setHeaderText(null);
+        a.showAndWait().ifPresent(r -> { if (r == ButtonType.YES && service.delete(i.getId())) inscriptions.remove(i); });
+    }
+
+    private void clearErrors() { errEquipe.setText(""); errTournoi.setText(""); }
+
+    // ── DATA ────────────────────────────────────────────────
+
+    private void loadData() {
+        inscriptions.setAll(service.findAll());
         tableInscriptions.setItems(inscriptions);
     }
 
-    private void addInscription() {
-        equipe selectedEquipe = comboEquipe.getSelectionModel().getSelectedItem();
-        tournoi selectedTournoi = comboTournoi.getSelectionModel().getSelectedItem();
-
-        if (selectedEquipe == null || selectedTournoi == null) {
-            showWarning("Veuillez sélectionner une équipe et un tournoi.");
-            return;
+    private void filterInscriptions(String q) {
+        if (q == null || q.isEmpty()) { tableInscriptions.setItems(inscriptions); return; }
+        ObservableList<inscriptiontournoi> f = FXCollections.observableArrayList();
+        for (inscriptiontournoi i : inscriptions) {
+            if (i.getEquipe().getNom().toLowerCase().contains(q.toLowerCase())
+             || i.getTournoi().getNomt().toLowerCase().contains(q.toLowerCase())) f.add(i);
         }
-
-        inscriptiontournoi i = new inscriptiontournoi();
-        i.setEquipe(selectedEquipe);
-        i.setTournoi(selectedTournoi);
-        i.setStatus(inscriptiontournoi.STATUS_PENDING);
-
-        boolean saved = service.save(i);
-        if (saved) {
-            showAlert("L'équipe " + selectedEquipe.getNom() + " a été inscrite avec succès !");
-            inscriptions.add(i);
-            comboEquipe.getSelectionModel().clearSelection();
-            comboTournoi.getSelectionModel().clearSelection();
-            tableInscriptions.refresh();
-        } else {
-            showError("Impossible d'ajouter cette inscription. L'équipe est peut-être déjà inscrite.");
-        }
-    }
-
-    private void deleteInscription() {
-        inscriptiontournoi selected = tableInscriptions.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            boolean deleted = service.delete(selected.getId());
-            if (deleted) {
-                inscriptions.remove(selected);
-                tableInscriptions.refresh();
-            }
-        }
+        tableInscriptions.setItems(f);
     }
 
     private void exportPDF() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Exporter les inscriptions");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
-        File file = fileChooser.showSaveDialog(tableInscriptions.getScene().getWindow());
-        if (file != null) {
-            String content = service.generatePdf(); // Version texte
-            System.out.println("Exportation simulée vers terminal pour : " + file.getAbsolutePath());
-            System.out.println(content);
-        }
+        FileChooser fc = new FileChooser();
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Texte", "*.txt"));
+        File file = fc.showSaveDialog(tableInscriptions.getScene().getWindow());
+        if (file != null) System.out.println(service.generatePdf());
     }
+
+    // ── NAVIGATION ──────────────────────────────────────────
+
+    @FXML public void goBack() { ((Stage) tableInscriptions.getScene().getWindow()).close(); }
 
     private void showStats() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/StatsInterface.fxml"));
             AnchorPane root = loader.load();
-            
-            StatsController controller = loader.getController();
-            
+            StatsController ctrl = loader.getController();
             java.util.Map<String, Long> stats = new java.util.HashMap<>();
             stats.put(inscriptiontournoi.STATUS_ACCEPTED, inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_ACCEPTED)).count());
-            stats.put(inscriptiontournoi.STATUS_PENDING, inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_PENDING)).count());
-            stats.put(inscriptiontournoi.STATUS_REFUSED, inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_REFUSED)).count());
-            
-            controller.setData("Statistiques des Inscriptions", stats, inscriptiontournoi.STATUS_PENDING, inscriptiontournoi.STATUS_ACCEPTED);
-            
-            Stage stage = new Stage();
-            stage.setTitle("Tableau de Bord des Inscriptions");
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
-            stage.setScene(scene);
-            stage.setMaximized(true);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-            showError("Impossible de charger les statistiques.");
-        }
+            stats.put(inscriptiontournoi.STATUS_PENDING,  inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_PENDING)).count());
+            ctrl.setData("Stats Inscriptions", stats, inscriptiontournoi.STATUS_PENDING, inscriptiontournoi.STATUS_ACCEPTED);
+            Stage s = new Stage(); s.setTitle("Statistiques Inscriptions");
+            Scene sc = new Scene(root); sc.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
+            s.setScene(sc); s.setMaximized(true); s.show();
+        } catch (Exception ex) { ex.printStackTrace(); }
     }
 
-    @FXML
-    private void handleOpenChatbot() {
+    @FXML private void handleOpenChatbot() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/ChatbotInterface.fxml"));
             VBox root = loader.load();
-            Stage stage = new Stage();
-            stage.setTitle("Assistant Gambatta IA");
-            stage.setScene(new Scene(root));
-            stage.setAlwaysOnTop(true);
-            stage.setMaximized(true);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-            showError("Impossible de lancer l'assistant IA.");
-        }
+            Stage s = new Stage(); s.setTitle("Assistant IA"); s.setScene(new Scene(root)); s.show();
+        } catch (Exception ex) { ex.printStackTrace(); }
     }
 
-    private void filterInscriptions(String search) {
-        if (search == null || search.isEmpty()) {
-            tableInscriptions.setItems(inscriptions);
-        } else {
-            ObservableList<inscriptiontournoi> filtered = FXCollections.observableArrayList();
-            for (inscriptiontournoi i : inscriptions) {
-                if (i.getEquipe().getNom().toLowerCase().contains(search.toLowerCase())
-                        || i.getTournoi().getNomt().toLowerCase().contains(search.toLowerCase())) {
-                    filtered.add(i);
-                }
-            }
-            tableInscriptions.setItems(filtered);
-        }
-    }
-
-    private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void showWarning(String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Attention");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erreur");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void showAlert(String title, String msg) {
+        Alert a = new Alert(Alert.AlertType.INFORMATION); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
     }
 }
