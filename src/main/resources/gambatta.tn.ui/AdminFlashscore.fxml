@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.AdminFlashscoreController" prefWidth="1000" prefHeight="700" styleClass="container" stylesheets="@style.css">
+    <VBox spacing="25" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Générateur de Matchs &amp; Flashscore Admin" styleClass="title-label"/>
+                <Label text="Créez manuellement ou avec l'IA les rencontres pour un tournoi." styleClass="subtitle-label"/>
+            </VBox>
+            <ComboBox fx:id="cmbTournoi" promptText="Choisir un tournoi" prefWidth="250" />
+            <Button text="Générer Matchs (IA)" onAction="#genererMatchsIA" style="-fx-background-color: #C5B358; -fx-text-fill: #010203; -fx-font-weight: bold;"/>
+            <Button text="Simuler Scores (IA)" onAction="#simulerScoresIA" style="-fx-background-color: #8892b0; -fx-text-fill: white; -fx-font-weight: bold;"/>
+        </HBox>
+
+        <TableView fx:id="table" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="idCol" text="Ref" prefWidth="50"/>
+                <TableColumn fx:id="equipeACol" text="Équipe Domicile" prefWidth="180"/>
+                <TableColumn fx:id="scoreACol" text="Score" prefWidth="60"/>
+                <TableColumn fx:id="scoreBCol" text="Score" prefWidth="60"/>
+                <TableColumn fx:id="equipeBCol" text="Équipe Extérieure" prefWidth="180"/>
+                <TableColumn fx:id="dateCol" text="Date du Match" prefWidth="150"/>
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+        </TableView>
+
+        <HBox spacing="15" alignment="CENTER" styleClass="card" style="-fx-padding: 20;">
+            <Label text="Saisie Manuelle (Match sélectionné) :" style="-fx-text-fill: white;"/>
+            <TextField fx:id="txtScoreA" promptText="Score A" prefWidth="70"/>
+            <Label text="-" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            <TextField fx:id="txtScoreB" promptText="Score B" prefWidth="70"/>
+            <Button text="Enregistrer Score" onAction="#enregistrerScore" styleClass="btn-primary"/>
+            <Button text="Supprimer Match" onAction="#supprimerMatch" styleClass="btn-secondary" style="-fx-background-color: #c62828;"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

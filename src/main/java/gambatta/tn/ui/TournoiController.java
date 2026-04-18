@@ -22,12 +22,16 @@ public class TournoiController {
     @FXML private TextField nomField;
     @FXML private TextField descField;
     @FXML private ComboBox<String> cmbStatut;
+    @FXML private DatePicker dateDebutPicker;
+    @FXML private DatePicker dateFinPicker;
     @FXML private Button btnPDF;
 
 
     @FXML private TableView<tournoi> table;
     @FXML private TableColumn<tournoi, Long> idCol;
     @FXML private TableColumn<tournoi, String> nomCol;
+    @FXML private TableColumn<tournoi, String> dateDebutCol;
+    @FXML private TableColumn<tournoi, String> dateFinCol;
     @FXML private TableColumn<tournoi, String> statutCol;
     @FXML private TableColumn<tournoi, Void> colModifier;
     @FXML private TableColumn<tournoi, Void> colSupprimer;
@@ -43,6 +47,14 @@ public class TournoiController {
         // Configurer les colonnes du tableau
         idCol.setCellValueFactory(data -> new javafx.beans.property.SimpleLongProperty(data.getValue().getId()).asObject());
         nomCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getNomt()));
+        dateDebutCol.setCellValueFactory(data -> {
+            LocalDateTime date = data.getValue().getDatedebutt();
+            return new javafx.beans.property.SimpleStringProperty(date != null ? date.toLocalDate().toString() : "");
+        });
+        dateFinCol.setCellValueFactory(data -> {
+            LocalDateTime date = data.getValue().getDatefint();
+            return new javafx.beans.property.SimpleStringProperty(date != null ? date.toLocalDate().toString() : "");
+        });
         statutCol.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getStatutt()));
         tournois = FXCollections.observableArrayList(service.findAll());
         table.setItems(tournois);
@@ -56,6 +68,8 @@ public class TournoiController {
                     nomField.setText(t.getNomt());
                     descField.setText(t.getDescrit());
                     cmbStatut.setValue(t.getStatutt());
+                    if (t.getDatedebutt() != null) dateDebutPicker.setValue(t.getDatedebutt().toLocalDate());
+                    if (t.getDatefint() != null) dateFinPicker.setValue(t.getDatefint().toLocalDate());
                     table.getSelectionModel().select(t);
                 });
             }
@@ -94,6 +108,8 @@ public class TournoiController {
                 nomField.setText(newSel.getNomt());
                 descField.setText(newSel.getDescrit());
                 cmbStatut.setValue(newSel.getStatutt());
+                dateDebutPicker.setValue(newSel.getDatedebutt() != null ? newSel.getDatedebutt().toLocalDate() : null);
+                dateFinPicker.setValue(newSel.getDatefint() != null ? newSel.getDatefint().toLocalDate() : null);
             }
         });
 
@@ -124,9 +140,16 @@ public class TournoiController {
         String nom = nomField.getText().trim();
         String desc = descField.getText().trim();
         String statut = cmbStatut.getValue();
+        java.time.LocalDate dateDebutVal = dateDebutPicker.getValue();
+        java.time.LocalDate dateFinVal = dateFinPicker.getValue();
 
-        if (nom.isEmpty() || statut == null) {
-            showAlert("Attention", "Veuillez remplir le nom et sélectionner un statut !");
+        if (nom.isEmpty() || statut == null || dateDebutVal == null || dateFinVal == null) {
+            showAlert("Attention", "Veuillez remplir tous les champs obligatoires (nom, statut, dates) !");
+            return;
+        }
+
+        if (dateDebutVal.isAfter(dateFinVal)) {
+            showAlert("Attention", "La date de fin doit être après ou le même jour que la date de début.");
             return;
         }
 
@@ -136,6 +159,8 @@ public class TournoiController {
             selected.setNomt(nom);
             selected.setDescrit(desc);
             selected.setStatutt(statut);
+            selected.setDatedebutt(dateDebutVal.atStartOfDay());
+            selected.setDatefint(dateFinVal.atTime(23, 59, 59));
             if (service.update(selected)) {
                 showAlert("Succès", "Le tournoi a été modifié avec succès.");
                 table.refresh();
@@ -149,8 +174,8 @@ public class TournoiController {
             t.setNomt(nom);
             t.setDescrit(desc);
             t.setStatutt(statut);
-            t.setDatedebutt(LocalDateTime.now());
-            t.setDatefint(LocalDateTime.now().plusDays(3));
+            t.setDatedebutt(dateDebutVal.atStartOfDay());
+            t.setDatefint(dateFinVal.atTime(23, 59, 59));
 
             boolean added = service.add(t);
             if (added) {
@@ -183,6 +208,7 @@ public class TournoiController {
             javafx.scene.Scene scene = new javafx.scene.Scene(root);
             scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,6 +226,8 @@ public class TournoiController {
         nomField.clear();
         descField.clear();
         cmbStatut.getSelectionModel().clearSelection();
+        dateDebutPicker.setValue(null);
+        dateFinPicker.setValue(null);
         table.getSelectionModel().clearSelection();
     }
 
@@ -212,6 +240,7 @@ public class TournoiController {
             Stage stage = new Stage();
             stage.setTitle("Interface Equipe");
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.show();
         } catch (Exception ex) {
             ex.printStackTrace();

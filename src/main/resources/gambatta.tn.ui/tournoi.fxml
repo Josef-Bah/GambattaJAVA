@@ -17,13 +17,15 @@
         <VBox spacing="20" styleClass="card" style="-fx-padding: 20;">
             <HBox spacing="15" alignment="CENTER_LEFT">
                 <TextField fx:id="nomField" promptText="Nom du tournoi" HBox.hgrow="ALWAYS"/>
-                <ComboBox fx:id="cmbStatut" promptText="Choisir un statut" prefWidth="200"/>
-                <Button text="ENREGISTRER" onAction="#addTournoi" styleClass="btn-primary"/>
-                <Button text="+ NOUVEAU" onAction="#handleNewTournoi" styleClass="btn-secondary"/>
+                <ComboBox fx:id="cmbStatut" promptText="Choisir un statut" prefWidth="150"/>
+                <DatePicker fx:id="dateDebutPicker" promptText="Date début" prefWidth="120" />
+                <DatePicker fx:id="dateFinPicker" promptText="Date fin" prefWidth="120" />
             </HBox>
 
             <HBox spacing="15" alignment="CENTER_LEFT">
                 <TextField fx:id="descField" promptText="Description du tournoi" HBox.hgrow="ALWAYS"/>
+                <Button text="ENREGISTRER" onAction="#addTournoi" styleClass="btn-primary"/>
+                <Button text="+ NOUVEAU" onAction="#handleNewTournoi" styleClass="btn-secondary"/>
                 <Button fx:id="btnPDF" text="EXPORTER PDF" styleClass="btn-outline"/>
                 <Button text="STATS" onAction="#showStats" styleClass="btn-secondary"/>
                 <Button text="GÉRER ÉQUIPES" onAction="#openEquipeWindow" styleClass="btn-secondary"/>
@@ -33,8 +35,10 @@
         <TableView fx:id="table" VBox.vgrow="ALWAYS">
             <columns>
                 <TableColumn fx:id="idCol" text="ID" prefWidth="60"/>
-                <TableColumn fx:id="nomCol" text="Nom du Tournoi" prefWidth="300"/>
-                <TableColumn fx:id="statutCol" text="Statut" prefWidth="150"/>
+                <TableColumn fx:id="nomCol" text="Nom du Tournoi" prefWidth="200"/>
+                <TableColumn fx:id="dateDebutCol" text="Date Début" prefWidth="100"/>
+                <TableColumn fx:id="dateFinCol" text="Date Fin" prefWidth="100"/>
+                <TableColumn fx:id="statutCol" text="Statut" prefWidth="100"/>
                 <TableColumn fx:id="colModifier" text="Modifier" prefWidth="100"/>
                 <TableColumn fx:id="colSupprimer" text="Supprimer" prefWidth="110"/>
             </columns>

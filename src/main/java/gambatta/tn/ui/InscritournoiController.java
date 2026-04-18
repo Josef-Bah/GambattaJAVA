@@ -137,6 +137,7 @@ public class InscritournoiController {
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -153,6 +154,7 @@ public class InscritournoiController {
             stage.setTitle("Assistant Gambatta IA");
             stage.setScene(new Scene(root));
             stage.setAlwaysOnTop(true);
+            stage.setMaximized(true);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();

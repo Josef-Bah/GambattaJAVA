@@ -114,6 +114,7 @@ public class CreationEquipeController {
             Stage stage = (Stage) txtNom.getScene().getWindow();
             stage.setScene(scene);
             stage.setTitle("Inscription Équipe");
+            stage.setMaximized(true);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

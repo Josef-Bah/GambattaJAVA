@@ -118,6 +118,7 @@ public class EquipeController {
             javafx.scene.Scene scene = new javafx.scene.Scene(root);
             scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.show();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -198,6 +199,7 @@ public class EquipeController {
             Stage stage = new Stage();
             stage.setTitle("Interface Tournoi");
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.show();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -212,6 +214,7 @@ public class EquipeController {
             Stage stage = new Stage();
             stage.setTitle("Inscription Nouvelle Équipe");
             stage.setScene(scene);
+            stage.setMaximized(true);
             stage.show();
         } catch (Exception ex) {
             ex.printStackTrace();

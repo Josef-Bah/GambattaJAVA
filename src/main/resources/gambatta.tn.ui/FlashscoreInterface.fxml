@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.FlashscoreController" prefWidth="1200" prefHeight="800" style="-fx-background-color: #010203;" stylesheets="@style.css">
+    
+    <VBox spacing="20" AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0">
+        
+        <!-- Header Navy Blue & Gold -->
+        <HBox alignment="CENTER" style="-fx-background-color: #0a192f; -fx-padding: 20; -fx-border-color: #C5B358; -fx-border-width: 0 0 3 0;">
+            <Label text="⚡ GAMBATTA LIVESCORE" style="-fx-text-fill: #C5B358; -fx-font-size: 32px; -fx-font-weight: bold;"/>
+        </HBox>
+
+        <VBox spacing="10" style="-fx-padding: 20;">
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <Label text="Sélectionnez un tournoi :" style="-fx-text-fill: white; -fx-font-size: 16px;"/>
+                <ComboBox fx:id="cmbTournoi" prefWidth="300" styleClass="text-field"/>
+                <Button text="🔄 Actualiser" onAction="#actualiser" styleClass="btn-secondary"/>
+            </HBox>
+
+            <!-- Table des résultats -->
+            <TableView fx:id="table" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+                <columns>
+                    <TableColumn fx:id="dateCol" text="Date &amp; Heure" prefWidth="150" style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="equipeACol" text="Équipe Domicile" prefWidth="250" style="-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;"/>
+                    <TableColumn fx:id="scoreCol" text="Score" prefWidth="150" style="-fx-alignment: CENTER; -fx-font-size: 18px; -fx-text-fill: #C5B358; -fx-font-weight: bold;"/>
+                    <TableColumn fx:id="equipeBCol" text="Équipe Extérieure" prefWidth="250" style="-fx-alignment: CENTER-LEFT; -fx-font-weight: bold;"/>
+                </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                </columnResizePolicy>
+            </TableView>
+        </VBox>
+    </VBox>
+</AnchorPane>
