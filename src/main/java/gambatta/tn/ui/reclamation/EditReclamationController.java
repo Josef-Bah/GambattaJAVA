@@ -8,8 +8,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-
 import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -21,14 +19,19 @@ public class EditReclamationController implements Initializable {
     @FXML private TextArea txtDescription;
     @FXML private Label lblCheminFichier;
 
+    // Labels d'erreur incrustés
+    @FXML private Label lblErrorTitre;
+    @FXML private Label lblErrorCategorie;
+    @FXML private Label lblErrorDescription;
+    @FXML private Label lblSystemError;
+
     private File fichierPreuveSelectionne;
     private ServiceReclamation service = new ServiceReclamation();
     private reclamation reclamationSelectionnee;
     private ReclamationController parent;
 
-    // Styles de contrôle de saisie (Bleu Gambatta vs Rouge Erreur)
-    private final String STYLE_NORMAL = "-fx-border-color: rgba(14, 165, 233, 0.3); -fx-border-width: 1.5; -fx-border-radius: 8;";
-    private final String STYLE_ERROR = "-fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(239, 68, 68, 0.4), 10, 0, 0, 0);";
+    private final String STYLE_NORMAL = "-fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 8;";
+    private final String STYLE_ERROR = "-fx-border-color: #ef4444; -fx-border-width: 1.5; -fx-border-radius: 8; -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.4), 10, 0, 0, 0);";
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -41,9 +44,9 @@ public class EditReclamationController implements Initializable {
         ));
 
         // Reset du style au clic
-        txtTitre.setOnMouseClicked(e -> txtTitre.setStyle(STYLE_NORMAL));
-        comboCategorie.setOnMouseClicked(e -> comboCategorie.setStyle(STYLE_NORMAL));
-        txtDescription.setOnMouseClicked(e -> txtDescription.setStyle(STYLE_NORMAL));
+        txtTitre.setOnMouseClicked(e -> resetError(txtTitre, lblErrorTitre));
+        comboCategorie.setOnMouseClicked(e -> resetError(comboCategorie, lblErrorCategorie));
+        txtDescription.setOnMouseClicked(e -> resetError(txtDescription, lblErrorDescription));
     }
 
     public void initData(reclamation r, ReclamationController parent) {
@@ -57,37 +60,45 @@ public class EditReclamationController implements Initializable {
         preuve preuveExistante = r.getPreuve();
         if (preuveExistante != null && preuveExistante.getImageName() != null && !preuveExistante.getImageName().isEmpty()) {
             lblCheminFichier.setText("[ FICHIER ACTUEL CONSERVÉ ]");
-            lblCheminFichier.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;");
+            lblCheminFichier.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold; -fx-font-family: 'Consolas', monospace;");
         }
     }
 
-    /**
-     * MÉTHODE DE VALIDATION (Contrôle de Saisie)
-     */
+    // --- LOGIQUE DE VALIDATION SANS POP-UP ---
+    private void resetError(Control control, Label errorLabel) {
+        control.setStyle(STYLE_NORMAL);
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
+        lblSystemError.setVisible(false);
+        lblSystemError.setManaged(false);
+    }
+
+    private void showError(Control control, Label errorLabel, String message) {
+        control.setStyle(STYLE_ERROR);
+        errorLabel.setText("[!] " + message);
+        errorLabel.setVisible(true);
+        errorLabel.setManaged(true);
+    }
+
     private boolean validateInputs() {
         boolean isValid = true;
-        StringBuilder errorMsg = new StringBuilder("ERREUR DE MODIFICATION :\n");
+        resetError(txtTitre, lblErrorTitre);
+        resetError(comboCategorie, lblErrorCategorie);
+        resetError(txtDescription, lblErrorDescription);
 
         if (txtTitre.getText().trim().isEmpty() || txtTitre.getText().trim().length() < 5) {
-            txtTitre.setStyle(STYLE_ERROR);
-            errorMsg.append("- Le titre doit contenir au moins 5 caractères.\n");
+            showError(txtTitre, lblErrorTitre, "Sujet requis (Min 5 caractères).");
             isValid = false;
         }
 
         if (comboCategorie.getValue() == null) {
-            comboCategorie.setStyle(STYLE_ERROR);
-            errorMsg.append("- Veuillez sélectionner une catégorie valide.\n");
+            showError(comboCategorie, lblErrorCategorie, "Sélectionnez un service.");
             isValid = false;
         }
 
-        if (txtDescription.getText().trim().length() < 15) {
-            txtDescription.setStyle(STYLE_ERROR);
-            errorMsg.append("- La description est trop courte (15 car. min).\n");
+        if (txtDescription.getText().trim().isEmpty() || txtDescription.getText().trim().length() < 15) {
+            showError(txtDescription, lblErrorDescription, "Détails requis (Min 15 caractères).");
             isValid = false;
-        }
-
-        if (!isValid) {
-            afficherAlerte(errorMsg.toString(), Alert.AlertType.ERROR);
         }
 
         return isValid;
@@ -101,6 +112,7 @@ public class EditReclamationController implements Initializable {
         reclamationSelectionnee.setCategorierec(comboCategorie.getValue());
         reclamationSelectionnee.setDescrirec(txtDescription.getText().trim());
 
+        // Préparation Cloud
         if (fichierPreuveSelectionne != null) {
             preuve p = reclamationSelectionnee.getPreuve();
             if (p == null) p = new preuve();
@@ -113,42 +125,41 @@ public class EditReclamationController implements Initializable {
         try {
             service.modifier(reclamationSelectionnee);
             if (parent != null) parent.chargerTableau();
-            handleAnnuler();
+            fermer(); // Utilisation de l'incrustation
         } catch (Exception e) {
-            afficherAlerte("ÉCHEC SYSTÈME : Impossible de mettre à jour la base.", Alert.AlertType.ERROR);
+            lblSystemError.setText("[!] ÉCHEC SYSTÈME : Base de données injoignable.");
+            lblSystemError.setVisible(true);
+            lblSystemError.setManaged(true);
         }
     }
 
     @FXML private void handleAmeliorerIA() {
         if (txtDescription.getText().trim().isEmpty()) {
-            txtDescription.setStyle(STYLE_ERROR);
+            showError(txtDescription, lblErrorDescription, "Entrez du texte à optimiser.");
             return;
         }
         txtDescription.setText("MODIFICATION ANALYSÉE :\n\n" + txtDescription.getText().trim() + "\n\n[Mise à jour via GAMBATTA_CORE]");
-        txtDescription.setStyle(STYLE_NORMAL);
+        resetError(txtDescription, lblErrorDescription);
     }
 
     @FXML private void handleChoisirFichier() {
         FileChooser fc = new FileChooser();
+        fc.setTitle("SÉLECTIONNER UN NOUVEAU FICHIER");
         File f = fc.showOpenDialog(txtTitre.getScene().getWindow());
         if (f != null) {
             fichierPreuveSelectionne = f;
             lblCheminFichier.setText("[ NOUVEL ATTACHEMENT : " + f.getName() + " ]");
-            lblCheminFichier.setStyle("-fx-text-fill: #fbbf24; -fx-font-weight: bold;");
+            lblCheminFichier.setStyle("-fx-text-fill: #fbbf24; -fx-font-weight: bold; -fx-font-family: 'Consolas', monospace;");
         }
     }
 
-    @FXML private void handleAnnuler() { ((Stage) txtTitre.getScene().getWindow()).close(); }
+    @FXML private void handleAnnuler() { fermer(); }
 
-    private void afficherAlerte(String message, Alert.AlertType type) {
-        Alert alert = new Alert(type, message);
-        alert.setHeaderText(null);
-        alert.setTitle("SYSTEM_OVERRIDE_REPORT");
-        DialogPane dp = alert.getDialogPane();
-        try {
-            dp.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
-            dp.getStyleClass().add("gaming-alert");
-        } catch (Exception e) {}
-        alert.showAndWait();
+    private void fermer() {
+        if (parent != null) {
+            parent.masquerFormulaireAjout();
+        } else {
+            txtTitre.getParent().setVisible(false);
+        }
     }
 }

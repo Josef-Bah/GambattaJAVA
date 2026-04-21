@@ -12,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.awt.Desktop;
@@ -31,14 +30,16 @@ public class ShowReclamationController {
     private String cheminPreuveActuel;
     private reclamation currentRec;
 
-    /**
-     * Initialise la vue avec les données de la réclamation.
-     * Gère l'affichage dynamique selon le type de réponse (Unique ou Interactive).
-     */
+    // GESTION INCRUSTATION
+    private ReclamationController parentController;
+
+    public void setParentController(ReclamationController parentController) {
+        this.parentController = parentController;
+    }
+
     public void initData(reclamation r) {
         this.currentRec = r;
 
-        // 1. Informations de base
         lblTitre.setText(r.getTitre() != null ? r.getTitre().toUpperCase() : "SANS TITRE");
         lblCategorie.setText(r.getCategorierec() != null ? r.getCategorierec().toUpperCase() : "GÉNÉRAL");
         lblId.setText(String.format("0x%06X", r.getIdrec()));
@@ -49,11 +50,9 @@ public class ShowReclamationController {
             lblDate.setText(r.getDaterec().format(formatter));
         }
 
-        // 2. Logique Dynamique des boutons (Point 1 & 2)
         String statutText = r.getStatutrec() != null ? r.getStatutrec().toUpperCase() : "EN ATTENTE";
         lblStatut.setText("[" + statutText + "]");
 
-        // Point 2 : Si l'admin attend le client (EN COURS) -> Bouton discussion
         if (btnOuvrirDiscussion != null) {
             if ("EN COURS".equals(statutText)) {
                 btnOuvrirDiscussion.setVisible(true);
@@ -64,28 +63,28 @@ public class ShowReclamationController {
             }
         }
 
-        // Point 1 : Si réponse unique/clôture (RÉSOLU / FERMÉ) -> Message de clôture
         if ("RÉSOLU".equals(statutText) || "FERMÉ".equals(statutText)) {
-            lblStatut.setStyle("-fx-border-color: #10b981; -fx-text-fill: #10b981;");
+            lblStatut.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold;");
             if (lblTicketClos != null) {
                 lblTicketClos.setVisible(true);
                 lblTicketClos.setManaged(true);
             }
-        } else if (lblTicketClos != null) {
-            lblTicketClos.setVisible(false);
-            lblTicketClos.setManaged(false);
+        } else {
+            lblStatut.setStyle("-fx-text-fill: #f59e0b; -fx-font-weight: bold;");
+            if (lblTicketClos != null) {
+                lblTicketClos.setVisible(false);
+                lblTicketClos.setManaged(false);
+            }
         }
 
-        // 3. Gestion de l'urgence
         if (r.isUrgent()) {
             lblUrgence.setText("CRITICAL");
-            lblUrgence.setStyle("-fx-text-fill: #ef4444;");
+            lblUrgence.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 12px; -fx-font-weight: bold;");
         } else {
             lblUrgence.setText("NOMINAL");
-            lblUrgence.setStyle("-fx-text-fill: #10b981;");
+            lblUrgence.setStyle("-fx-text-fill: #10b981; -fx-font-size: 12px; -fx-font-weight: bold;");
         }
 
-        // 4. Gestion de la preuve
         preuve preuveObj = r.getPreuve();
         if (preuveObj != null && preuveObj.getImageName() != null && !preuveObj.getImageName().isEmpty()) {
             this.cheminPreuveActuel = preuveObj.getImageName();
@@ -116,7 +115,6 @@ public class ShowReclamationController {
             boxPreuve.setManaged(false);
         }
 
-        // 5. Chargement de l'historique (Point 1 : affiche même les réponses uniques)
         chargerReponsesReelles();
     }
 
@@ -137,7 +135,7 @@ public class ShowReclamationController {
             auteur.setStyle("-fx-text-fill: #38bdf8; -fx-font-family: 'Consolas'; -fx-font-size: 10px;");
 
             Label texte = new Label(rep.getContenurep());
-            texte.setStyle("-fx-text-fill: #cbd5e1; -fx-font-family: 'Consolas'; -fx-font-size: 11px;");
+            texte.setStyle("-fx-text-fill: #cbd5e1; -fx-font-family: 'Consolas'; -fx-font-size: 12px;");
             texte.setWrapText(true);
 
             bulle.getChildren().addAll(auteur, texte);
@@ -147,23 +145,23 @@ public class ShowReclamationController {
 
     @FXML
     private void handleOuvrirDiscussion() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta/tn/ui/reclamation/client_chat.fxml"));
-            Parent root = loader.load();
+        // Au lieu d'ouvrir une nouvelle fenêtre, on dit au parent de charger le chat dans le panneau !
+        if (parentController != null) {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta/tn/ui/reclamation/client_chat.fxml"));
+                Parent root = loader.load();
 
-            // TRANSFERT DE DONNÉES AU CONTRÔLEUR DE CHAT
-            ClientChatController chatController = loader.getController();
-            chatController.initData(currentRec);
+                ClientChatController chatController = loader.getController();
+                chatController.initData(currentRec);
+                // Si ClientChatController a besoin d'un parent pour se fermer :
+                // chatController.setParentController(parentController);
 
-            Stage stage = new Stage();
-            stage.setTitle("TERMINAL DISCUSSION : #" + currentRec.getIdrec());
-            stage.setScene(new Scene(root));
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.show();
+                // On dit au parent d'afficher CE NOUVEAU panneau par-dessus (ou à la place)
+                parentController.afficherSidePanel(root);
 
-            handleFermer();
-        } catch (IOException e) {
-            e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -181,6 +179,11 @@ public class ShowReclamationController {
 
     @FXML
     private void handleFermer() {
-        ((Stage) lblTitre.getScene().getWindow()).close();
+        if (parentController != null) {
+            // Ferme le panneau latéral avec l'animation
+            parentController.masquerFormulaireAjout();
+        } else {
+            lblTitre.getParent().setVisible(false);
+        }
     }
 }

@@ -3,9 +3,10 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.effect.*?>
+<?import javafx.scene.chart.PieChart?>
 <?import java.net.URL?>
 
-<StackPane prefWidth="1200.0" prefHeight="600.0" style="-fx-base: #0f172a; -fx-background-color: #020617; -fx-font-family: 'Segoe UI', sans-serif;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.reclamation.AdminDashboardController">
+<StackPane fx:id="mainRoot" prefWidth="1200.0" prefHeight="800.0" style="-fx-base: #0f172a; -fx-background-color: #020617; -fx-font-family: 'Segoe UI', sans-serif;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.reclamation.AdminDashboardController">
     <stylesheets>
         <URL value="@style.css" />
     </stylesheets>
@@ -33,7 +34,11 @@
                                 <Label text="CENTRE DE RÉCLAMATIONS" style="-fx-text-fill: rgba(2, 6, 23, 0.7); -fx-font-size: 10px; -fx-font-weight: 900;" />
                             </VBox>
 
-                            <HBox alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: rgba(56, 189, 248, 0.4); -fx-border-width: 1.5; -fx-border-radius: 25; -fx-background-radius: 25; -fx-padding: 6 6 6 20; -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.15), 15, 0, 0, 0);">
+                            <Region HBox.hgrow="ALWAYS" />
+
+                            <Button text="📥 EXPORTER RAPPORT COMPLET (PDF)" onAction="#handleExporterRapportGlobal" style="-fx-background-color: transparent; -fx-border-color: #f43f5e; -fx-text-fill: #f43f5e; -fx-font-weight: 900; -fx-font-size: 12px; -fx-border-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;" />
+
+                            <HBox alignment="CENTER_LEFT" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: rgba(56, 189, 248, 0.4); -fx-border-width: 1.5; -fx-border-radius: 25; -fx-background-radius: 25; -fx-padding: 6 6 6 20; -fx-effect: dropshadow(gaussian, rgba(14, 165, 233, 0.15), 15, 0, 0, 0);">
                                 <Label text="SCAN_FLUX &gt; " style="-fx-text-fill: #38bdf8; -fx-font-family: 'Consolas', monospace; -fx-font-weight: bold; -fx-font-size: 13px;" />
                                 <TextField fx:id="searchField" promptText="Rechercher un log, un ID..." style="-fx-background-color: transparent; -fx-text-fill: white; -fx-prompt-text-fill: #64748b; -fx-font-size: 13px;" HBox.hgrow="ALWAYS" />
                                 <Button text="SYNCHRONISER" onAction="#chargerTableau" style="-fx-background-color: #0ea5e9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 20; -fx-cursor: hand;" />
@@ -43,13 +48,17 @@
                         <HBox spacing="15" alignment="CENTER_LEFT">
                             <Label text="FILTRER_PAR :" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" />
 
-                            <ToggleButton text="TOUS LES LOGS" style="-fx-background-color: rgba(14, 165, 233, 0.2); -fx-border-color: #0ea5e9; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 6 20; -fx-background-radius: 20; -fx-border-radius: 20; -fx-cursor: hand;" />
-                            <ToggleButton text="EN ATTENTE" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: rgba(245, 158, 11, 0.3); -fx-text-fill: #f59e0b; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 6 20; -fx-background-radius: 20; -fx-border-radius: 20; -fx-cursor: hand;" />
-                            <ToggleButton text="RÉSOLUS" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: rgba(16, 185, 129, 0.3); -fx-text-fill: #10b981; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 6 20; -fx-background-radius: 20; -fx-border-radius: 20; -fx-cursor: hand;" />
+                            <fx:define>
+                                <ToggleGroup fx:id="filterGroup" />
+                            </fx:define>
+                            <ToggleButton fx:id="btnTous" text="TOUS LES LOGS" toggleGroup="$filterGroup" selected="true" style="-fx-background-color: rgba(14, 165, 233, 0.2); -fx-border-color: #0ea5e9; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 6 20; -fx-background-radius: 20; -fx-border-radius: 20; -fx-cursor: hand;" />
+                            <ToggleButton fx:id="btnAttente" text="EN ATTENTE" toggleGroup="$filterGroup" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: rgba(245, 158, 11, 0.3); -fx-text-fill: #f59e0b; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 6 20; -fx-background-radius: 20; -fx-border-radius: 20; -fx-cursor: hand;" />
+                            <ToggleButton fx:id="btnResolu" text="RÉSOLUS" toggleGroup="$filterGroup" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: rgba(16, 185, 129, 0.3); -fx-text-fill: #10b981; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 6 20; -fx-background-radius: 20; -fx-border-radius: 20; -fx-cursor: hand;" />
 
                             <Region HBox.hgrow="ALWAYS" />
 
-                            <ComboBox promptText="SÉLECTION_MODULE" prefWidth="200" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: #334155; -fx-background-radius: 20; -fx-border-radius: 20; -fx-text-fill: white; -fx-font-size: 11px;" />
+                            <ComboBox fx:id="comboTri" promptText="TRIER PAR..." prefWidth="180" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: #fcc033; -fx-background-radius: 20; -fx-border-radius: 20; -fx-text-fill: white; -fx-font-size: 11px;" />
+                            <ComboBox fx:id="comboModule" promptText="SÉLECTION_MODULE" prefWidth="200" style="-fx-background-color: rgba(15, 23, 42, 0.8); -fx-border-color: #334155; -fx-background-radius: 20; -fx-border-radius: 20; -fx-text-fill: white; -fx-font-size: 11px;" />
                         </HBox>
                     </children>
                 </VBox>
@@ -64,61 +73,27 @@
             </center>
 
             <right>
-                <VBox spacing="20" prefWidth="320" BorderPane.alignment="CENTER" style="-fx-background-color: rgba(15, 23, 42, 0.6); -fx-border-color: rgba(56, 189, 248, 0.2); -fx-border-width: 1.5; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 25; -fx-margin: 0 0 0 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 0);">
+                <VBox spacing="15" prefWidth="350" BorderPane.alignment="CENTER" style="-fx-background-color: rgba(15, 23, 42, 0.6); -fx-border-color: rgba(56, 189, 248, 0.2); -fx-border-width: 1.5; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 25; -fx-margin: 0 0 0 30; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 0);">
+
                     <Label text="&gt; ANALYSE_SYSTÈME" style="-fx-text-fill: #fcc033; -fx-font-family: 'Consolas', monospace; -fx-font-size: 16px; -fx-font-weight: 900;" />
 
-                    <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: rgba(30, 41, 59, 0.4); -fx-border-color: rgba(255, 255, 255, 0.05); -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 15;">
-                        <StackPane>
-                            <Circle radius="22" fill="rgba(14, 165, 233, 0.2)" />
-                            <Circle radius="18" fill="#0ea5e9" />
-                            <Label text="∑" style="-fx-text-fill: #020617; -fx-font-size: 16px; -fx-font-weight: bold;" />
-                        </StackPane>
-                        <VBox alignment="CENTER_LEFT">
-                            <Label text="TICKETS TOTAUX" style="-fx-text-fill: #cbd5e1; -fx-font-size: 10px; -fx-font-weight: bold;" />
-                            <Label fx:id="lblTotal" text="0" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: 900;" />
-                        </VBox>
-                    </HBox>
+                    <VBox spacing="5" VBox.vgrow="ALWAYS" style="-fx-background-color: rgba(30, 41, 59, 0.4); -fx-border-color: rgba(255, 255, 255, 0.05); -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 10;">
+                        <Label text="[ RÉPARTITION PAR STATUT ]" style="-fx-text-fill: #0ea5e9; -fx-font-family: 'Consolas', monospace; -fx-font-size: 11px;" />
+                        <PieChart fx:id="pieChartStatut" legendSide="BOTTOM" labelsVisible="false" prefHeight="220" />
+                    </VBox>
 
-                    <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: rgba(30, 41, 59, 0.4); -fx-border-color: rgba(255, 255, 255, 0.05); -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 15;">
-                        <StackPane>
-                            <Circle radius="22" fill="rgba(245, 158, 11, 0.2)" />
-                            <Circle radius="18" fill="#f59e0b" />
-                            <Label text="!" style="-fx-text-fill: #020617; -fx-font-size: 16px; -fx-font-weight: bold;" />
-                        </StackPane>
-                        <VBox alignment="CENTER_LEFT">
-                            <Label text="EN ATTENTE" style="-fx-text-fill: #cbd5e1; -fx-font-size: 10px; -fx-font-weight: bold;" />
-                            <Label fx:id="lblEnAttente" text="0" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: 900;" />
-                        </VBox>
-                    </HBox>
-
-                    <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: rgba(30, 41, 59, 0.4); -fx-border-color: rgba(255, 255, 255, 0.05); -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 15;">
-                        <StackPane>
-                            <Circle radius="22" fill="rgba(16, 185, 129, 0.2)" />
-                            <Circle radius="18" fill="#10b981" />
-                            <Label text="✓" style="-fx-text-fill: #020617; -fx-font-size: 16px; -fx-font-weight: bold;" />
-                        </StackPane>
-                        <VBox alignment="CENTER_LEFT">
-                            <Label text="RÉSOLUS" style="-fx-text-fill: #cbd5e1; -fx-font-size: 10px; -fx-font-weight: bold;" />
-                            <Label fx:id="lblResolu" text="0" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: 900;" />
-                        </VBox>
-                    </HBox>
+                    <VBox spacing="5" VBox.vgrow="ALWAYS" style="-fx-background-color: rgba(30, 41, 59, 0.4); -fx-border-color: rgba(255, 255, 255, 0.05); -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 10;">
+                        <Label text="[ RÉPARTITION PAR MODULE ]" style="-fx-text-fill: #10b981; -fx-font-family: 'Consolas', monospace; -fx-font-size: 11px;" />
+                        <PieChart fx:id="pieChartModule" legendSide="BOTTOM" labelsVisible="false" prefHeight="220" />
+                    </VBox>
 
                     <Region VBox.vgrow="ALWAYS" />
-
-                    <VBox spacing="8" style="-fx-background-color: rgba(0, 0, 0, 0.4); -fx-border-color: #334155; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 15;">
-                        <Label text="[ SYS_LOGS_ACTIFS ]" style="-fx-text-fill: #0ea5e9; -fx-font-family: 'Consolas', monospace; -fx-font-size: 10px;" />
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Circle radius="3" fill="#10b981" />
-                            <Label text="Latence BDD : 12ms" style="-fx-text-fill: #64748b; -fx-font-family: 'Consolas', monospace; -fx-font-size: 10px;" />
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="10">
-                            <Circle radius="3" fill="#10b981" />
-                            <Label text="Analyse des flux : 100%" style="-fx-text-fill: #64748b; -fx-font-family: 'Consolas', monospace; -fx-font-size: 10px;" />
-                        </HBox>
-                        <Label text="&gt; En attente de commande..." style="-fx-text-fill: #10b981; -fx-font-family: 'Consolas', monospace; -fx-font-size: 10px;" />
-                    </VBox>
+                    <Label fx:id="lblTotalInfo" text="TOTAL TICKETS : 0" style="-fx-text-fill: #64748b; -fx-font-family: 'Consolas', monospace; -fx-font-size: 12px; -fx-alignment: center;" maxWidth="Infinity" />
                 </VBox>
             </right>
         </BorderPane>
+
+        <StackPane fx:id="overlayContainer" visible="false" style="-fx-background-color: rgba(2, 6, 23, 0.85);" />
+
     </children>
 </StackPane>

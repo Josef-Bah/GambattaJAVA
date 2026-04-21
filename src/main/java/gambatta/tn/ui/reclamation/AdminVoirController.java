@@ -23,18 +23,24 @@ public class AdminVoirController {
     @FXML private VBox vboxHistorique;
     @FXML private Button btnClose;
 
+    // GESTION INCRUSTATION
+    private AdminDashboardController parentController;
+
+    public void setParentController(AdminDashboardController parentController) {
+        this.parentController = parentController;
+    }
+
     public void initData(reclamation r) {
         lblTitre.setText(r.getTitre() != null ? r.getTitre().toUpperCase() : "SANS TITRE");
         lblDescription.setText(r.getDescrirec() != null ? r.getDescrirec() : "Aucune description fournie.");
         lblCategorie.setText(r.getCategorierec() != null ? r.getCategorierec().toUpperCase() : "NON SPÉCIFIÉ");
 
-        lblAuteur.setText("JOUEUR_01"); // Si tu as l'info de l'utilisateur, remplace ici
+        lblAuteur.setText("JOUEUR_01");
 
         if (r.getDaterec() != null) {
             lblDate.setText(r.getDaterec().toString());
         }
 
-        // Style dynamique du Statut
         String st = r.getStatutrec() != null ? r.getStatutrec().toUpperCase() : "INCONNU";
         lblStatut.setText(st);
         if (st.equals("EN COURS")) {
@@ -47,7 +53,6 @@ public class AdminVoirController {
 
         analyserSentiment(r.getDescrirec());
 
-        // Gestion de l'image
         boolean hasImage = false;
         if (r.getPreuve() != null && r.getPreuve().getImageName() != null) {
             try {
@@ -68,10 +73,9 @@ public class AdminVoirController {
 
         chargerHistorique(r);
 
-        // --- Animation de Hover gérée en Java pour éviter l'erreur FXML ---
         if (btnClose != null) {
-            String baseStyle = "-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-padding: 12 30; -fx-background-radius: 25; -fx-border-radius: 25; -fx-border-width: 2; -fx-cursor: hand;";
-            String hoverStyle = "-fx-background-color: #ef4444; -fx-border-color: #ef4444; -fx-text-fill: white; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-padding: 12 30; -fx-background-radius: 25; -fx-border-radius: 25; -fx-border-width: 2; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.6), 15, 0, 0, 0);";
+            String baseStyle = "-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-padding: 12; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-width: 2; -fx-cursor: hand;";
+            String hoverStyle = "-fx-background-color: #ef4444; -fx-border-color: #ef4444; -fx-text-fill: white; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-padding: 12; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-width: 2; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.6), 15, 0, 0, 0);";
 
             btnClose.setOnMouseEntered(e -> btnClose.setStyle(hoverStyle));
             btnClose.setOnMouseExited(e -> btnClose.setStyle(baseStyle));
@@ -155,6 +159,10 @@ public class AdminVoirController {
 
     @FXML
     private void handleFermer() {
-        ((Stage) lblTitre.getScene().getWindow()).close();
+        if (parentController != null) {
+            parentController.masquerFormulaireAjout();
+        } else {
+            lblTitre.getParent().setVisible(false);
+        }
     }
 }

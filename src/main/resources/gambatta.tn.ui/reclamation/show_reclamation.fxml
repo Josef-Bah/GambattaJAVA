@@ -7,105 +7,76 @@
 <?import javafx.scene.effect.*?>
 <?import java.net.URL?>
 
-<StackPane prefWidth="800.0" prefHeight="700.0" style="-fx-background-color: #020617;"
-           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="gambatta.tn.ui.reclamation.ShowReclamationController">
+<VBox maxWidth="450.0" prefWidth="450.0" prefHeight="800.0" spacing="20" style="-fx-base: #0f172a; -fx-background-color: rgba(15, 23, 42, 0.95); -fx-border-color: #0ea5e9; -fx-border-width: 0 0 0 2; -fx-padding: 25; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 25, 0, -5, 0);"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="gambatta.tn.ui.reclamation.ShowReclamationController">
 
     <stylesheets>
         <URL value="@../style.css" />
     </stylesheets>
 
     <children>
-        <Pane style="-fx-background-color: linear-gradient(from 0px 0px to 20px 20px, reflect, rgba(14, 165, 233, 0.05) 1px, transparent 1px);" />
-        <Pane style="-fx-background-color: radial-gradient(center 50% 50%, radius 60%, rgba(14,165,233,0.1) 0%, transparent 100%);" />
+        <VBox spacing="10" style="-fx-border-color: transparent transparent rgba(14,165,233,0.3) transparent; -fx-border-width: 0 0 2 0; -fx-padding: 0 0 15 0;">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="FILE_DECRYPTED // GAMBATTA_DB" style="-fx-text-fill: #FFD700; -fx-font-size: 10px; -fx-font-weight: 900; -fx-letter-spacing: 2px; -fx-font-family: 'Consolas';" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="lblId" style="-fx-text-fill: rgba(255,255,255,0.2); -fx-font-family: 'Consolas'; -fx-font-size: 14px; -fx-font-weight: bold;" />
+            </HBox>
+            <Label fx:id="lblTitre" wrapText="true" styleClass="title" style="-fx-font-size: 22px; -fx-text-fill: white; -fx-effect: dropshadow(three-pass-box, rgba(14,165,233,0.6), 15, 0, 0, 0);" />
+        </VBox>
 
-        <AnchorPane mouseTransparent="true">
-            <Polyline points="0,40,0,0,40,0" stroke="#0ea5e9" strokeWidth="3" fill="transparent" AnchorPane.topAnchor="15" AnchorPane.leftAnchor="15" />
-            <Polyline points="-40,0,0,0,0,40" stroke="#0ea5e9" strokeWidth="3" fill="transparent" AnchorPane.topAnchor="15" AnchorPane.rightAnchor="15" />
-            <Polyline points="0,-40,0,0,40,0" stroke="#0ea5e9" strokeWidth="3" fill="transparent" AnchorPane.bottomAnchor="15" AnchorPane.leftAnchor="15" />
-            <Polyline points="-40,0,0,0,0,-40" stroke="#0ea5e9" strokeWidth="3" fill="transparent" AnchorPane.bottomAnchor="15" AnchorPane.rightAnchor="15" />
-        </AnchorPane>
+        <GridPane hgap="10" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="50" />
+                <ColumnConstraints percentWidth="50" />
+            </columnConstraints>
 
-        <BorderPane style="-fx-padding: 30;">
+            <VBox alignment="CENTER" spacing="2" style="-fx-background-color: rgba(30,41,59,0.7); -fx-border-color: rgba(14,165,233,0.5); -fx-border-width: 0 0 0 3; -fx-padding: 10;" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <Label text="TIMESTAMP" style="-fx-text-fill: #64748b; -fx-font-size: 9px; -fx-font-family: 'Consolas';" />
+                <Label fx:id="lblDate" style="-fx-text-fill: #f8fafc; -fx-font-size: 11px; -fx-font-weight: bold;" />
+            </VBox>
+            <VBox alignment="CENTER" spacing="2" style="-fx-background-color: rgba(30,41,59,0.7); -fx-border-color: #ef4444; -fx-border-width: 0 0 0 3; -fx-padding: 10;" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <Label text="THREAT LEVEL" style="-fx-text-fill: #64748b; -fx-font-size: 9px; -fx-font-family: 'Consolas';" />
+                <Label fx:id="lblUrgence" style="-fx-text-fill: #ef4444; -fx-font-size: 12px; -fx-font-weight: bold;" />
+            </VBox>
+            <VBox alignment="CENTER" spacing="2" style="-fx-background-color: rgba(30,41,59,0.7); -fx-border-color: rgba(14,165,233,0.5); -fx-border-width: 0 0 0 3; -fx-padding: 10;" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                <Label text="MODULE" style="-fx-text-fill: #64748b; -fx-font-size: 9px; -fx-font-family: 'Consolas';" />
+                <Label fx:id="lblCategorie" style="-fx-text-fill: #0ea5e9; -fx-font-size: 11px; -fx-font-weight: bold;" />
+            </VBox>
+            <VBox alignment="CENTER" spacing="2" style="-fx-background-color: rgba(30,41,59,0.7); -fx-border-color: #f59e0b; -fx-border-width: 0 0 0 3; -fx-padding: 10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                <Label text="STATUT" style="-fx-text-fill: #64748b; -fx-font-size: 9px; -fx-font-family: 'Consolas';" />
+                <Label fx:id="lblStatut" style="-fx-text-fill: #f59e0b; -fx-font-size: 12px; -fx-font-weight: bold;" />
+            </VBox>
+        </GridPane>
 
-            <top>
-                <VBox spacing="10" BorderPane.alignment="CENTER">
-                    <HBox alignment="CENTER_LEFT" spacing="15">
-                        <Polygon points="0,0,20,0,30,15,10,15" fill="#FFD700" />
-                        <Label text="FILE_DECRYPTED // GAMBATTA_DB" style="-fx-text-fill: #FFD700; -fx-font-size: 11px; -fx-font-weight: 900; -fx-letter-spacing: 4px;" />
-                        <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="lblId" style="-fx-text-fill: rgba(255,255,255,0.2); -fx-font-family: 'Consolas'; -fx-font-size: 20px; -fx-font-weight: bold;" />
-                    </HBox>
+        <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+            <VBox spacing="20" style="-fx-padding: 5 10 10 5;">
 
-                    <HBox alignment="BOTTOM_LEFT" spacing="20" style="-fx-border-color: transparent transparent rgba(14,165,233,0.3) transparent; -fx-border-width: 0 0 2 0; -fx-padding: 0 0 15 0;">
-                        <Label fx:id="lblTitre" styleClass="title" style="-fx-font-size: 32px; -fx-text-fill: white; -fx-effect: dropshadow(three-pass-box, rgba(14,165,233,0.6), 15, 0, 0, 0);" />
-                        <Region HBox.hgrow="ALWAYS" />
-                        <VBox alignment="BOTTOM_RIGHT" spacing="5">
-                            <Label fx:id="lblCategorie" style="-fx-text-fill: #0ea5e9; -fx-font-weight: 900; -fx-font-size: 12px; -fx-letter-spacing: 2px;" />
-                            <Label fx:id="lblStatut" style="-fx-background-color: transparent; -fx-border-color: #f59e0b; -fx-border-width: 2; -fx-text-fill: #f59e0b; -fx-font-size: 12px; -fx-font-weight: 900; -fx-padding: 4 15;" />
-                        </VBox>
-                    </HBox>
+                <VBox style="-fx-background-color: rgba(2,6,23,0.8); -fx-border-color: rgba(14,165,233,0.2); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 15;">
+                    <Label text="&gt; DECRYPTED_USER_LOG :" style="-fx-text-fill: #0ea5e9; -fx-font-family: 'Consolas'; -fx-font-size: 11px; -fx-padding: 0 0 10 0;" />
+                    <Label fx:id="lblDescription" wrapText="true" style="-fx-text-fill: #cbd5e1; -fx-font-size: 13px; -fx-line-spacing: 5px; -fx-font-family: 'Consolas';" />
                 </VBox>
-            </top>
 
-            <center>
-                <HBox spacing="30" style="-fx-padding: 25 0 0 0;">
+                <VBox fx:id="boxPreuve" alignment="CENTER" spacing="10" style="-fx-background-color: rgba(16,185,129,0.05); -fx-border-color: #10b981; -fx-border-width: 1; -fx-border-radius: 10; -fx-padding: 15;">
+                    <Label text="[ ATTACHED_MEDIA ]" style="-fx-text-fill: #10b981; -fx-font-family: 'Consolas'; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                    <StackPane style="-fx-border-color: rgba(16,185,129,0.3); -fx-padding: 5; -fx-max-height: 200;">
+                        <ImageView fx:id="imgPreuve" fitWidth="300" preserveRatio="true" />
+                    </StackPane>
+                    <Button fx:id="btnOuvrirPreuve" text="DOWNLOAD / VIEW" onAction="#handleOuvrirPreuve" style="-fx-background-color: transparent; -fx-border-color: #10b981; -fx-text-fill: #10b981; -fx-font-weight: 900; -fx-font-size: 10px; -fx-padding: 8 20; -fx-cursor: hand;" />
+                </VBox>
 
-                    <VBox HBox.hgrow="ALWAYS" spacing="25" prefWidth="350">
-                        <HBox spacing="15">
-                            <VBox style="-fx-background-color: rgba(30,41,59,0.7); -fx-border-color: rgba(14,165,233,0.5); -fx-border-width: 0 0 0 4; -fx-padding: 10 20;" HBox.hgrow="ALWAYS">
-                                <Label text="TIMESTAMP" style="-fx-text-fill: #64748b; -fx-font-size: 9px; -fx-font-family: 'Consolas';" />
-                                <Label fx:id="lblDate" style="-fx-text-fill: #f8fafc; -fx-font-size: 14px; -fx-font-weight: bold;" />
-                            </VBox>
-                            <VBox style="-fx-background-color: rgba(30,41,59,0.7); -fx-border-color: #ef4444; -fx-border-width: 0 0 0 4; -fx-padding: 10 20;" HBox.hgrow="ALWAYS">
-                                <Label text="THREAT LEVEL" style="-fx-text-fill: #64748b; -fx-font-size: 9px; -fx-font-family: 'Consolas';" />
-                                <Label fx:id="lblUrgence" style="-fx-text-fill: #ef4444; -fx-font-size: 14px; -fx-font-weight: bold;" />
-                            </VBox>
-                        </HBox>
+                <VBox spacing="10">
+                    <Label text="&gt; SYSTÈME DE RÉPONSES :" style="-fx-text-fill: #FFD700; -fx-font-family: 'Consolas'; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                    <VBox fx:id="vboxReponses" spacing="10" style="-fx-background-color: rgba(0,0,0,0.5); -fx-border-color: rgba(255,215,0,0.3); -fx-border-width: 0 0 0 2; -fx-padding: 15;" />
+                </VBox>
+            </VBox>
+        </ScrollPane>
 
-                        <VBox VBox.vgrow="ALWAYS" style="-fx-background-color: rgba(2,6,23,0.8); -fx-border-color: rgba(14,165,233,0.2); -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 20;">
-                            <Label text="&gt; DECRYPTED_USER_LOG :" style="-fx-text-fill: #0ea5e9; -fx-font-family: 'Consolas'; -fx-font-size: 11px; -fx-padding: 0 0 10 0;" />
-                            <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
-                                <Label fx:id="lblDescription" wrapText="true" style="-fx-text-fill: #cbd5e1; -fx-font-size: 14px; -fx-line-spacing: 6px; -fx-font-family: 'Consolas';" />
-                            </ScrollPane>
-                        </VBox>
-                    </VBox>
+        <VBox spacing="10" alignment="CENTER">
+            <Label fx:id="lblTicketClos" text="[ ACCÈS_REFUSÉ : DOSSIER_CLÔTURÉ ]" visible="false" managed="false" style="-fx-text-fill: #ef4444; -fx-font-family: 'Consolas'; -fx-font-weight: bold; -fx-font-size: 11px;" />
+            <Button fx:id="btnOuvrirDiscussion" text="&gt; ÉTABLIR_COMMUNICATION [LINK]" onAction="#handleOuvrirDiscussion" visible="false" managed="false" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-border-color: #10b981; -fx-text-fill: #10b981; -fx-font-weight: 900; -fx-font-size: 11px; -fx-padding: 12; -fx-border-radius: 5; -fx-cursor: hand;" />
+            <Button text="TERMINER L'INSPECTION [X]" onAction="#handleFermer" maxWidth="Infinity" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 11px; -fx-padding: 12; -fx-background-radius: 5; -fx-cursor: hand;" />
+        </VBox>
 
-                    <VBox spacing="20" prefWidth="350">
-                        <VBox fx:id="boxPreuve" alignment="CENTER" spacing="15" style="-fx-background-color: rgba(16,185,129,0.05); -fx-border-color: #10b981; -fx-border-width: 1; -fx-border-radius: 10; -fx-padding: 15;">
-                            <Label text="[ ATTACHED_MEDIA ]" style="-fx-text-fill: #10b981; -fx-font-family: 'Consolas'; -fx-font-size: 11px; -fx-font-weight: bold;" />
-                            <StackPane style="-fx-border-color: rgba(16,185,129,0.3); -fx-padding: 5;">
-                                <ImageView fx:id="imgPreuve" fitWidth="300" preserveRatio="true" />
-                            </StackPane>
-                            <Button fx:id="btnOuvrirPreuve" text="DOWNLOAD / VIEW" onAction="#handleOuvrirPreuve"
-                                    style="-fx-background-color: transparent; -fx-border-color: #10b981; -fx-text-fill: #10b981; -fx-font-weight: 900; -fx-padding: 8 20; -fx-cursor: hand;" />
-                        </VBox>
-
-                        <Region VBox.vgrow="ALWAYS" />
-
-                        <VBox fx:id="vboxReponses" spacing="10" style="-fx-background-color: rgba(0,0,0,0.5); -fx-border-color: rgba(255,215,0,0.3); -fx-border-width: 0 0 0 2; -fx-padding: 15;" />
-                    </VBox>
-
-                </HBox>
-            </center>
-
-            <bottom>
-                <HBox alignment="CENTER_RIGHT" spacing="15" style="-fx-padding: 25 0 0 0;">
-                    <Button fx:id="btnOuvrirDiscussion" text="&gt; ÉTABLIR_COMMUNICATION [LINK]" onAction="#handleOuvrirDiscussion"
-                            visible="false" managed="false"
-                            style="-fx-background-color: transparent; -fx-border-color: #10b981; -fx-text-fill: #10b981; -fx-font-weight: 900; -fx-font-size: 12px; -fx-padding: 12 30; -fx-background-radius: 5; -fx-effect: dropshadow(three-pass-box, rgba(16,185,129,0.5), 15, 0, 0, 0); -fx-cursor: hand;" />
-
-                    <Label fx:id="lblTicketClos" text="[ ACCÈS_REFUSÉ : DOSSIER_CLÔTURÉ ]"
-                           visible="false" managed="false"
-                           style="-fx-text-fill: #ef4444; -fx-font-family: 'Consolas'; -fx-font-weight: bold; -fx-font-size: 12px;" />
-
-                    <Region HBox.hgrow="ALWAYS" />
-
-                    <Button text="TERMINER L'INSPECTION [X]" onAction="#handleFermer"
-                            style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 12px; -fx-padding: 12 30; -fx-background-radius: 5; -fx-effect: dropshadow(three-pass-box, rgba(239,68,68,0.5), 15, 0, 0, 0); -fx-cursor: hand;" />
-                </HBox>
-            </bottom>
-
-        </BorderPane>
     </children>
-</StackPane>
+</VBox>

@@ -11,7 +11,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
-import javafx.stage.Stage;
 
 public class AdminTraiterController {
 
@@ -22,7 +21,6 @@ public class AdminTraiterController {
     @FXML private TextArea txtReponse;
     @FXML private VBox vboxHistorique;
 
-    // Référence aux boutons pour les effets Hover
     @FXML private Button btnUpdateStatut, btnAssigner, btnFermer, btnAmeliorer, btnReponseInteractive, btnReponseUnique;
 
     private reclamation currentRec;
@@ -34,7 +32,6 @@ public class AdminTraiterController {
         comboStatut.getItems().addAll("En attente", "En cours", "Résolu", "Fermé");
         comboAssignation.getItems().addAll("Non assigné", "Support Technique", "Service Financier", "Modération");
 
-        // 1. CONFIGURATION DE LA SAISIE RAPIDE
         comboSaisieRapide.getItems().addAll(
                 "Bonjour, nous avons bien reçu votre demande.",
                 "Merci de nous fournir une capture d'écran du problème.",
@@ -53,17 +50,16 @@ public class AdminTraiterController {
             }
         });
 
-        // 2. ACTIVATION DES EFFETS NÉON (HOVER) POUR TOUS LES BOUTONS
+        // EFFETS HOVER
         setupNeonHover(btnUpdateStatut, "#0ea5e9", "transparent");
         setupNeonHover(btnAssigner, "#f59e0b", "transparent");
         setupNeonHover(btnAmeliorer, "#10b981", "transparent");
         setupNeonHover(btnReponseInteractive, "#f59e0b", "transparent");
         setupSolidHover(btnReponseUnique, "#38bdf8", "#020617");
 
-        // Bouton Fermer (Spécial Rouge épais)
         if(btnFermer != null) {
-            String baseFermer = "-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-width: 2; -fx-padding: 12; -fx-cursor: hand;";
-            String hoverFermer = "-fx-background-color: #ef4444; -fx-border-color: #ef4444; -fx-text-fill: white; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-width: 2; -fx-padding: 12; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.6), 15, 0, 0, 0);";
+            String baseFermer = "-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-width: 2; -fx-padding: 10; -fx-cursor: hand;";
+            String hoverFermer = "-fx-background-color: #ef4444; -fx-border-color: #ef4444; -fx-text-fill: white; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-width: 2; -fx-padding: 10; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(239,68,68,0.6), 15, 0, 0, 0);";
             btnFermer.setOnMouseEntered(e -> btnFermer.setStyle(hoverFermer));
             btnFermer.setOnMouseExited(e -> btnFermer.setStyle(baseFermer));
         }
@@ -78,7 +74,6 @@ public class AdminTraiterController {
         chargerHistorique();
     }
 
-    // --- 3. HISTORIQUE EN BULLES DE CHAT (STYLE DISCORD) ---
     private void chargerHistorique() {
         vboxHistorique.getChildren().clear();
 
@@ -90,36 +85,34 @@ public class AdminTraiterController {
         }
 
         for (response rep : currentRec.getResponses()) {
-            HBox chatRow = new HBox(15);
+            HBox chatRow = new HBox(10);
             chatRow.setAlignment(Pos.TOP_LEFT);
 
-            // Avatar Admin
             StackPane avatarBox = new StackPane();
-            Circle avatarBg = new Circle(18, javafx.scene.paint.Color.web("rgba(56, 189, 248, 0.2)"));
+            Circle avatarBg = new Circle(15, javafx.scene.paint.Color.web("rgba(56, 189, 248, 0.2)"));
             avatarBg.setStroke(javafx.scene.paint.Color.web("#0ea5e9"));
             avatarBg.setStrokeWidth(1.5);
             Label avatarLetter = new Label("A");
-            avatarLetter.setStyle("-fx-text-fill: #0ea5e9; -fx-font-weight: 900; -fx-font-size: 16px;");
+            avatarLetter.setStyle("-fx-text-fill: #0ea5e9; -fx-font-weight: 900; -fx-font-size: 14px;");
             avatarBox.getChildren().addAll(avatarBg, avatarLetter);
 
-            // Bulle Message
             VBox bulle = new VBox(5);
-            bulle.setStyle("-fx-background-color: rgba(30, 41, 59, 0.8); -fx-padding: 12 18; -fx-background-radius: 0 15 15 15; -fx-border-color: rgba(255,255,255,0.05); -fx-border-radius: 0 15 15 15;");
+            bulle.setStyle("-fx-background-color: rgba(30, 41, 59, 0.8); -fx-padding: 10 15; -fx-background-radius: 0 15 15 15; -fx-border-color: rgba(255,255,255,0.05); -fx-border-radius: 0 15 15 15;");
             HBox.setHgrow(bulle, Priority.ALWAYS);
 
             HBox infoRow = new HBox(10);
             infoRow.setAlignment(Pos.BASELINE_LEFT);
-            Label lblNom = new Label("ADMIN_GAMBATTA");
-            lblNom.setStyle("-fx-text-fill: #fcc033; -fx-font-weight: 900; -fx-font-size: 11px; -fx-font-family: 'Consolas', monospace;");
+            Label lblNom = new Label("ADMIN");
+            lblNom.setStyle("-fx-text-fill: #fcc033; -fx-font-weight: 900; -fx-font-size: 10px; -fx-font-family: 'Consolas', monospace;");
 
             String dateStr = (rep.getDaterep() != null) ? rep.getDaterep().toString() : "--";
             Label lblDateMsg = new Label(dateStr);
-            lblDateMsg.setStyle("-fx-text-fill: #64748b; -fx-font-family: 'Consolas', monospace; -fx-font-size: 9px;");
+            lblDateMsg.setStyle("-fx-text-fill: #64748b; -fx-font-family: 'Consolas', monospace; -fx-font-size: 8px;");
 
             infoRow.getChildren().addAll(lblNom, lblDateMsg);
 
             Label lblContenu = new Label(rep.getContenurep());
-            lblContenu.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-line-spacing: 3;");
+            lblContenu.setStyle("-fx-text-fill: white; -fx-font-size: 12px; -fx-line-spacing: 3;");
             lblContenu.setWrapText(true);
 
             bulle.getChildren().addAll(infoRow, lblContenu);
@@ -128,11 +121,10 @@ public class AdminTraiterController {
         }
     }
 
-    // --- 4. UTILITAIRES DE DESIGN JAVA (Puisque CSS bloqué) ---
     private void setupNeonHover(Button btn, String colorHex, String baseBg) {
         if (btn == null) return;
-        String base = "-fx-background-color: " + baseBg + "; -fx-border-color: " + colorHex + "; -fx-text-fill: " + colorHex + "; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 8 15; -fx-cursor: hand;";
-        String hover = "-fx-background-color: " + colorHex + "; -fx-border-color: " + colorHex + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-padding: 8 15; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, " + colorHex + ", 15, 0, 0, 0);";
+        String base = "-fx-background-color: " + baseBg + "; -fx-border-color: " + colorHex + "; -fx-text-fill: " + colorHex + "; -fx-font-weight: bold; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 8; -fx-cursor: hand;";
+        String hover = "-fx-background-color: " + colorHex + "; -fx-border-color: " + colorHex + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 8; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, " + colorHex + ", 15, 0, 0, 0);";
         btn.setStyle(base);
         btn.setOnMouseEntered(e -> btn.setStyle(hover));
         btn.setOnMouseExited(e -> btn.setStyle(base));
@@ -140,14 +132,13 @@ public class AdminTraiterController {
 
     private void setupSolidHover(Button btn, String bgColorHex, String textColor) {
         if (btn == null) return;
-        String base = "-fx-background-color: " + bgColorHex + "; -fx-border-color: " + bgColorHex + "; -fx-text-fill: " + textColor + "; -fx-font-weight: 900; -fx-background-radius: 20; -fx-border-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;";
-        String hover = "-fx-background-color: white; -fx-border-color: white; -fx-text-fill: " + bgColorHex + "; -fx-font-weight: 900; -fx-background-radius: 20; -fx-border-radius: 20; -fx-padding: 10 20; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, " + bgColorHex + ", 20, 0, 0, 0);";
+        String base = "-fx-background-color: " + bgColorHex + "; -fx-border-color: " + bgColorHex + "; -fx-text-fill: " + textColor + "; -fx-font-weight: 900; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 8; -fx-cursor: hand;";
+        String hover = "-fx-background-color: white; -fx-border-color: white; -fx-text-fill: " + bgColorHex + "; -fx-font-weight: 900; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 8; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, " + bgColorHex + ", 20, 0, 0, 0);";
         btn.setStyle(base);
         btn.setOnMouseEntered(e -> btn.setStyle(hover));
         btn.setOnMouseExited(e -> btn.setStyle(base));
     }
 
-    // --- 5. LOGIQUE MÉTIER (Intacte) ---
     @FXML
     private void handleAmeliorerTexte() {
         String text = txtReponse.getText().trim();
@@ -172,7 +163,7 @@ public class AdminTraiterController {
         currentRec.setStatutrec("Résolu");
         service.modifier(currentRec);
         if (parent != null) parent.chargerTableau();
-        handleAnnuler();
+        handleAnnuler(); // Ferme le panneau après
     }
 
     private boolean creerEtSauvegarderReponse() {
@@ -192,12 +183,15 @@ public class AdminTraiterController {
     }
 
     @FXML private void handleAssigner() {
-        // String departement = comboAssignation.getValue();
-        // currentRec.setDepartement(departement);
-        // service.modifier(currentRec);
+        // Logique d'assignation
     }
 
     @FXML private void handleAnnuler() {
-        ((Stage) comboStatut.getScene().getWindow()).close();
+        // FERMETURE EN INCRUSTATION !
+        if (parent != null) {
+            parent.masquerFormulaireAjout();
+        } else {
+            comboStatut.getParent().setVisible(false);
+        }
     }
 }
