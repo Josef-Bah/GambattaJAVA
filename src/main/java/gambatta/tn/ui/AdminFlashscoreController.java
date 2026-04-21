@@ -96,30 +96,81 @@ public class AdminFlashscoreController {
 
         // Récupérer les équipes de ce tournoi (validées)
         List<inscriptiontournoi> inscriptions = inscritournoiService.findAll().stream()
-                .filter(i -> i.getTournoi().getId().equals(t.getId()) && "ACCEPTED".equals(i.getStatus()))
+                .filter(i -> i.getTournoi() != null && i.getTournoi().getId().equals(t.getId()) 
+                        && inscriptiontournoi.STATUS_ACCEPTED.equalsIgnoreCase(i.getStatus()))
                 .collect(Collectors.toList());
 
         if (inscriptions.size() < 2) {
-            showAlert("Erreur IA", "Il faut au moins 2 équipes acceptées dans ce tournoi pour générer des matchs.");
+            showAlert("Erreur IA", "Il faut au moins 2 équipes acceptées pour générer des Playoffs.");
             return;
         }
 
-        List<equipe> equipes = inscriptions.stream().map(inscriptiontournoi::getEquipe).collect(Collectors.toList());
-        Collections.shuffle(equipes); // Tirage IA simple
+        List<equipe> equipes = inscriptions.stream()
+                .map(inscriptiontournoi::getEquipe)
+                .filter(e -> e != null && e.getId() != null)
+                .collect(Collectors.toList());
 
+        Collections.shuffle(equipes);
+
+        // Supprimer les anciens matchs pour ce tournoi avant de régénérer proprement
+        List<rencontre> old = rencontreService.findByTournoi(t.getId());
+        for(rencontre r : old) rencontreService.delete(r.getId());
+
+        int n = equipes.size();
         int matchCreated = 0;
-        // Créer des paires
-        for (int i = 0; i < equipes.size() - 1; i += 2) {
-            rencontre r = new rencontre();
-            r.setTournoi(t);
-            r.setEquipeA(equipes.get(i));
-            r.setEquipeB(equipes.get(i+1));
-            r.setPlayedAt(LocalDateTime.now().plusDays(i)); // simul date
-            if (rencontreService.save(r)) matchCreated++;
+
+        // Déterminer le point de départ en fonction du nombre d'équipes (puissance de 2)
+        if (n >= 8) {
+            // Quarts de finale (on prend les 8 premières)
+            for (int i = 0; i < 7; i += 2) {
+                if (i + 1 < n) {
+                    createMatch(t, equipes.get(i), equipes.get(i+1), "QUART", i);
+                    matchCreated++;
+                }
+            }
+            // Générer les placeholders pour Demis et Finale
+            createPlaceholderMatches(t, 2, "DEMI", 4);
+            createPlaceholderMatches(t, 1, "FINALE", 6);
+        } else if (n >= 4) {
+            // Demi-finales
+            for (int i = 0; i < 3; i += 2) {
+                if (i + 1 < n) {
+                    createMatch(t, equipes.get(i), equipes.get(i+1), "DEMI", i);
+                    matchCreated++;
+                }
+            }
+            createPlaceholderMatches(t, 1, "FINALE", 2);
+        } else if (n >= 2) {
+            // Finale
+            createMatch(t, equipes.get(0), equipes.get(1), "FINALE", 0);
+            matchCreated++;
         }
 
-        showAlert("Succès IA", "L'IA a généré " + matchCreated + " matchs de ligue !");
+        if (matchCreated > 0) {
+            showAlert("Succès IA", "Playoffs générés avec succès (" + n + " équipes) !");
+        }
         loadRencontres(t.getId());
+    }
+
+    private void createMatch(tournoi t, equipe a, equipe b, String stage, int dayOffset) {
+        rencontre r = new rencontre();
+        r.setTournoi(t);
+        r.setEquipeA(a);
+        r.setEquipeB(b);
+        r.setStage(stage);
+        r.setPlayedAt(LocalDateTime.now().plusDays(dayOffset));
+        rencontreService.save(r);
+    }
+
+    private void createPlaceholderMatches(tournoi t, int count, String stage, int dayOffset) {
+        for (int i = 0; i < count; i++) {
+            rencontre r = new rencontre();
+            r.setTournoi(t);
+            r.setStage(stage);
+            r.setPlayedAt(LocalDateTime.now().plusDays(dayOffset + i));
+            // Pour les placeholders, equipeA et equipeB restent null (TBD)
+            rencontreService.save(r);
+        }
     }
 
     @FXML
@@ -135,7 +186,10 @@ public class AdminFlashscoreController {
                 r.setScoreA(random.nextInt(4)); // 0 à 3
                 r.setScoreB(random.nextInt(4));
                 r.setPlayedAt(LocalDateTime.now());
-                if (rencontreService.save(r)) simulated++;
+                if (rencontreService.save(r)) {
+                    rencontreService.advanceWinner(r);
+                    simulated++;
+                }
             }
         }
         showAlert("Simulation IA", simulated + " scores ont été simulés par l'IA.");
@@ -156,7 +210,8 @@ public class AdminFlashscoreController {
             r.setScoreB(scoreB);
             r.setPlayedAt(LocalDateTime.now());
             if (rencontreService.save(r)) {
-                table.refresh();
+                rencontreService.advanceWinner(r); // Propager le vainqueur (crée le match suivant si besoin)
+                loadRencontres(r.getTournoi().getId()); // Recharger tout pour voir le nouveau match
                 txtScoreA.clear();
                 txtScoreB.clear();
             }

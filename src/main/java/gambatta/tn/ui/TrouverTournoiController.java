@@ -3,7 +3,9 @@ package gambatta.tn.ui;
 import gambatta.tn.entites.tournois.equipe;
 import gambatta.tn.entites.tournois.tournoi;
 import gambatta.tn.services.tournoi.EquipeService;
+import gambatta.tn.services.tournoi.InscritournoiService;
 import gambatta.tn.services.tournoi.TournoiService;
+import gambatta.tn.entites.tournois.inscriptiontournoi;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -29,6 +31,7 @@ public class TrouverTournoiController {
 
     private final EquipeService equipeService = new EquipeService();
     private final TournoiService tournoiService = new TournoiService();
+    private final InscritournoiService inscritService = new InscritournoiService();
 
     @FXML
     public void initialize() {
@@ -49,11 +52,28 @@ public class TrouverTournoiController {
                 return;
             }
 
-            // Simulating enrollment logic (the user hasn't provided a specific enrollment service yet)
-            showAlert("Demande d'inscription envoyée avec succès pour l'équipe " + selectedEquipe.getNom()
-                    + " au tournoi " + selectedTournoi.getNomt());
-            goBack();
+            // Actual enrollment logic
+            inscriptiontournoi ins = new inscriptiontournoi();
+            ins.setEquipe(selectedEquipe);
+            ins.setTournoi(selectedTournoi);
+            ins.setStatus(inscriptiontournoi.STATUS_PENDING);
+
+            if (inscritService.save(ins)) {
+                showAlert("Demande d'inscription envoyée avec succès pour l'équipe " + selectedEquipe.getNom()
+                        + " au tournoi " + selectedTournoi.getNomt());
+                goBack();
+            } else {
+                showError("Une erreur est survenue lors de l'envoi de la demande.");
+            }
         });
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Erreur");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private void goBack() {

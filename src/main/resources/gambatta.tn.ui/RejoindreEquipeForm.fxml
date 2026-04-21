@@ -9,7 +9,7 @@
     <!-- ══ HEADER ══ -->
     <top>
         <HBox spacing="15" alignment="CENTER_LEFT"
-              style="-fx-background-color: #0a192f; -fx-padding: 15 30; -fx-border-color: #C5B358; -fx-border-width: 0 0 2 0;">
+              style="-fx-background-color: #000133; -fx-padding: 15 30; -fx-border-color: #C5B358; -fx-border-width: 0 0 2 0;">
             <Button text="← Retour" onAction="#handleRetour"
                     style="-fx-background-color: transparent; -fx-text-fill: #C5B358; -fx-border-color: #C5B358; -fx-border-width: 1px; -fx-border-radius: 8; -fx-cursor: hand;"/>
             <Label text="👥  Rejoindre une Équipe"

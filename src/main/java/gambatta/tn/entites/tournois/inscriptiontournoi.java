@@ -2,9 +2,9 @@ package gambatta.tn.entites.tournois;
 
 public class inscriptiontournoi {
 
-    public static final String STATUS_PENDING = "pending";
-    public static final String STATUS_ACCEPTED = "accepted";
-    public static final String STATUS_REFUSED = "refused";
+    public static final String STATUS_PENDING = "PENDING";
+    public static final String STATUS_ACCEPTED = "ACCEPTED";
+    public static final String STATUS_REFUSED = "REFUSED";
 
     private Long id;
 

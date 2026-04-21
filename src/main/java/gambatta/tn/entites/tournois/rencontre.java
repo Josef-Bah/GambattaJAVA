@@ -17,6 +17,7 @@ public class rencontre {
     private Integer scoreB;
 
     private LocalDateTime playedAt;
+    private String stage; // "HUITIEME", "QUART", "DEMI", "FINALE"
 
     public void validate() {
         if (this.equipeA != null && this.equipeB != null && this.equipeA.getId() != null && this.equipeA.getId().equals(this.equipeB.getId())) {
@@ -88,5 +89,13 @@ public class rencontre {
 
     public void setPlayedAt(LocalDateTime playedAt) {
         this.playedAt = playedAt;
+    }
+
+    public String getStage() {
+        return stage;
+    }
+
+    public void setStage(String stage) {
+        this.stage = stage;
     }
 }

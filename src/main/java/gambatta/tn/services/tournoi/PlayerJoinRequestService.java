@@ -13,6 +13,7 @@ public class PlayerJoinRequestService {
 
     private Connection cnx;
     private EquipeService equipeService;
+    private String lastErrorMessage;
 
     public PlayerJoinRequestService() {
         cnx = MyDataBase.getInstance();
@@ -20,19 +21,46 @@ public class PlayerJoinRequestService {
         createTableIfNotExists();
     }
 
+    public String getLastErrorMessage() {
+        return lastErrorMessage;
+    }
+
     private void createTableIfNotExists() {
-        String sql = "CREATE TABLE IF NOT EXISTS playerjoinrequest (" +
-                "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
-                "playerName VARCHAR(255), " +
-                "equipe_id BIGINT, " +
-                "status VARCHAR(50), " +
-                "createdAt DATETIME, " +
-                "FOREIGN KEY (equipe_id) REFERENCES equipe(id) ON DELETE CASCADE" +
-                ")";
         try (Statement st = cnx.createStatement()) {
-            st.execute(sql);
+            // On retire la contrainte FOREIGN KEY explicite pour éviter l'erreur 150 (mismatch de type/moteur)
+            // L'intégrité sera gérée par le code, mais on garde un INDEX pour la performance.
+            String createTableSql = "CREATE TABLE IF NOT EXISTS playerjoinrequest (" +
+                    "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                    "player_name VARCHAR(255), " +
+                    "equipe_id BIGINT, " +
+                    "status VARCHAR(50), " +
+                    "created_at DATETIME, " +
+                    "INDEX idx_equipe_request (equipe_id)" +
+                    ") ENGINE=InnoDB";
+            
+            st.execute(createTableSql);
+            System.out.println("✅ Table playerjoinrequest vérifiée/créée.");
+
+            // Migration : Ajouter / Renommer les colonnes si nécessaire
+            migrateColumn(st, "player_name", "VARCHAR(255) NULL");
+            migrateColumn(st, "created_at", "DATETIME NULL");
+            
         } catch (SQLException e) {
-            System.err.println("Table playerjoinrequest may exist. " + e.getMessage());
+            System.err.println("❌ Erreur CRITIQUE création table playerjoinrequest : " + e.getMessage());
+            this.lastErrorMessage = "Erreur Initialisation Table : " + e.getMessage();
+            e.printStackTrace();
+        }
+    }
+
+    private void migrateColumn(Statement st, String columnName, String definition) {
+        try {
+            st.execute("ALTER TABLE playerjoinrequest ADD COLUMN " + columnName + " " + definition);
+            System.out.println("Colonne '" + columnName + "' ajoutée à playerjoinrequest.");
+        } catch (SQLException e) {
+            // Ignorer l'erreur si la colonne existe déjà
+            if (e.getErrorCode() != 1060 && !e.getSQLState().equals("42S21")) {
+                System.err.println("Erreur migration playerjoinrequest (" + columnName + ") : " + e.getMessage());
+            }
         }
     }
 
@@ -73,16 +101,21 @@ public class PlayerJoinRequestService {
     }
 
     private boolean add(playerjoinrequest p) {
-        String sql = "INSERT INTO playerjoinrequest (playerName, equipe_id, status, createdAt) VALUES (?, ?, ?, ?)";
+        lastErrorMessage = null;
+        String sql = "INSERT INTO playerjoinrequest (player_name, equipe_id, status, created_at) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pst = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, p.getPlayerName());
-            // Utiliser idProperty().get() pour éviter le null quand id=0
-            long equipeId = p.getEquipe().idProperty().get();
-            if (equipeId == 0) {
-                System.err.println("[PlayerJoinRequestService] ERREUR: equipe_id est 0, l'équipe n'a pas d'id valide.");
+            
+            if (p.getEquipe() == null) {
+                lastErrorMessage = "L'équipe sélectionnée est invalide (null).";
                 return false;
             }
-            pst.setLong(2, equipeId);
+            if (p.getEquipe().getId() == null) {
+                lastErrorMessage = "L'équipe sélectionnée n'a pas d'identifiant en base (ID=null).";
+                return false;
+            }
+
+            pst.setLong(2, p.getEquipe().getId());
             pst.setString(3, p.getStatus() != null ? p.getStatus() : playerjoinrequest.STATUS_PENDING);
             pst.setTimestamp(4, Timestamp.valueOf(p.getCreatedAt() != null ? p.getCreatedAt() : LocalDateTime.now()));
             
@@ -91,18 +124,17 @@ public class PlayerJoinRequestService {
             if (rs.next()) p.setId(rs.getLong(1));
             return true;
         } catch (SQLException ex) {
-            System.err.println("[PlayerJoinRequestService] SQL Error add: " + ex.getMessage());
+            lastErrorMessage = "Erreur SQL : " + ex.getMessage();
             ex.printStackTrace();
         }
         return false;
     }
 
     private boolean update(playerjoinrequest p) {
-        String sql = "UPDATE playerjoinrequest SET playerName=?, equipe_id=?, status=?, createdAt=? WHERE id=?";
+        String sql = "UPDATE playerjoinrequest SET player_name=?, equipe_id=?, status=?, created_at=? WHERE id=?";
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setString(1, p.getPlayerName());
-            long equipeId = p.getEquipe().idProperty().get();
-            pst.setLong(2, equipeId);
+            pst.setLong(2, p.getEquipe().getId());
             pst.setString(3, p.getStatus());
             pst.setTimestamp(4, Timestamp.valueOf(p.getCreatedAt() != null ? p.getCreatedAt() : LocalDateTime.now()));
             pst.setLong(5, p.getId());
@@ -128,14 +160,14 @@ public class PlayerJoinRequestService {
     private playerjoinrequest mapRequest(ResultSet rs) throws SQLException {
         playerjoinrequest p = new playerjoinrequest();
         p.setId(rs.getLong("id"));
-        p.setPlayerName(rs.getString("playerName"));
+        p.setPlayerName(rs.getString("player_name"));
         
         long equipeId = rs.getLong("equipe_id");
         p.setEquipe(equipeService.findById(equipeId));
         
         p.setStatus(rs.getString("status"));
         
-        Timestamp ts = rs.getTimestamp("createdAt");
+        Timestamp ts = rs.getTimestamp("created_at");
         if (ts != null) {
             p.setCreatedAt(ts.toLocalDateTime());
         }

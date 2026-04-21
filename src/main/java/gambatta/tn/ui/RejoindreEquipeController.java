@@ -24,6 +24,12 @@ public class RejoindreEquipeController {
     @FXML
     public void initialize() {
         comboEquipeSelection.setItems(FXCollections.observableArrayList(equipeService.findAll()));
+        
+        // Vérifier si l'initialisation du service a échoué (ex: table non créée)
+        if (requestService.getLastErrorMessage() != null) {
+            showAlert(Alert.AlertType.WARNING, "Problème Initialisation", 
+                "Le service de demandes a rencontré un problème au démarrage :\n" + requestService.getLastErrorMessage());
+        }
     }
 
     @FXML
@@ -44,7 +50,9 @@ public class RejoindreEquipeController {
                     "Votre demande pour rejoindre \"" + selectedEquipe.getNom() + "\" a bien été envoyée !\nLe capitaine va examiner votre profil.");
             clearForm();
         } else {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Une erreur est survenue lors de l'envoi de votre demande.");
+            String error = requestService.getLastErrorMessage();
+            showAlert(Alert.AlertType.ERROR, "Erreur", 
+                    "Une erreur est survenue lors de l'envoi de votre demande.\n" + (error != null ? error : "Cause inconnue."));
         }
     }
 

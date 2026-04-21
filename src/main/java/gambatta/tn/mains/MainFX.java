@@ -47,12 +47,18 @@ public class MainFX extends Application {
         btnAdmin.setStyle(styleAdmin);
         btnFlashscore.setStyle(styleDark);
 
+        Button btnExit = new Button("\u274c Quitter l'application");
+        btnExit.setPrefWidth(340);
+        btnExit.setStyle("-fx-background-color: #8B1E2D; -fx-text-fill: white; -fx-font-weight:bold; -fx-padding: 12 20;");
+
         VBox root = new VBox(10,
                 lblFront,
                 btnEquipe, btnTournoi, btnInscriptionT, btnInscriptionE, btnRecrutement,
                 new Separator(),
                 lblAdmin,
-                btnAdmin, btnFlashscore
+                btnAdmin, btnFlashscore,
+                new Separator(),
+                btnExit
         );
         root.setStyle("-fx-padding: 50; -fx-alignment: center; -fx-background-color: #010203;");
 
@@ -71,6 +77,7 @@ public class MainFX extends Application {
         btnRecrutement.setOnAction(e  -> openWindow("/gambatta.tn.ui/TeamLeaderInterface.fxml",         "Recrutement \u00c9quipes"));
         btnAdmin.setOnAction(e        -> openWindow("/gambatta.tn.ui/AdminDashboard.fxml",               "Espace Administrateur"));
         btnFlashscore.setOnAction(e   -> openWindow("/gambatta.tn.ui/FlashscoreInterface.fxml",         "Flashscore Live"));
+        btnExit.setOnAction(e -> System.exit(0));
     }
 
     private void openWindow(String fxml, String title) {

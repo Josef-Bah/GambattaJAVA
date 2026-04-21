@@ -37,7 +37,7 @@ public class AdminValidationTournoiController {
                 btn.setStyle("-fx-background-color: #2e7d32; -fx-text-fill: white; -fx-cursor: hand;");
                 btn.setOnAction(event -> {
                     inscriptiontournoi i = getTableView().getItems().get(getIndex());
-                    i.setStatus("ACCEPTED");
+                    i.setStatus(inscriptiontournoi.STATUS_ACCEPTED);
                     if (service.save(i)) {
                         loadData();
                     }
@@ -55,7 +55,7 @@ public class AdminValidationTournoiController {
                 btn.setStyle("-fx-background-color: #c62828; -fx-text-fill: white; -fx-cursor: hand;");
                 btn.setOnAction(event -> {
                     inscriptiontournoi i = getTableView().getItems().get(getIndex());
-                    i.setStatus("REFUSED");
+                    i.setStatus(inscriptiontournoi.STATUS_REFUSED);
                     if (service.save(i)) {
                         loadData();
                     }
@@ -69,10 +69,13 @@ public class AdminValidationTournoiController {
 
         loadData();
     }
-
     private void loadData() {
         List<inscriptiontournoi> all = service.findAll();
-        List<inscriptiontournoi> pending = all.stream().filter(i -> "pending".equals(i.getStatus()) || "EN_ATTENTE".equals(i.getStatus())).collect(Collectors.toList());
+        List<inscriptiontournoi> pending = all.stream()
+                .filter(i -> inscriptiontournoi.STATUS_PENDING.equalsIgnoreCase(i.getStatus()) 
+                        || "pending".equalsIgnoreCase(i.getStatus())
+                        || "EN_ATTENTE".equalsIgnoreCase(i.getStatus()))
+                .collect(Collectors.toList());
         pendingInscriptions.setAll(pending);
         table.setItems(pendingInscriptions);
     }

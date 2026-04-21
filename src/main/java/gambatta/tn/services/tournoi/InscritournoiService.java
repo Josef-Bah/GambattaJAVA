@@ -17,6 +17,23 @@ public class InscritournoiService {
 
     public InscritournoiService() {
         this.cnx = MyDataBase.getInstance();
+        createTableIfNotExists();
+    }
+
+    private void createTableIfNotExists() {
+        String sql = "CREATE TABLE IF NOT EXISTS inscritournoi (" +
+                "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                "equipe_id BIGINT, " +
+                "tournoi_id BIGINT, " +
+                "status VARCHAR(50) DEFAULT 'PENDING', " +
+                "FOREIGN KEY (equipe_id) REFERENCES equipe(id) ON DELETE CASCADE, " +
+                "FOREIGN KEY (tournoi_id) REFERENCES tournoi(id) ON DELETE CASCADE" +
+                ")";
+        try (Statement st = cnx.createStatement()) {
+            st.execute(sql);
+        } catch (SQLException e) {
+            System.err.println("Table inscritournoi may exist. " + e.getMessage());
+        }
     }
 
     // READ ALL
