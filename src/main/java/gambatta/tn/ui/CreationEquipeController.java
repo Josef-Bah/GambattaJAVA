@@ -27,6 +27,7 @@ public class CreationEquipeController {
     // Validation error labels
     @FXML private Label errNom;
     @FXML private Label errLeader;
+    @FXML private Label globalMsg;
 
     private EquipeService equipeService = new EquipeService();
 
@@ -41,7 +42,7 @@ public class CreationEquipeController {
     private void handleDoGenerateLogo() {
         String prompt = txtPromptLogo.getText().trim();
         if (prompt.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Attention", "Veuillez entrer une description pour le logo.");
+            showInlineMsg("⚠ Veuillez entrer une description pour le logo.", true);
             return;
         }
         btnGenLogo.setDisable(true);
@@ -51,7 +52,7 @@ public class CreationEquipeController {
         PauseTransition pause = new PauseTransition(Duration.seconds(1));
         pause.setOnFinished(e -> Platform.runLater(() -> {
             txtLogo.setText(logoUrl);
-            showAlert(Alert.AlertType.INFORMATION, "✅ Logo généré", "Logo généré avec succès via DiceBear IA !");
+            showInlineMsg("✅ Logo généré avec succès via DiceBear IA !", false);
             btnGenLogo.setDisable(false);
             btnGenLogo.setText("🤖 GÉNÉRER");
         }));
@@ -72,11 +73,10 @@ public class CreationEquipeController {
         e.setStatus("EN_ATTENTE");
 
         if (equipeService.save(e)) {
-            showAlert(Alert.AlertType.INFORMATION, "✅ Succès",
-                    "L'équipe \"" + e.getNom() + "\" a été créée avec succès !\nElle est en attente de validation par un administrateur.");
-            goBack();
+            showInlineMsg("✅ Succès: L'équipe a été créée et est en attente de validation !", false);
+            new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2)).setOnFinished(ev -> goBack());
         } else {
-            errNom.setText("⚠ Ce nom d'équipe existe déjà. Choisissez un autre nom.");
+            showInlineMsg("⚠ Ce nom d'équipe existe déjà.", true);
         }
     }
 
@@ -111,6 +111,23 @@ public class CreationEquipeController {
 
     private void clearErrors() {
         errNom.setText(""); errLeader.setText("");
+        if (globalMsg != null) {
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+            globalMsg.setText("");
+        }
+    }
+
+    private void showInlineMsg(String msg, boolean isError) {
+        if (globalMsg != null) {
+            globalMsg.setText(msg);
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+            globalMsg.getStyleClass().add(isError ? "msg-error" : "msg-success");
+            if (!isError) {
+                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+                pause.setOnFinished(e -> globalMsg.setText(""));
+                pause.play();
+            }
+        }
     }
 
     // ── NAVIGATION ──────────────────────────────────────────
@@ -132,6 +149,6 @@ public class CreationEquipeController {
     }
 
     private void showAlert(Alert.AlertType type, String title, String msg) {
-        Alert a = new Alert(type); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
+        // Obsolete pop-up - removed for inline validation
     }
 }

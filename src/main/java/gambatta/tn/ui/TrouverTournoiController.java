@@ -28,6 +28,8 @@ public class TrouverTournoiController {
     private Button btnEnvoyer;
     @FXML
     private Label lblRetour;
+    @FXML
+    private Label globalMsg;
 
     private final EquipeService equipeService = new EquipeService();
     private final TournoiService tournoiService = new TournoiService();
@@ -48,7 +50,7 @@ public class TrouverTournoiController {
             tournoi selectedTournoi = comboTournoi.getSelectionModel().getSelectedItem();
 
             if (selectedEquipe == null || selectedTournoi == null) {
-                showWarning("Veuillez sélectionner une équipe et un tournoi.");
+                showInlineMsg("⚠ Veuillez sélectionner une équipe et un tournoi.", true);
                 return;
             }
 
@@ -59,21 +61,29 @@ public class TrouverTournoiController {
             ins.setStatus(inscriptiontournoi.STATUS_PENDING);
 
             if (inscritService.save(ins)) {
-                showAlert("Demande d'inscription envoyée avec succès pour l'équipe " + selectedEquipe.getNom()
-                        + " au tournoi " + selectedTournoi.getNomt());
-                goBack();
+                showInlineMsg("✅ Succès: Demande d'inscription envoyée pour " + selectedEquipe.getNom(), false);
+                new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2)).setOnFinished(ev -> goBack());
             } else {
-                showError("Une erreur est survenue lors de l'envoi de la demande.");
+                showInlineMsg("⚠ Une erreur est survenue lors de l'envoi de la demande.", true);
             }
         });
     }
 
+    private void showInlineMsg(String msg, boolean isError) {
+        if (globalMsg != null) {
+            globalMsg.setText(msg);
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+            globalMsg.getStyleClass().add(isError ? "msg-error" : "msg-success");
+            if (!isError) {
+                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+                pause.setOnFinished(e -> globalMsg.setText(""));
+                pause.play();
+            }
+        }
+    }
+
     private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erreur");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        // Obsolete pop-up - removed for inline messages.
     }
 
     private void goBack() {
@@ -90,18 +100,11 @@ public class TrouverTournoiController {
     }
 
     private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        // Obsolete pop-up - removed for inline messages.
     }
 
     private void showWarning(String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Attention");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        // Obsolete pop-up - removed for inline messages.
     }
+
 }

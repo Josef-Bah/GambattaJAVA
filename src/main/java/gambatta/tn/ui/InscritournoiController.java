@@ -35,6 +35,7 @@ public class InscritournoiController {
     @FXML private ComboBox<tournoi>  comboTournoi;
     @FXML private Label errEquipe;
     @FXML private Label errTournoi;
+    @FXML private Label globalMsg;
 
     // ── Table ──
     @FXML private TableView<inscriptiontournoi>              tableInscriptions;
@@ -128,24 +129,40 @@ public class InscritournoiController {
 
         if (service.save(i)) {
             inscriptions.add(i);
-            showAlert("Succès", eq.getNom() + " inscrite au tournoi " + t.getNomt() + " !");
-            closeDrawer();
+            showInlineMsg("✅ Succès: " + eq.getNom() + " inscrite !", false);
+            new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2)).setOnFinished(e -> closeDrawer());
         } else {
-            errEquipe.setText("⚠ Cette équipe est déjà inscrite à ce tournoi.");
+            showInlineMsg("⚠ Cette équipe est déjà inscrite à ce tournoi.", true);
         }
     }
 
     // ── DELETE ──────────────────────────────────────────────
 
     private void deleteInscription(inscriptiontournoi i) {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION,
-                "Retirer \"" + i.getEquipe().getNom() + "\" du tournoi \"" + i.getTournoi().getNomt() + "\" ?",
-                ButtonType.YES, ButtonType.NO);
-        a.setHeaderText(null);
-        a.showAndWait().ifPresent(r -> { if (r == ButtonType.YES && service.delete(i.getId())) inscriptions.remove(i); });
+        if (service.delete(i.getId())) inscriptions.remove(i);
     }
 
-    private void clearErrors() { errEquipe.setText(""); errTournoi.setText(""); }
+    private void clearErrors() { 
+        errEquipe.setText(""); 
+        errTournoi.setText(""); 
+        if (globalMsg != null) {
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+            globalMsg.setText("");
+        }
+    }
+
+    private void showInlineMsg(String msg, boolean isError) {
+        if (globalMsg != null) {
+            globalMsg.setText(msg);
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+            globalMsg.getStyleClass().add(isError ? "msg-error" : "msg-success");
+            if (!isError) {
+                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+                pause.setOnFinished(e -> globalMsg.setText(""));
+                pause.play();
+            }
+        }
+    }
 
     // ── DATA ────────────────────────────────────────────────
 
@@ -199,6 +216,7 @@ public class InscritournoiController {
     }
 
     private void showAlert(String title, String msg) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
+        // Obsolete pop-up - removed for inline messages.
     }
 }
+

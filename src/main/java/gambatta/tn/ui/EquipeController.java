@@ -42,6 +42,7 @@ public class EquipeController {
     @FXML private TextField drawerCoach;
     @FXML private ComboBox<String> drawerStatut;
     @FXML private Label     errStatut;
+    @FXML private Label     globalMsg;
     @FXML private TextField drawerTitres;
     @FXML private TextArea  drawerObjectifs;
 
@@ -145,10 +146,10 @@ public class EquipeController {
             e.setTitres(titres); e.setObjectifs(objectifs);
             if (equipeService.save(e)) {
                 equipes.add(e);
-                showAlert(Alert.AlertType.INFORMATION, "Succès", "Équipe créée avec succès !");
-                closeDrawer();
+                showInlineMsg("✅ Succès: Équipe créée avec succès !", false);
+                new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2)).setOnFinished(ev -> closeDrawer());
             } else {
-                errNom.setText("⚠ Ce nom existe déjà ou une erreur est survenue.");
+                showInlineMsg("⚠ Ce nom existe déjà ou une erreur est survenue.", true);
             }
         } else {
             // ── Modification
@@ -157,10 +158,10 @@ public class EquipeController {
             editingEquipe.setTitres(titres); editingEquipe.setObjectifs(objectifs);
             if (equipeService.save(editingEquipe)) {
                 tableEquipes.refresh();
-                showAlert(Alert.AlertType.INFORMATION, "Succès", "Équipe mise à jour !");
-                closeDrawer();
+                showInlineMsg("✅ Succès: Équipe mise à jour !", false);
+                new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2)).setOnFinished(ev -> closeDrawer());
             } else {
-                showAlert(Alert.AlertType.ERROR, "Erreur", "Impossible de modifier cette équipe.");
+                showInlineMsg("⚠ Impossible de modifier cette équipe.", true);
             }
         }
     }
@@ -168,12 +169,7 @@ public class EquipeController {
     // ── DELETE ──────────────────────────────────────────────
 
     private void deleteEquipe(equipe e) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Supprimer l'équipe \"" + e.getNom() + "\" ?", ButtonType.YES, ButtonType.NO);
-        confirm.setTitle("Confirmation"); confirm.setHeaderText(null);
-        confirm.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.YES && equipeService.delete(e.getId())) equipes.remove(e);
-        });
+        if (equipeService.delete(e.getId())) equipes.remove(e);
     }
 
     // ── VALIDATION ───────────────────────────────────────────
@@ -197,6 +193,23 @@ public class EquipeController {
 
     private void clearErrors() {
         errNom.setText(""); errLeader.setText(""); errStatut.setText("");
+        if (globalMsg != null) {
+            globalMsg.setText("");
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+        }
+    }
+
+    private void showInlineMsg(String msg, boolean isError) {
+        if (globalMsg != null) {
+            globalMsg.setText(msg);
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+            globalMsg.getStyleClass().add(isError ? "msg-error" : "msg-success");
+            if (!isError) {
+                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+                pause.setOnFinished(e -> globalMsg.setText(""));
+                pause.play();
+            }
+        }
     }
 
     private void clearDrawerFields() {
@@ -251,7 +264,7 @@ public class EquipeController {
     }
 
     private void showAlert(Alert.AlertType t, String title, String msg) {
-        Alert a = new Alert(t); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
+        // Obsolete pop-up - removed for inline messages.
     }
 
     private void openInscriptionEquipeWindow() {

@@ -28,6 +28,8 @@
                 <ComboBox fx:id="comboTournoi" promptText="Choisir une compétition active..." maxWidth="Infinity"/>
             </VBox>
 
+            <Label fx:id="globalMsg" text="" wrapText="true" maxWidth="Infinity" style="-fx-padding: 0 0 10 0; -fx-alignment: center;"/>
+
             <Button fx:id="btnEnvoyer" text="ENVOYER LA DEMANDE" styleClass="btn-primary" maxWidth="Infinity" style="-fx-padding: 15;"/>
             
             <HBox alignment="CENTER">

@@ -220,3 +220,24 @@
     -fx-text-fill: -fx-text-muted;
     -fx-font-size: 13px;
 }
+
+/* --- Inline Validation & Notifications --- */
+.error-label {
+    -fx-text-fill: #ff6b6b;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.msg-success {
+    -fx-text-fill: #C5B358;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 5;
+}
+
+.msg-error {
+    -fx-text-fill: #ff6b6b;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 5;
+}

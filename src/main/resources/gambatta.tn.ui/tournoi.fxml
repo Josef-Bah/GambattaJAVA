@@ -64,6 +64,8 @@
                             <Label fx:id="errDateFin" text="" style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px;"/>
                         </VBox>
 
+                        <Label fx:id="globalMsg" text="" wrapText="true" maxWidth="Infinity" style="-fx-padding: 0 0 10 0;"/>
+
                         <HBox spacing="10" style="-fx-padding: 10 0 0 0;">
                             <Button text="💾 Enregistrer" onAction="#addTournoi" styleClass="btn-primary" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
                             <Button text="✖" onAction="#closeDrawer" styleClass="btn-outline" style="-fx-min-width: 40;"/>

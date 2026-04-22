@@ -87,6 +87,8 @@
                         </VBox>
                     </GridPane>
 
+                    <Label fx:id="globalMsg" text="" wrapText="true" maxWidth="Infinity" style="-fx-padding: 0 0 10 0;"/>
+
                     <!-- Boutons -->
                     <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
                         <Button text="✖ Annuler" onAction="#handleAnnuler" styleClass="btn-outline" style="-fx-padding: 12 25;"/>

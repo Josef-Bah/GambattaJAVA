@@ -37,6 +37,7 @@ public class TournoiController {
     @FXML private Label errStatut;
     @FXML private Label errDateDebut;
     @FXML private Label errDateFin;
+    @FXML private Label globalMsg;
     @FXML private Button btnPDF;
 
     // ── Table ──
@@ -142,22 +143,28 @@ public class TournoiController {
             tournoi t = new tournoi();
             t.setNomt(nom); t.setDescrit(desc); t.setStatutt(statut);
             t.setDatedebutt(debut); t.setDatefint(fin);
-            if (service.add(t)) { tournois.add(t); showAlert("Succès", "Tournoi créé !"); closeDrawer(); }
-            else showAlert("Erreur", "Impossible de créer ce tournoi.");
+            if (service.add(t)) { 
+                tournois.add(t); 
+                showInlineMsg("✅ Succès: Tournoi créé !", false); 
+                new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2)).setOnFinished(e -> closeDrawer());
+            }
+            else showInlineMsg("⚠ Erreur: Impossible de créer ce tournoi.", true);
         } else {
             editingTournoi.setNomt(nom); editingTournoi.setDescrit(desc); editingTournoi.setStatutt(statut);
             editingTournoi.setDatedebutt(debut); editingTournoi.setDatefint(fin);
-            if (service.update(editingTournoi)) { table.refresh(); showAlert("Succès", "Tournoi modifié !"); closeDrawer(); }
-            else showAlert("Erreur", "Impossible de modifier ce tournoi.");
+            if (service.update(editingTournoi)) { 
+                table.refresh(); 
+                showInlineMsg("✅ Succès: Tournoi modifié !", false); 
+                new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2)).setOnFinished(e -> closeDrawer());
+            }
+            else showInlineMsg("⚠ Erreur: Impossible de modifier ce tournoi.", true);
         }
     }
 
     // ── DELETE ──────────────────────────────────────────────
 
     private void deleteTournoi(tournoi t) {
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer \"" + t.getNomt() + "\" ?", ButtonType.YES, ButtonType.NO);
-        a.setHeaderText(null);
-        a.showAndWait().ifPresent(r -> { if (r == ButtonType.YES && service.delete(t.getId())) tournois.remove(t); });
+        if (service.delete(t.getId())) tournois.remove(t);
     }
 
     // ── VALIDATION ──────────────────────────────────────────
@@ -175,6 +182,23 @@ public class TournoiController {
 
     private void clearErrors() {
         errNom.setText(""); errStatut.setText(""); errDateDebut.setText(""); errDateFin.setText("");
+        if (globalMsg != null) {
+            globalMsg.setText("");
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+        }
+    }
+
+    private void showInlineMsg(String msg, boolean isError) {
+        if (globalMsg != null) {
+            globalMsg.setText(msg);
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+            globalMsg.getStyleClass().add(isError ? "msg-error" : "msg-success");
+            if (!isError) {
+                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+                pause.setOnFinished(e -> globalMsg.setText(""));
+                pause.play();
+            }
+        }
     }
 
     private void clearDrawer() {
@@ -222,7 +246,7 @@ public class TournoiController {
     }
 
     private void showAlert(String title, String msg) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
+        // Obsolete pop-up - removed for inline messages.
     }
 
     // ── Legacy stubs kept for compatibility ──────────────────

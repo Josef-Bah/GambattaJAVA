@@ -17,6 +17,7 @@ public class RejoindreEquipeController {
     @FXML private ComboBox<equipe> comboEquipeSelection;
     @FXML private Label          errPlayerName;
     @FXML private Label          errEquipe;
+    @FXML private Label          globalMsg;
 
     private EquipeService           equipeService = new EquipeService();
     private PlayerJoinRequestService requestService = new PlayerJoinRequestService();
@@ -25,10 +26,9 @@ public class RejoindreEquipeController {
     public void initialize() {
         comboEquipeSelection.setItems(FXCollections.observableArrayList(equipeService.findAll()));
         
-        // Vérifier si l'initialisation du service a échoué (ex: table non créée)
+        // Vérifier si l'initialisation du service a échoué
         if (requestService.getLastErrorMessage() != null) {
-            showAlert(Alert.AlertType.WARNING, "Problème Initialisation", 
-                "Le service de demandes a rencontré un problème au démarrage :\n" + requestService.getLastErrorMessage());
+            showInlineMsg("⚠ Problème Service: " + requestService.getLastErrorMessage(), true);
         }
     }
 
@@ -46,13 +46,11 @@ public class RejoindreEquipeController {
         request.setStatus(playerjoinrequest.STATUS_PENDING);
 
         if (requestService.save(request)) {
-            showAlert(Alert.AlertType.INFORMATION, "✅ Demande envoyée",
-                    "Votre demande pour rejoindre \"" + selectedEquipe.getNom() + "\" a bien été envoyée !\nLe capitaine va examiner votre profil.");
-            clearForm();
+            showInlineMsg("✅ Succès: Demande pour \"" + selectedEquipe.getNom() + "\" envoyée !", false);
+            new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2)).setOnFinished(e -> handleRetour());
         } else {
             String error = requestService.getLastErrorMessage();
-            showAlert(Alert.AlertType.ERROR, "Erreur", 
-                    "Une erreur est survenue lors de l'envoi de votre demande.\n" + (error != null ? error : "Cause inconnue."));
+            showInlineMsg("⚠ Erreur: " + (error != null ? error : "Cause inconnue."), true);
         }
     }
 
@@ -88,7 +86,27 @@ public class RejoindreEquipeController {
         return ok;
     }
 
-    private void clearErrors() { errPlayerName.setText(""); errEquipe.setText(""); }
+    private void clearErrors() { 
+        errPlayerName.setText(""); 
+        errEquipe.setText(""); 
+        if (globalMsg != null) {
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+            globalMsg.setText("");
+        }
+    }
+
+    private void showInlineMsg(String msg, boolean isError) {
+        if (globalMsg != null) {
+            globalMsg.setText(msg);
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+            globalMsg.getStyleClass().add(isError ? "msg-error" : "msg-success");
+            if (!isError) {
+                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+                pause.setOnFinished(e -> globalMsg.setText(""));
+                pause.play();
+            }
+        }
+    }
 
     private void clearForm() {
         txtPlayerName.clear();
@@ -97,6 +115,6 @@ public class RejoindreEquipeController {
     }
 
     private void showAlert(Alert.AlertType type, String title, String msg) {
-        Alert a = new Alert(type); a.setTitle(title); a.setHeaderText(null); a.setContentText(msg); a.showAndWait();
+        // Obsolete pop-up - removed for inline messages.
     }
 }

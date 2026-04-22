@@ -28,6 +28,8 @@
             </columnResizePolicy>
         </TableView>
 
+        <Label fx:id="globalMsg" text="" wrapText="true" maxWidth="Infinity" style="-fx-alignment: center; -fx-padding: 0 0 10 0;"/>
+
         <HBox spacing="15" alignment="CENTER" styleClass="card">
             <Label text="Saisie Manuelle (Match sélectionné) :" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
             <TextField fx:id="txtScoreA" promptText="Score A" prefWidth="80" styleClass="text-field"/>

@@ -74,6 +74,8 @@
                                       styleClass="text-field" wrapText="true"/>
                         </VBox>
 
+                        <Label fx:id="globalMsg" text="" wrapText="true" maxWidth="Infinity" style="-fx-padding: 0 0 10 0;"/>
+
                         <HBox spacing="10" style="-fx-padding: 10 0 0 0;">
                             <Button text="💾 Enregistrer" onAction="#saveFromDrawer" styleClass="btn-primary" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
                             <Button text="✖" onAction="#closeDrawer" styleClass="btn-outline" style="-fx-min-width: 40;"/>

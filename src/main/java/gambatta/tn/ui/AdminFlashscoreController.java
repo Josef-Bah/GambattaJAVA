@@ -36,6 +36,7 @@ public class AdminFlashscoreController {
     @FXML private TableColumn<rencontre, String> dateCol;
     @FXML private TextField txtScoreA;
     @FXML private TextField txtScoreB;
+    @FXML private Label globalMsg;
 
     private TournoiService tournoiService = new TournoiService();
     private RencontreService rencontreService = new RencontreService();
@@ -90,7 +91,7 @@ public class AdminFlashscoreController {
     public void genererMatchsIA() {
         tournoi t = cmbTournoi.getValue();
         if (t == null) {
-            showAlert("Attention", "Veuillez sélectionner un tournoi.");
+            showInlineMsg("⚠ Attention: Veuillez sélectionner un tournoi.", true);
             return;
         }
 
@@ -101,7 +102,7 @@ public class AdminFlashscoreController {
                 .collect(Collectors.toList());
 
         if (inscriptions.size() < 2) {
-            showAlert("Erreur IA", "Il faut au moins 2 équipes acceptées pour générer des Playoffs.");
+            showInlineMsg("⚠ Erreur IA: Il faut au moins 2 équipes acceptées pour générer des Playoffs.", true);
             return;
         }
 
@@ -147,7 +148,9 @@ public class AdminFlashscoreController {
         }
 
         if (matchCreated > 0) {
-            showAlert("Succès IA", "Playoffs générés avec succès (" + n + " équipes) !");
+            showInlineMsg("✅ Succès IA: Playoffs générés (" + n + " équipes) !", false);
+        } else {
+            showInlineMsg("⚠ Erreur IA: Impossible de générer des Playoffs.", true);
         }
         loadRencontres(t.getId());
     }
@@ -192,7 +195,7 @@ public class AdminFlashscoreController {
                 }
             }
         }
-        showAlert("Simulation IA", simulated + " scores ont été simulés par l'IA.");
+        showInlineMsg("✅ Simulation IA: " + simulated + " scores ont été simulés.", false);
         loadRencontres(t.getId());
     }
 
@@ -200,7 +203,7 @@ public class AdminFlashscoreController {
     public void enregistrerScore() {
         rencontre r = table.getSelectionModel().getSelectedItem();
         if (r == null) {
-            showAlert("Erreur", "Sélectionnez un match.");
+            showInlineMsg("⚠ Erreur: Sélectionnez un match.", true);
             return;
         }
         try {
@@ -214,9 +217,10 @@ public class AdminFlashscoreController {
                 loadRencontres(r.getTournoi().getId()); // Recharger tout pour voir le nouveau match
                 txtScoreA.clear();
                 txtScoreB.clear();
+                showInlineMsg("✅ Score enregistré avec succès !", false);
             }
         } catch (NumberFormatException e) {
-            showAlert("Erreur", "Veuillez saisir des nombres valides.");
+            showInlineMsg("⚠ Erreur: Veuillez saisir des nombres valides.", true);
         }
     }
 
@@ -226,15 +230,25 @@ public class AdminFlashscoreController {
         if (r != null) {
             if (rencontreService.delete(r.getId())) {
                 rencontres.remove(r);
+                showInlineMsg("✅ Match supprimé.", false);
+            }
+        }
+    }
+
+    private void showInlineMsg(String msg, boolean isError) {
+        if (globalMsg != null) {
+            globalMsg.setText(msg);
+            globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
+            globalMsg.getStyleClass().add(isError ? "msg-error" : "msg-success");
+            if (!isError) {
+                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+                pause.setOnFinished(e -> globalMsg.setText(""));
+                pause.play();
             }
         }
     }
 
     private void showAlert(String title, String msg) {
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setTitle(title);
-        a.setHeaderText(null);
-        a.setContentText(msg);
-        a.showAndWait();
+        // Obsolete pop-up - removed for inline messages.
     }
 }
