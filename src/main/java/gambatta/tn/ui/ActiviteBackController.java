@@ -50,6 +50,12 @@ public class ActiviteBackController {
     @FXML private TextArea taActDesc;
     @FXML private TextField tfActImage;
     @FXML private javafx.scene.image.ImageView ivImagePreview;
+    
+    @FXML private Label errActNom;
+    @FXML private Label errActType;
+    @FXML private Label errActDispo;
+    @FXML private Label errActAdresse;
+    @FXML private Label errActDesc;
 
     // --- TAB RULES ---
     @FXML private TableView<rules> tableRules;
@@ -60,6 +66,8 @@ public class ActiviteBackController {
 
     @FXML private ComboBox<activite> cbRuleActivite;
     @FXML private TextArea taRuleDesc;
+    @FXML private Label errRuleAct;
+    @FXML private Label errRuleDesc;
 
     // --- TAB RESERVATIONS ---
     @FXML private TableView<ReservationActivite> tableReservations;
@@ -310,32 +318,68 @@ public class ActiviteBackController {
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"));
         File f = fc.showOpenDialog(tfActNom.getScene().getWindow());
         if (f != null) {
-            tfActImage.setText(f.getAbsolutePath());
-            ivImagePreview.setImage(new Image(f.toURI().toString(), true));
+            tfActImage.setText("Uploading vers Cloudinary...");
+            
+            new Thread(() -> {
+                try {
+                    String secureUrl = gambatta.tn.utils.CloudinaryUtil.uploadFile(f);
+                    javafx.application.Platform.runLater(() -> {
+                        tfActImage.setText(secureUrl);
+                        ivImagePreview.setImage(new Image(secureUrl, true));
+                    });
+                } catch (Exception e) {
+                    javafx.application.Platform.runLater(() -> {
+                        tfActImage.setText(f.getAbsolutePath()); // Fallback au local en cas d'erreur
+                        ivImagePreview.setImage(new Image(f.toURI().toString(), true));
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setHeaderText("Erreur Cloudinary");
+                        alert.setContentText("Upload échoué : " + e.getMessage() + "\nLe chemin local a été conservé par défaut.");
+                        alert.show();
+                    });
+                }
+            }).start();
         }
     }
 
+    private void resetValidation() {
+        Control[] fields = {tfActNom, tfActType, tfActDispo, tfActAdresse, taActDesc};
+        Label[] labels = {errActNom, errActType, errActDispo, errActAdresse, errActDesc};
+        for (Control c : fields) c.getStyleClass().remove("error-field");
+        for (Label l : labels) { l.setVisible(false); l.setManaged(false); }
+    }
+
+    private void setError(Control field, Label label, String msg) {
+        if (!field.getStyleClass().contains("error-field")) field.getStyleClass().add("error-field");
+        label.setText(msg);
+        label.setVisible(true);
+        label.setManaged(true);
+    }
+
     private boolean validateSaisie() {
-        if (tfActNom.getText() == null || tfActNom.getText().trim().isEmpty() ||
-            tfActType.getText() == null || tfActType.getText().trim().isEmpty() ||
-            tfActAdresse.getText() == null || tfActAdresse.getText().trim().isEmpty()) {
-            
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Erreur de Saisie");
-            alert.setHeaderText("Champs obligatoires manquants");
-            alert.setContentText("Le nom, le type et l'adresse sont obligatoires !");
-            alert.showAndWait();
-            return false;
+        resetValidation();
+        boolean valid = true;
+
+        if (tfActNom.getText() == null || tfActNom.getText().trim().isEmpty()) {
+            setError(tfActNom, errActNom, "[!] Nom requis.");
+            valid = false;
         }
-        if (taActDesc.getText() != null && taActDesc.getText().length() < 10) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Attention");
-            alert.setHeaderText("Description très courte");
-            alert.setContentText("Veuillez fournir une description claire et détaillée (minimum 10 caractères).");
-            alert.showAndWait();
-            return false;
+        if (tfActType.getText() == null || tfActType.getText().trim().isEmpty()) {
+            setError(tfActType, errActType, "[!] Type requis.");
+            valid = false;
         }
-        return true;
+        if (tfActAdresse.getText() == null || tfActAdresse.getText().trim().isEmpty()) {
+            setError(tfActAdresse, errActAdresse, "[!] Emplacement requis.");
+            valid = false;
+        }
+        if (tfActDispo.getText() == null || tfActDispo.getText().trim().isEmpty()) {
+            setError(tfActDispo, errActDispo, "[!] Disponibilité requise.");
+            valid = false;
+        }
+        if (taActDesc.getText() == null || taActDesc.getText().length() < 10) {
+            setError(taActDesc, errActDesc, "[!] Détails requis (Min 10 caractères).");
+            valid = false;
+        }
+        return valid;
     }
 
     @FXML void addActivite() {
@@ -391,6 +435,7 @@ public class ActiviteBackController {
                 tfActAdresse.clear();
                 taActDesc.clear();
                 tfActImage.clear();
+                resetValidation();
             } catch (Exception ex) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setContentText("Erreur lors de la suppression en cascade.");
@@ -400,32 +445,42 @@ public class ActiviteBackController {
     }
 
     @FXML void suggestActivitiesAI() {
-        // Simulation d'une proposition par Intelligence Artificielle (Gemini/ChatGPT etc.)
-        String[] noms = {"Tournoi Valorant", "League of Legends Cup", "FIFA 24 Championship", "CS:GO Pro League", "Rocket League 3v3"};
-        String[] types = {"Esports", "MOBA", "Sports", "FPS", "Arcade"};
-        String[] dispos = {"Weekends", "Tous les jours", "Samedi soir", "Dimanche matin", "Vendredi"};
-        String[] adresses = {"Salle A", "Main Stage", "Console Area", "PC Room 1", "Streaming Room"};
-        String[] desc = {
-            "Un tournoi compétitif intense avec de nombreux prix à gagner.", 
-            "Bataille stratégique 5v5 pour la domination régionale.",
-            "Tournoi en 1v1 ou 2v2 sur le dernier opus de FIFA.",
-            "Compétition tactique à haute tension pour les puristes.",
-            "Des matchs rapides et techniques en équipe."
-        };
-                         
-        int rand = (int)(Math.random() * noms.length);
-        
-        tfActNom.setText(noms[rand]);
-        tfActType.setText(types[rand]);
-        tfActDispo.setText(dispos[rand]);
-        tfActAdresse.setText(adresses[rand]);
-        taActDesc.setText(desc[rand] + " [Généré par IA]");
-        
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Suggestion IA");
-        alert.setHeaderText("L'IA a généré une suggestion d'activité !");
-        alert.setContentText("Les champs ont été remplis automatiquement. Vous pouvez les modifier et cliquer sur 'Ajouter'.");
-        alert.show();
+        Alert info = new Alert(Alert.AlertType.INFORMATION);
+        info.setTitle("Génération IA");
+        info.setHeaderText("Gemini est en train de réfléchir...");
+        info.setContentText("Veuillez patienter quelques secondes.");
+        info.show();
+
+        new Thread(() -> {
+            try {
+                String jsonResult = gambatta.tn.utils.GeminiUtil.generateActivitySuggestion();
+                org.json.JSONObject suggestion = new org.json.JSONObject(jsonResult);
+
+                javafx.application.Platform.runLater(() -> {
+                    info.close();
+                    tfActNom.setText(suggestion.optString("nom", "Tournoi Inconnu"));
+                    tfActType.setText(suggestion.optString("type", "Esports"));
+                    tfActDispo.setText(suggestion.optString("dispo", "Weekends"));
+                    tfActAdresse.setText(suggestion.optString("adresse", "Main Stage"));
+                    taActDesc.setText(suggestion.optString("desc", "Description générée.") + " [Généré par IA]");
+
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Suggestion IA");
+                    alert.setHeaderText("L'IA a généré une suggestion d'activité !");
+                    alert.setContentText("Les champs ont été remplis automatiquement via Gemini API.");
+                    alert.show();
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() -> {
+                    info.close();
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Erreur IA");
+                    alert.setHeaderText("Impossible de joindre Gemini");
+                    alert.setContentText(e.getMessage() + "\n(Vérifiez votre clé API dans GeminiUtil.java)");
+                    alert.show();
+                });
+            }
+        }).start();
     }
 
     @FXML
@@ -471,20 +526,26 @@ public class ActiviteBackController {
     }
 
     // --- RULES HANDLERS ---
+    private void resetRuleValidation() {
+        cbRuleActivite.getStyleClass().remove("error-field");
+        taRuleDesc.getStyleClass().remove("error-field");
+        errRuleAct.setVisible(false); errRuleAct.setManaged(false);
+        errRuleDesc.setVisible(false); errRuleDesc.setManaged(false);
+    }
+
     private boolean validateRuleSaisie() {
+        resetRuleValidation();
+        boolean valid = true;
+
         if (cbRuleActivite.getValue() == null) {
-            Alert a = new Alert(Alert.AlertType.ERROR);
-            a.setContentText("Veuillez sélectionner une activité.");
-            a.show();
-            return false;
+            setError(cbRuleActivite, errRuleAct, "[!] Sélectionnez une activité.");
+            valid = false;
         }
         if (taRuleDesc.getText() == null || taRuleDesc.getText().trim().isEmpty() || taRuleDesc.getText().length() < 10) {
-            Alert a = new Alert(Alert.AlertType.ERROR);
-            a.setContentText("La description de la règle doit comporter au moins 10 caractères.");
-            a.show();
-            return false;
+            setError(taRuleDesc, errRuleDesc, "[!] Détails requis (Min 10 caractères).");
+            valid = false;
         }
-        return true;
+        return valid;
     }
 
     @FXML void addRule() {
@@ -518,6 +579,38 @@ public class ActiviteBackController {
             rulesService.delete(selected.getId());
             refreshAll();
         }
+    }
+
+    @FXML void suggestRuleAI() {
+        resetRuleValidation();
+        if (cbRuleActivite.getValue() == null) {
+            setError(cbRuleActivite, errRuleAct, "[!] Sélectionnez une activité pour générer une règle.");
+            return;
+        }
+
+        String activityName = cbRuleActivite.getValue().getNoma();
+        taRuleDesc.setText("Génération en cours...");
+
+        new Thread(() -> {
+            try {
+                String ruleText = gambatta.tn.utils.GeminiUtil.generateRuleSuggestion(activityName);
+                javafx.application.Platform.runLater(() -> {
+                    taRuleDesc.setText(ruleText);
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() -> {
+                    // Fallback local si l'API échoue ou clé absente (SILENT)
+                    String[] fallbackRules = {
+                        "Le respect des autres joueurs et arbitres est obligatoire sous peine de disqualification.",
+                        "Le matériel doit être manipulé avec soin. Toute dégradation sera facturée.",
+                        "La présence est requise 15 minutes avant le début de la session.",
+                        "Toute triche ou utilisation de logiciels tiers entraînera un bannissement définitif."
+                    };
+                    String fallback = fallbackRules[(int)(Math.random() * fallbackRules.length)];
+                    taRuleDesc.setText(fallback + "\n[Généré localement]");
+                });
+            }
+        }).start();
     }
 
     // --- RESERVATIONS HANDLERS ---

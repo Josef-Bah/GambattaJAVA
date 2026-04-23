@@ -66,11 +66,26 @@
                                 <!-- ALWAYS VISIBLE FORM FOR ADD/EDIT ON THE RIGHT -->
                                 <VBox fx:id="vboxForm" spacing="10" prefWidth="350" styleClass="card" HBox.hgrow="NEVER">
                                     <Label text="Détails" styleClass="card-title"/>
-                                    <TextField fx:id="tfActNom" promptText="Nom" styleClass="search-field"/>
-                                    <TextField fx:id="tfActType" promptText="Type" styleClass="search-field"/>
-                                    <TextField fx:id="tfActDispo" promptText="Disponibilité" styleClass="search-field"/>
-                                    <TextField fx:id="tfActAdresse" promptText="Emplacement dans le complexe (ex: Terrain A)" styleClass="search-field"/>
-                                    <TextArea fx:id="taActDesc" promptText="Description" prefRowCount="4" styleClass="search-field"/>
+                                    <VBox spacing="2">
+                                        <TextField fx:id="tfActNom" promptText="Nom" styleClass="search-field"/>
+                                        <Label fx:id="errActNom" text="[!] Nom requis." styleClass="error-label" visible="false" managed="false"/>
+                                    </VBox>
+                                    <VBox spacing="2">
+                                        <TextField fx:id="tfActType" promptText="Type" styleClass="search-field"/>
+                                        <Label fx:id="errActType" text="[!] Type requis." styleClass="error-label" visible="false" managed="false"/>
+                                    </VBox>
+                                    <VBox spacing="2">
+                                        <TextField fx:id="tfActDispo" promptText="Disponibilité" styleClass="search-field"/>
+                                        <Label fx:id="errActDispo" text="[!] Disponibilité requise." styleClass="error-label" visible="false" managed="false"/>
+                                    </VBox>
+                                    <VBox spacing="2">
+                                        <TextField fx:id="tfActAdresse" promptText="Emplacement dans le complexe (ex: Terrain A)" styleClass="search-field"/>
+                                        <Label fx:id="errActAdresse" text="[!] Emplacement requis." styleClass="error-label" visible="false" managed="false"/>
+                                    </VBox>
+                                    <VBox spacing="2">
+                                        <TextArea fx:id="taActDesc" promptText="Description" prefRowCount="4" styleClass="search-field"/>
+                                        <Label fx:id="errActDesc" text="[!] Description requise (Min 10 caractères)." styleClass="error-label" visible="false" managed="false"/>
+                                    </VBox>
                                     
                                     <HBox spacing="10" alignment="CENTER_LEFT">
                                         <TextField fx:id="tfActImage" promptText="Image URL" editable="false" styleClass="search-field" HBox.hgrow="ALWAYS"/>
@@ -110,13 +125,20 @@
                         </TableView>
                         <VBox spacing="10" prefWidth="300" styleClass="card">
                             <Label text="Règle" styleClass="card-title"/>
-                            <ComboBox fx:id="cbRuleActivite" promptText="Associer à l'activité..." prefWidth="Infinity" styleClass="search-field"/>
-                            <TextArea fx:id="taRuleDesc" promptText="Contenu de la règle" prefRowCount="4" styleClass="search-field"/>
+                            <VBox spacing="2">
+                                <ComboBox fx:id="cbRuleActivite" promptText="Associer à l'activité..." prefWidth="Infinity" styleClass="search-field"/>
+                                <Label fx:id="errRuleAct" text="[!] Activité requise." styleClass="error-label" visible="false" managed="false"/>
+                            </VBox>
+                            <VBox spacing="2">
+                                <TextArea fx:id="taRuleDesc" promptText="Contenu de la règle" prefRowCount="4" styleClass="search-field"/>
+                                <Label fx:id="errRuleDesc" text="[!] Contenu requis (Min 10 caractères)." styleClass="error-label" visible="false" managed="false"/>
+                            </VBox>
                             <HBox spacing="10" alignment="CENTER">
                                 <Button text="Ajouter" onAction="#addRule" styleClass="btn-primary"/>
                                 <Button text="Modifier" onAction="#updateRule" styleClass="btn-secondary"/>
                                 <Button text="Sup" onAction="#deleteRule" styleClass="btn-secondary" style="-fx-text-fill: red;"/>
                             </HBox>
+                            <Button text="🤖 Générer Règle via IA" onAction="#suggestRuleAI" prefWidth="Infinity" styleClass="btn-secondary" style="-fx-text-fill: #9c88ff; -fx-border-color: #9c88ff; -fx-margin-top: 5px;"/>
                         </VBox>
                     </HBox>
                 </VBox>

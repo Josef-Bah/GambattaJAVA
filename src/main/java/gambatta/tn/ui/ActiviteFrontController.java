@@ -37,6 +37,7 @@ public class ActiviteFrontController {
     @FXML private TilePane activitiesPane;
     @FXML private TextField searchBar;
     @FXML private ComboBox<String> sortCombo;
+    @FXML private VBox rightPanel;
 
     private ActiviteService activiteService = new ActiviteService();
     private ReservationActiviteService reservationService = new ReservationActiviteService();
@@ -188,72 +189,82 @@ public class ActiviteFrontController {
     }
 
     private void reserver(activite a) {
-        boolean userConfirmed = true;
+        rightPanel.getChildren().clear();
+
+        Label header = new Label("Réservation");
+        header.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 22px; -fx-font-weight: bold;");
+        
+        Label activityName = new Label(a.getNoma());
+        activityName.setStyle("-fx-text-fill: white; -fx-font-size: 18px;");
+
+        rightPanel.getChildren().addAll(header, activityName);
 
         if (a.getTypea() != null && a.getTypea().toLowerCase().contains("sport")) {
-            Alert weatherAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            weatherAlert.setTitle("Météo & Confirmation");
-            weatherAlert.setHeaderText(null);
-            
             VBox weatherBox = new VBox(15);
             weatherBox.setAlignment(Pos.CENTER);
-            weatherBox.setStyle("-fx-background-color: linear-gradient(to bottom, #1c2541, #0b132b); -fx-padding: 30; -fx-background-radius: 20;");
+            weatherBox.setStyle("-fx-background-color: rgba(30, 41, 59, 0.8); -fx-padding: 20; -fx-background-radius: 15;");
             
-            Label locLabel = new Label("📍 Emplacement: " + a.getAdresse());
-            locLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 14px;");
+            Label titleLabel = new Label("☀️ Météo en direct");
+            titleLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 14px;");
 
-            Label tempLabel = new Label("22°C 🌤");
-            tempLabel.setStyle("-fx-text-fill: white; -fx-font-size: 48px; -fx-font-weight: bold;");
+            // REAL WEATHER API FETCH
+            gambatta.tn.utils.WeatherUtil.WeatherData weatherData = gambatta.tn.utils.WeatherUtil.getCurrentWeather();
+            
+            Label tempLabel;
+            Label condLabel;
+            ImageView iconView = new ImageView();
+            iconView.setFitWidth(60);
+            iconView.setFitHeight(60);
+            
+            if (weatherData.isSuccess) {
+                tempLabel = new Label(weatherData.getFormattedTemp());
+                tempLabel.setStyle("-fx-text-fill: white; -fx-font-size: 36px; -fx-font-weight: bold;");
+                
+                condLabel = new Label(weatherData.getCapitalizedDescription());
+                condLabel.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 14px;");
 
-            Label condLabel = new Label("Temps idéal pour faire du sport !\\nVent faible, partiellement nuageux.");
-            condLabel.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 14px;");
+                try {
+                    iconView.setImage(new Image("http://openweathermap.org/img/wn/" + weatherData.iconId + "@2x.png", true));
+                } catch (Exception e) {}
+            } else {
+                tempLabel = new Label("N/A");
+                tempLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 36px; -fx-font-weight: bold;");
+                
+                condLabel = new Label("Météo indisponible");
+                condLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 14px;");
+            }
+
             condLabel.setAlignment(Pos.CENTER);
             condLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-
-            Label qLabel = new Label("Voulez-vous vraiment réserver ?");
-            qLabel.setStyle("-fx-text-fill: #f59e0b; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;");
-
-            weatherBox.getChildren().addAll(locLabel, tempLabel, condLabel, qLabel);
-            
-            weatherAlert.getDialogPane().setContent(weatherBox);
-            weatherAlert.getDialogPane().setStyle("-fx-background-color: #0b132b; -fx-border-color: #f59e0b; -fx-border-width: 2px; -fx-border-radius: 10px;");
-            
-            ButtonType btnYes = new ButtonType("Oui, Réserver", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
-            ButtonType btnNo = new ButtonType("Annuler", javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE);
-            weatherAlert.getButtonTypes().setAll(btnYes, btnNo);
-
-            Optional<ButtonType> result = weatherAlert.showAndWait();
-            if (!result.isPresent() || result.get() != btnYes) {
-                userConfirmed = false;
-            }
+            weatherBox.getChildren().addAll(titleLabel, iconView, tempLabel, condLabel);
+            rightPanel.getChildren().add(weatherBox);
         }
 
-        if (userConfirmed) {
-            ReservationActivite r = new ReservationActivite(
-                    new Date(),
-                    "10:00",
-                    "EN_ATTENTE",
-                    a.getId(),
-                    1,
-                    null
-            );
+        Label qLabel = new Label("Confirmer la réservation ?");
+        qLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 20 0 10 0;");
+
+        Button btnConfirm = new Button("✔ Confirmer");
+        btnConfirm.setStyle("-fx-background-color: linear-gradient(to right, #2ed573, #7bed9f); -fx-text-fill: #020617; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-pref-width: 300px; -fx-cursor: hand;");
+        
+        Button btnCancel = new Button("✖ Annuler");
+        btnCancel.setStyle("-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 20; -fx-pref-width: 300px; -fx-cursor: hand;");
+
+        btnConfirm.setOnAction(e -> {
+            ReservationActivite r = new ReservationActivite(new Date(), "10:00", "EN_ATTENTE", a.getId(), 1, null);
             reservationService.add(r);
-            
-            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-            successAlert.setTitle("Réservation confirmée");
-            successAlert.setHeaderText(null);
-            
-            VBox box = new VBox(10);
-            box.setStyle("-fx-background-color: #0f172a; -fx-padding: 20;");
-            Label lbl = new Label("Demande de réservation envoyée pour " + a.getNoma() + ".");
-            lbl.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-            lbl.setWrapText(true);
-            box.getChildren().add(lbl);
-            successAlert.getDialogPane().setContent(box);
-            successAlert.getDialogPane().setStyle("-fx-background-color: #0f172a;");
+            rightPanel.setVisible(false);
+            rightPanel.setManaged(false);
+            alert("Succès", "Votre demande de réservation pour " + a.getNoma() + " a été ajoutée !");
+        });
 
-            successAlert.showAndWait();
-        }
+        btnCancel.setOnAction(e -> {
+            rightPanel.setVisible(false);
+            rightPanel.setManaged(false);
+        });
+
+        rightPanel.getChildren().addAll(qLabel, btnConfirm, btnCancel);
+        rightPanel.setVisible(true);
+        rightPanel.setManaged(true);
     }
 
     private void showDetails(activite a) {
@@ -299,12 +310,41 @@ public class ActiviteFrontController {
     }
 
     private void showCalendar() {
+        rightPanel.getChildren().clear();
+
+        Label header = new Label("Calendrier");
+        header.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 22px; -fx-font-weight: bold;");
+        
+        Label desc = new Label("Sélectionnez une date pour voir les disponibilités.");
+        desc.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 14px;");
+        desc.setWrapText(true);
+
         DatePicker picker = new DatePicker();
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Calendrier de réservation");
-        alert.setHeaderText("Sélectionnez une date");
-        alert.getDialogPane().setContent(picker);
-        alert.show();
+        picker.getStyleClass().add("date-picker");
+        picker.setPrefWidth(300);
+        
+        Label selectionLabel = new Label("Aucune date sélectionnée");
+        selectionLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 20 0 0 0;");
+
+        picker.setOnAction(e -> {
+            if (picker.getValue() != null) {
+                selectionLabel.setText("Date choisie : " + picker.getValue().toString() + "\n(Affichage des horaires en développement)");
+            }
+        });
+
+        Button btnClose = new Button("✖ Fermer");
+        btnClose.setStyle("-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 20; -fx-pref-width: 300px; -fx-cursor: hand; -fx-margin-top: 30px;");
+        btnClose.setOnAction(e -> {
+            rightPanel.setVisible(false);
+            rightPanel.setManaged(false);
+        });
+
+        VBox spacer = new VBox();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        rightPanel.getChildren().addAll(header, desc, picker, selectionLabel, spacer, btnClose);
+        rightPanel.setVisible(true);
+        rightPanel.setManaged(true);
     }
 
 

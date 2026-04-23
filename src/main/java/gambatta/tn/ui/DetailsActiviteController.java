@@ -38,72 +38,111 @@ public class DetailsActiviteController {
     private void handleReserver() {
         if (currentActivity == null) return;
 
-        boolean userConfirmed = true;
-
         if (currentActivity.getTypea() != null && currentActivity.getTypea().toLowerCase().contains("sport")) {
-            Alert weatherAlert = new Alert(Alert.AlertType.CONFIRMATION);
-            weatherAlert.setTitle("Météo & Confirmation");
-            weatherAlert.setHeaderText(null);
+            showModernWeatherModal();
+        } else {
+            confirmReservation();
+        }
+    }
+
+    private void showModernWeatherModal() {
+        javafx.stage.Stage modalStage = new javafx.stage.Stage();
+        modalStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        modalStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        modalStage.initOwner(lblNom.getScene().getWindow());
+
+        VBox weatherBox = new VBox(20);
+        weatherBox.setAlignment(Pos.CENTER);
+        weatherBox.setStyle("-fx-background-color: rgba(15, 23, 42, 0.95); -fx-padding: 40; -fx-background-radius: 25; -fx-border-color: rgba(255, 215, 0, 0.5); -fx-border-radius: 25; -fx-border-width: 2px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 20, 0, 0, 10);");
+        
+        Label titleLabel = new Label("☀️ MÉTÉO EN DIRECT");
+        titleLabel.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 20px; -fx-font-weight: 900; -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.5), 10, 0.5, 0, 0);");
+
+        Label locLabel = new Label("📍 " + currentActivity.getAdresse());
+        locLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 14px;");
+
+        // Fetch real weather data
+        gambatta.tn.utils.WeatherUtil.WeatherData weatherData = gambatta.tn.utils.WeatherUtil.getCurrentWeather();
+        
+        Label tempLabel;
+        Label condLabel;
+        javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
+        iconView.setFitWidth(100);
+        iconView.setFitHeight(100);
+        
+        if (weatherData.isSuccess) {
+            tempLabel = new Label(weatherData.getFormattedTemp());
+            tempLabel.setStyle("-fx-text-fill: white; -fx-font-size: 54px; -fx-font-weight: bold;");
             
-            VBox weatherBox = new VBox(15);
-            weatherBox.setAlignment(Pos.CENTER);
-            weatherBox.setStyle("-fx-background-color: linear-gradient(to bottom, #1c2541, #0b132b); -fx-padding: 30; -fx-background-radius: 20;");
+            condLabel = new Label(weatherData.getCapitalizedDescription());
+            condLabel.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 16px; -fx-font-weight: bold;");
+
+            try {
+                iconView.setImage(new javafx.scene.image.Image("http://openweathermap.org/img/wn/" + weatherData.iconId + "@4x.png", true));
+            } catch (Exception e) {}
+        } else {
+            tempLabel = new Label("N/A");
+            tempLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 54px; -fx-font-weight: bold;");
             
-            Label locLabel = new Label("📍 Emplacement: " + currentActivity.getAdresse());
-            locLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 14px;");
-
-            Label tempLabel = new Label("22°C 🌤");
-            tempLabel.setStyle("-fx-text-fill: white; -fx-font-size: 48px; -fx-font-weight: bold;");
-
-            Label condLabel = new Label("Temps idéal pour faire du sport !\\nVent faible, partiellement nuageux.");
-            condLabel.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 14px;");
-            condLabel.setAlignment(Pos.CENTER);
-            condLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-
-            Label qLabel = new Label("Voulez-vous vraiment réserver ?");
-            qLabel.setStyle("-fx-text-fill: #f59e0b; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 10 0 0 0;");
-
-            weatherBox.getChildren().addAll(locLabel, tempLabel, condLabel, qLabel);
-            
-            weatherAlert.getDialogPane().setContent(weatherBox);
-            weatherAlert.getDialogPane().setStyle("-fx-background-color: #0b132b; -fx-border-color: #f59e0b; -fx-border-width: 2px; -fx-border-radius: 10px;");
-            
-            ButtonType btnYes = new ButtonType("Oui, Réserver", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
-            ButtonType btnNo = new ButtonType("Annuler", javafx.scene.control.ButtonBar.ButtonData.CANCEL_CLOSE);
-            weatherAlert.getButtonTypes().setAll(btnYes, btnNo);
-
-            Optional<ButtonType> result = weatherAlert.showAndWait();
-            if (!result.isPresent() || result.get() != btnYes) {
-                userConfirmed = false;
-            }
+            condLabel = new Label(weatherData.description);
+            condLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 14px;");
         }
 
-        if (userConfirmed) {
-            gambatta.tn.entites.activites.ReservationActivite r = new gambatta.tn.entites.activites.ReservationActivite(
-                    new java.util.Date(),
-                    "10:00",
-                    "EN_ATTENTE",
-                    currentActivity.getId(),
-                    1,
-                    null
-            );
-            reservationService.add(r);
-            
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Réservation confirmée");
-            alert.setHeaderText("Félicitations");
-            
-            VBox box = new VBox(10);
-            box.setStyle("-fx-background-color: #0f172a; -fx-padding: 20;");
-            Label lbl = new Label("Votre demande de réservation pour " + currentActivity.getNoma() + " a été ajoutée à vos réservations.");
-            lbl.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
-            lbl.setWrapText(true);
-            box.getChildren().add(lbl);
-            alert.getDialogPane().setContent(box);
-            alert.getDialogPane().setStyle("-fx-background-color: #0f172a;");
+        condLabel.setAlignment(Pos.CENTER);
+        condLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
 
-            alert.showAndWait();
-        }
+        Label qLabel = new Label("Souhaitez-vous maintenir cette réservation ?");
+        qLabel.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-padding: 15 0 10 0;");
+
+        HBox btnBox = new HBox(20);
+        btnBox.setAlignment(Pos.CENTER);
+        
+        Button btnYes = new Button("OUI, RÉSERVER");
+        btnYes.setStyle("-fx-background-color: linear-gradient(to bottom right, #FFD700, #ff9f43); -fx-text-fill: #020617; -fx-font-size: 14px; -fx-font-weight: 900; -fx-background-radius: 10; -fx-padding: 10 25; -fx-cursor: hand;");
+        btnYes.setOnAction(e -> {
+            modalStage.close();
+            confirmReservation();
+        });
+
+        Button btnNo = new Button("ANNULER");
+        btnNo.setStyle("-fx-background-color: rgba(255, 255, 255, 0.1); -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 25; -fx-cursor: hand;");
+        btnNo.setOnAction(e -> modalStage.close());
+
+        btnBox.getChildren().addAll(btnNo, btnYes);
+        weatherBox.getChildren().addAll(titleLabel, locLabel, iconView, tempLabel, condLabel, qLabel, btnBox);
+        
+        javafx.scene.Scene modalScene = new javafx.scene.Scene(weatherBox);
+        modalScene.setFill(Color.TRANSPARENT);
+        modalStage.setScene(modalScene);
+        modalStage.showAndWait();
+    }
+
+    private void confirmReservation() {
+        gambatta.tn.entites.activites.ReservationActivite r = new gambatta.tn.entites.activites.ReservationActivite(
+                new java.util.Date(),
+                "10:00",
+                "EN_ATTENTE",
+                currentActivity.getId(),
+                1,
+                null
+        );
+        reservationService.add(r);
+        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Réservation confirmée");
+        alert.setHeaderText("Félicitations");
+        
+        VBox box = new VBox(10);
+        box.setStyle("-fx-background-color: #0f172a; -fx-padding: 20;");
+        Label lbl = new Label("Votre demande de réservation pour " + currentActivity.getNoma() + " a été ajoutée à vos réservations.");
+        lbl.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+        lbl.setWrapText(true);
+        box.getChildren().add(lbl);
+        alert.getDialogPane().setContent(box);
+        alert.getDialogPane().setStyle("-fx-background-color: #0f172a;");
+
+        alert.showAndWait();
+        handleRetour(); // Close details view after reservation
     }
 
     public void setActivityDetails(gambatta.tn.entites.activites.activite activity, String imgUrl) {

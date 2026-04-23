@@ -45,4 +45,11 @@
         </VBox>
     </center>
 
+    <right>
+        <VBox fx:id="rightPanel" prefWidth="350" spacing="20" managed="false" visible="false"
+              style="-fx-background-color: #0f172a; -fx-padding: 30; -fx-border-color: #FFD700; -fx-border-width: 0 0 0 2;">
+              <!-- Dynamic content will be injected here by the controller -->
+        </VBox>
+    </right>
+
 </BorderPane>
