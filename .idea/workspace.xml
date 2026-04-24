@@ -4,16 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03a0b707-64b1-4160-9b99-fb160fc0c882" name="Changes" comment="Interface v2.0">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/IntelliLang.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/mains/ProduitFX.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/mains/ProduitFX.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/CrudProduitController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/CrudProduitController.java" afterDir="false" />
+    <list default="true" id="03a0b707-64b1-4160-9b99-fb160fc0c882" name="Changes" comment="Image fix v1">
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/ShopController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/ShopController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/buvette/CrudProduitManagement.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/buvette/CrudProduitManagement.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/buvette/ShopView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/buvette/ShopView.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,6 +23,9 @@
     <persistenceIdMap>
       <entry key="_C:/Users/youss/OneDrive/Documents/GitHub/GambattaJAVA" value="3C8E351xnIsiptYKsfGrinR0zM5" />
     </persistenceIdMap>
+  </component>
+  <component name="CopilotUserSelectedChatMode">
+    <option name="chatModeId" value="Agent" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -67,14 +68,17 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;Application.ProduitFX.executor&quot;: &quot;Debug&quot;,
     &quot;Application.main.executor&quot;: &quot;Run&quot;,
     &quot;Maven.Gambatta [--module-path...].executor&quot;: &quot;Run&quot;,
     &quot;Maven.Gambatta [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
     &quot;Maven.Gambatta.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;buvette&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -85,7 +89,7 @@
     &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.editor&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -96,8 +100,9 @@
   </component>
   <component name="RunManager">
     <configuration name="ProduitFX" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="openjdk-24" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="gambatta.tn.mains.ProduitFX" />
-      <module name="Gambatta" />
       <extension name="coverage">
         <pattern>
           <option name="PATTERN" value="gambatta.tn.mains.*" />
@@ -117,8 +122,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.25557.131" />
-        <option value="bundled-js-predefined-d6986cc7102b-b598e85cdad2-JavaScript-IU-252.25557.131" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.27397.103" />
+        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-IU-252.27397.103" />
       </set>
     </attachedChunks>
   </component>
@@ -143,7 +148,17 @@
       <workItem from="1776368532733" duration="5761000" />
       <workItem from="1776414495998" duration="2716000" />
       <workItem from="1776418059281" duration="120000" />
-      <workItem from="1776418206531" duration="2152000" />
+      <workItem from="1776418206531" duration="2256000" />
+      <workItem from="1776693916546" duration="143000" />
+      <workItem from="1776994133807" duration="1022000" />
+      <workItem from="1776996158904" duration="129000" />
+      <workItem from="1776996425826" duration="1182000" />
+      <workItem from="1777009074049" duration="888000" />
+      <workItem from="1777009992679" duration="291000" />
+      <workItem from="1777010310928" duration="62000" />
+      <workItem from="1777010388641" duration="1405000" />
+      <workItem from="1777011863292" duration="1097000" />
+      <workItem from="1777012985615" duration="705000" />
     </task>
     <task id="LOCAL-00001" summary="commit">
       <option name="closed" value="true" />
@@ -185,7 +200,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776375165246</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Image fix v1">
+      <option name="closed" value="true" />
+      <created>1776420411978</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1776420411978</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -208,7 +231,8 @@
     <MESSAGE value="crud T menu" />
     <MESSAGE value="Interface v1" />
     <MESSAGE value="Interface v2.0" />
-    <option name="LAST_COMMIT_MESSAGE" value="Interface v2.0" />
+    <MESSAGE value="Image fix v1" />
+    <option name="LAST_COMMIT_MESSAGE" value="Image fix v1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
