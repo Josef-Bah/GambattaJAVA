@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gambatta - Carte Interactive</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0f172a; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        
+        #map { 
+            width: 100vw; 
+            height: 100vh; 
+        }
+
+        /* Custom popup styling */
+        .leaflet-popup-content-wrapper {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 2px solid #FFD700;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+        }
+        .leaflet-popup-content {
+            color: white;
+            font-size: 14px;
+            text-align: center;
+        }
+        .leaflet-popup-tip {
+            background: #FFD700;
+        }
+        .popup-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFD700;
+            margin-bottom: 8px;
+        }
+        .popup-address {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        /* Info panel overlay */
+        #info-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #FFD700;
+            border-radius: 12px;
+            padding: 15px 20px;
+            color: white;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            min-width: 250px;
+        }
+        #info-panel h3 {
+            color: #FFD700;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        #info-panel p {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+        #location-name {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="info-panel">
+        <h3>🎮 Gambatta Esports</h3>
+        <p>Localisation de l'activité</p>
+        <div id="location-name">Chargement...</div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Default: Tunis, Tunisia (center of Gambatta)
+        var defaultLat = 36.8065;
+        var defaultLon = 10.1815;
+        var activityAddress = "ACTIVITY_ADDRESS_PLACEHOLDER";
+        var activityName = "ACTIVITY_NAME_PLACEHOLDER";
+
+        // Initialize map with satellite tiles
+        var map = L.map('map', {
+            zoomControl: true,
+            attributionControl: false
+        }).setView([defaultLat, defaultLon], 15);
+
+        // Satellite layer (Esri World Imagery - 3D like satellite)
+        var satelliteLayer = L.tileLayer(
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            { maxZoom: 19, attribution: 'Esri' }
+        );
+
+        // Labels overlay on top of satellite
+        var labelsLayer = L.tileLayer(
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+            { maxZoom: 19, opacity: 0.9 }
+        );
+
+        satelliteLayer.addTo(map);
+        labelsLayer.addTo(map);
+
+        // Custom gold pin icon
+        var goldIcon = L.divIcon({
+            className: '',
+            html: '<div style="width:40px;height:40px;background:radial-gradient(circle, #FFD700, #b8860b);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 0 20px rgba(255,215,0,0.8);"></div>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 40],
+            popupAnchor: [0, -45]
+        });
+
+        // Try geocoding with Nominatim
+        function geocodeAndPlace(address) {
+            var encoded = encodeURIComponent(address + ", Tunis, Tunisia");
+            var url = "https://nominatim.openstreetmap.org/search?format=json&q=" + encoded + "&limit=1";
+
+            fetch(url, { headers: { 'User-Agent': 'GambattaApp/1.0' } })
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        var lat = parseFloat(data[0].lat);
+                        var lon = parseFloat(data[0].lon);
+                        placeMarker(lat, lon);
+                    } else {
+                        placeMarker(defaultLat, defaultLon);
+                    }
+                })
+                .catch(() => placeMarker(defaultLat, defaultLon));
+        }
+
+        function placeMarker(lat, lon) {
+            map.setView([lat, lon], 17);
+
+            var marker = L.marker([lat, lon], { icon: goldIcon }).addTo(map);
+            marker.bindPopup(
+                '<div class="popup-title">🎮 ' + activityName + '</div>' +
+                '<div class="popup-address">📍 ' + activityAddress + '</div>'
+            ).openPopup();
+
+            document.getElementById('location-name').innerText = "📍 " + activityAddress;
+        }
+
+        // Start geocoding
+        if (activityAddress && activityAddress !== "ACTIVITY_ADDRESS_PLACEHOLDER") {
+            geocodeAndPlace(activityAddress);
+        } else {
+            placeMarker(defaultLat, defaultLon);
+        }
+    </script>
+</body>
+</html>

@@ -309,3 +309,11 @@
     -fx-text-fill: #020617;
     -fx-font-weight: bold;
 }
+
+/* Validation styles (Error states) */
+.error-field {
+    -fx-border-color: #ef4444 !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 5px !important;
+    -fx-background-color: #1e293b !important;
+}

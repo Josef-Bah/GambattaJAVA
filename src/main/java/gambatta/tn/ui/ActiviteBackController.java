@@ -617,11 +617,38 @@ public class ActiviteBackController {
     @FXML void validerReservation() {
         ReservationActivite selected = tableReservations.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            selected.setStatutr("VALIDE");
+            selected.setStatutr("ACCEPTEE");
             reservationService.update(selected);
             refreshAll();
+
+            activite act = getActiviteById(selected.getActiviteId());
+            String actName = act != null ? act.getNoma() : "Activité";
+            String userEmail = selected.getEmail();
+            String userPhone = selected.getTelephone();
+
+            new Thread(() -> {
+                gambatta.tn.utils.MailerUtil.sendConfirmationEmail(userEmail, actName, selected.getDatedebut().toString(), selected.getHeurer(), "ACCEPTEE");
+                
+                try {
+                    gambatta.tn.utils.WhatsAppUtil.sendReservationMessage(userPhone, actName, "ACCEPTEE");
+                    javafx.application.Platform.runLater(() -> {
+                        Alert a = new Alert(Alert.AlertType.INFORMATION);
+                        a.setContentText("✅ Réservation acceptée ! Le client a été notifié par E-mail et WhatsApp.");
+                        a.show();
+                    });
+                } catch (Exception e) {
+                    javafx.application.Platform.runLater(() -> {
+                        Alert a = new Alert(Alert.AlertType.WARNING);
+                        a.setTitle("Attention - Erreur WhatsApp");
+                        a.setHeaderText("Email envoyé, mais échec de WhatsApp !");
+                        a.setContentText(e.getMessage());
+                        a.show();
+                    });
+                }
+            }).start();
         }
     }
+
     @FXML void refuserReservation() {
         ReservationActivite selected = tableReservations.getSelectionModel().getSelectedItem();
         if (selected != null) {
@@ -663,41 +690,91 @@ public class ActiviteBackController {
             document.addPage(page);
 
             try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18);
+                // Title
+                contentStream.setNonStrokingColor(15, 23, 42); // Dark slate
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 22);
                 contentStream.beginText();
                 contentStream.newLineAtOffset(50, 750);
                 contentStream.showText(title);
                 contentStream.endText();
 
-                contentStream.setFont(PDType1Font.HELVETICA, 10);
-                int y = 700;
-                
-                // Write headers
-                contentStream.beginText();
-                contentStream.newLineAtOffset(50, y);
-                StringBuilder headerLine = new StringBuilder();
-                for (TableColumn<?, ?> col : table.getColumns()) {
-                    headerLine.append(col.getText()).append("   |   ");
-                }
-                contentStream.showText(headerLine.toString());
-                contentStream.endText();
-                y -= 20;
+                // Separator line
+                contentStream.setStrokingColor(255, 215, 0); // Gold
+                contentStream.setLineWidth(2f);
+                contentStream.moveTo(50, 740);
+                contentStream.lineTo(550, 740);
+                contentStream.stroke();
 
-                // Write rows
-                for (Object item : table.getItems()) {
+                float margin = 50;
+                float tableWidth = 500;
+                float yPosition = 710;
+                int cols = table.getColumns().size();
+                float rowHeight = 25f;
+                float colWidth = tableWidth / (float) cols;
+
+                // Draw Header Background
+                contentStream.setNonStrokingColor(30, 41, 59); // Slate header
+                contentStream.addRect(margin, yPosition - rowHeight, tableWidth, rowHeight);
+                contentStream.fill();
+
+                // Draw Header Text
+                contentStream.setNonStrokingColor(255, 255, 255); // White text
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 11);
+                float textx = margin + 5;
+                float texty = yPosition - 17;
+                
+                for (TableColumn<?, ?> col : table.getColumns()) {
                     contentStream.beginText();
-                    contentStream.newLineAtOffset(50, y);
-                    StringBuilder rowLine = new StringBuilder();
+                    contentStream.newLineAtOffset(textx, texty);
+                    contentStream.showText(col.getText().toUpperCase());
+                    contentStream.endText();
+                    textx += colWidth;
+                }
+                
+                yPosition -= rowHeight;
+
+                // Draw Rows
+                contentStream.setFont(PDType1Font.HELVETICA, 10);
+                boolean alternate = false;
+                
+                for (Object item : table.getItems()) {
+                    if (yPosition - rowHeight < 50) break; // Simplistic paging
+                    
+                    if (alternate) {
+                        contentStream.setNonStrokingColor(241, 245, 249); // Light gray
+                        contentStream.addRect(margin, yPosition - rowHeight, tableWidth, rowHeight);
+                        contentStream.fill();
+                    }
+                    alternate = !alternate;
+
+                    contentStream.setNonStrokingColor(15, 23, 42); // Dark text
+                    textx = margin + 5;
+                    texty = yPosition - 17;
+                    
                     for (TableColumn<?, ?> col : table.getColumns()) {
                         Object cellData = ((TableColumn<Object, Object>) col).getCellData(item);
-                        rowLine.append(cellData != null ? cellData.toString() : "").append("   |   ");
+                        String text = cellData != null ? cellData.toString() : "-";
+                        
+                        // Sanitize to avoid PDFBox exceptions with unprintable chars
+                        text = text.replace("\n", " ").replace("\r", " ").replace("’", "'").replace("é", "e").replace("è", "e").replace("à", "a");
+                        if (text.length() > 20) text = text.substring(0, 18) + "..";
+                        
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(textx, texty);
+                        contentStream.showText(text);
+                        contentStream.endText();
+                        textx += colWidth;
                     }
-                    contentStream.showText(rowLine.toString());
-                    contentStream.endText();
-                    y -= 15;
-                    
-                    if (y < 50) break; // Simplistic paging max limit
+                    yPosition -= rowHeight;
                 }
+                
+                // Footer
+                contentStream.setNonStrokingColor(100, 116, 139);
+                contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, 9);
+                contentStream.beginText();
+                contentStream.newLineAtOffset(50, 30);
+                contentStream.showText("Généré par Gambatta Esports System");
+                contentStream.endText();
             }
             document.save(docFile);
             Alert a = new Alert(Alert.AlertType.INFORMATION);

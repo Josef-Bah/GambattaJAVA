@@ -11,8 +11,8 @@ public class CloudinaryUtil {
 
     // IMPORTANT : Remplacez ces valeurs par vos vrais identifiants Cloudinary !
     private static final String CLOUD_NAME = "votre_cloud_name";
-    private static final String API_KEY = "votre_api_key";
-    private static final String API_SECRET = "votre_api_secret";
+    private static final String API_KEY = "675283748754298";
+    private static final String API_SECRET = "LZ46A6rmY33J6_dWA";
 
     private static Cloudinary cloudinary;
 

@@ -200,69 +200,131 @@ public class ActiviteFrontController {
         rightPanel.getChildren().addAll(header, activityName);
 
         if (a.getTypea() != null && a.getTypea().toLowerCase().contains("sport")) {
-            VBox weatherBox = new VBox(15);
+            VBox weatherBox = new VBox(12);
             weatherBox.setAlignment(Pos.CENTER);
-            weatherBox.setStyle("-fx-background-color: rgba(30, 41, 59, 0.8); -fx-padding: 20; -fx-background-radius: 15;");
-            
-            Label titleLabel = new Label("☀️ Météo en direct");
-            titleLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 14px;");
+            weatherBox.setStyle("-fx-background-color: rgba(30, 41, 59, 0.9); -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: rgba(255,215,0,0.3); -fx-border-radius: 15;");
+
+            Label titleLabel = new Label("☀️ Météo en direct — Tunis");
+            titleLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 13px;");
 
             // REAL WEATHER API FETCH
             gambatta.tn.utils.WeatherUtil.WeatherData weatherData = gambatta.tn.utils.WeatherUtil.getCurrentWeather();
-            
+
             Label tempLabel;
             Label condLabel;
             ImageView iconView = new ImageView();
-            iconView.setFitWidth(60);
-            iconView.setFitHeight(60);
-            
+            iconView.setFitWidth(64);
+            iconView.setFitHeight(64);
+
             if (weatherData.isSuccess) {
                 tempLabel = new Label(weatherData.getFormattedTemp());
-                tempLabel.setStyle("-fx-text-fill: white; -fx-font-size: 36px; -fx-font-weight: bold;");
-                
+                tempLabel.setStyle("-fx-text-fill: white; -fx-font-size: 40px; -fx-font-weight: bold;");
+
                 condLabel = new Label(weatherData.getCapitalizedDescription());
                 condLabel.setStyle("-fx-text-fill: #e2e8f0; -fx-font-size: 14px;");
 
                 try {
                     iconView.setImage(new Image("http://openweathermap.org/img/wn/" + weatherData.iconId + "@2x.png", true));
-                } catch (Exception e) {}
+                } catch (Exception ignored) {}
             } else {
                 tempLabel = new Label("N/A");
-                tempLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 36px; -fx-font-weight: bold;");
-                
+                tempLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 40px; -fx-font-weight: bold;");
                 condLabel = new Label("Météo indisponible");
                 condLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 14px;");
             }
 
             condLabel.setAlignment(Pos.CENTER);
             condLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-            weatherBox.getChildren().addAll(titleLabel, iconView, tempLabel, condLabel);
+
+            // "Voir prévisions" button to show hourly timeline
+            Button btnForecast = new Button("📊 Prévisions de la journée");
+            btnForecast.setStyle("-fx-background-color: rgba(99,102,241,0.2); -fx-text-fill: #a5b4fc; -fx-border-color: rgba(99,102,241,0.5); -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 6 14; -fx-font-size: 12px; -fx-cursor: hand;");
+            btnForecast.setOnAction(ev -> showHourlyForecast());
+
+            weatherBox.getChildren().addAll(titleLabel, iconView, tempLabel, condLabel, btnForecast);
             rightPanel.getChildren().add(weatherBox);
         }
 
-        Label qLabel = new Label("Confirmer la réservation ?");
-        qLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 20 0 10 0;");
+        Label qLabel = new Label("Coordonnées de réservation");
+        qLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 0 5 0;");
 
-        Button btnConfirm = new Button("✔ Confirmer");
-        btnConfirm.setStyle("-fx-background-color: linear-gradient(to right, #2ed573, #7bed9f); -fx-text-fill: #020617; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-pref-width: 300px; -fx-cursor: hand;");
+        TextField emailField = new TextField();
+        emailField.setPromptText("Votre adresse e-mail");
+        emailField.setStyle("-fx-background-color: #1e293b; -fx-text-fill: white; -fx-prompt-text-fill: #64748b; -fx-border-color: #334155; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8; -fx-pref-width: 300px;");
+
+        TextField phoneField = new TextField();
+        phoneField.setPromptText("Votre numéro WhatsApp (ex: +216...)");
+        phoneField.setStyle("-fx-background-color: #1e293b; -fx-text-fill: white; -fx-prompt-text-fill: #64748b; -fx-border-color: #334155; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8; -fx-pref-width: 300px;");
+
+        Button btnConfirm = new Button("✔ Confirmer la réservation");
+        btnConfirm.setStyle("-fx-background-color: linear-gradient(to right, #2ed573, #7bed9f); -fx-text-fill: #020617; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-pref-width: 300px; -fx-cursor: hand; -fx-margin-top: 10px;");
         
         Button btnCancel = new Button("✖ Annuler");
         btnCancel.setStyle("-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 8; -fx-border-radius: 8; -fx-padding: 10 20; -fx-pref-width: 300px; -fx-cursor: hand;");
 
-        btnConfirm.setOnAction(e -> {
-            ReservationActivite r = new ReservationActivite(new Date(), "10:00", "EN_ATTENTE", a.getId(), 1, null);
-            reservationService.add(r);
-            rightPanel.setVisible(false);
-            rightPanel.setManaged(false);
-            alert("Succès", "Votre demande de réservation pour " + a.getNoma() + " a été ajoutée !");
-        });
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 12px;");
 
         btnCancel.setOnAction(e -> {
             rightPanel.setVisible(false);
             rightPanel.setManaged(false);
         });
 
-        rightPanel.getChildren().addAll(qLabel, btnConfirm, btnCancel);
+        // Add error labels specific to fields
+        Label errEmail = new Label("[!] Email requis.");
+        errEmail.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-font-weight: bold;");
+        errEmail.setVisible(false); errEmail.setManaged(false);
+
+        Label errPhone = new Label("[!] Numéro requis.");
+        errPhone.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px; -fx-font-weight: bold;");
+        errPhone.setVisible(false); errPhone.setManaged(false);
+
+        VBox emailBox = new VBox(5, emailField, errEmail);
+        VBox phoneBox = new VBox(5, phoneField, errPhone);
+
+        btnConfirm.setOnAction(e -> {
+            String email = emailField.getText().trim();
+            String phone = phoneField.getText().trim();
+            boolean valid = true;
+
+            String defaultStyle = "-fx-background-color: #1e293b; -fx-text-fill: white; -fx-prompt-text-fill: #64748b; -fx-border-color: #334155; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8; -fx-pref-width: 300px;";
+            String errorStyle = "-fx-background-color: #1e293b; -fx-text-fill: white; -fx-prompt-text-fill: #64748b; -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 5; -fx-background-radius: 5; -fx-padding: 8; -fx-pref-width: 300px;";
+
+            if (email.isEmpty()) {
+                emailField.setStyle(errorStyle);
+                errEmail.setVisible(true); errEmail.setManaged(true);
+                valid = false;
+            } else {
+                emailField.setStyle(defaultStyle);
+                errEmail.setVisible(false); errEmail.setManaged(false);
+            }
+
+            if (phone.isEmpty()) {
+                phoneField.setStyle(errorStyle);
+                errPhone.setVisible(true); errPhone.setManaged(true);
+                valid = false;
+            } else {
+                phoneField.setStyle(defaultStyle);
+                errPhone.setVisible(false); errPhone.setManaged(false);
+            }
+
+            if (!valid) return;
+
+            try {
+                ReservationActivite r = new ReservationActivite(new Date(), "10:00", "EN_ATTENTE", a.getId(), 1, null, email, phone);
+                reservationService.add(r);
+                rightPanel.setVisible(false);
+                rightPanel.setManaged(false);
+                alert("Succès", "Votre demande de réservation a été ajoutée !\nVous serez notifié dès que l'administrateur l'aura acceptée.");
+            } catch (Throwable ex) {
+                alert("Erreur", "Veuillez compiler le projet ! L'erreur est : " + ex.getMessage());
+            }
+        });
+
+        HBox btnBox = new HBox(10, btnConfirm, btnCancel);
+        btnBox.setAlignment(Pos.CENTER);
+
+        rightPanel.getChildren().addAll(qLabel, emailBox, phoneBox, btnBox);
         rightPanel.setVisible(true);
         rightPanel.setManaged(true);
     }
@@ -297,15 +359,16 @@ public class ActiviteFrontController {
             Parent root = loader.load();
 
             MapController controller = loader.getController();
-            controller.setActivityLocation(a.getAdresse());
+            controller.setActivityData(a.getNoma(), a.getAdresse());
 
             Stage stage = new Stage();
-            stage.setTitle("Emplacement - " + a.getNoma());
+            stage.setTitle("📍 Emplacement dans le Complexe - " + a.getNoma());
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
-        } catch (Exception ex) {
-            alert("Erreur", "Veuillez implémenter Map.fxml. " + ex.getMessage());
+        } catch (Throwable ex) {
+            alert("Erreur", "Impossible de charger le plan du complexe. " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
@@ -345,6 +408,79 @@ public class ActiviteFrontController {
         rightPanel.getChildren().addAll(header, desc, picker, selectionLabel, spacer, btnClose);
         rightPanel.setVisible(true);
         rightPanel.setManaged(true);
+    }
+
+    private void showHourlyForecast() {
+        Stage forecastStage = new Stage();
+        forecastStage.setTitle("📊 Prévisions météo — Tunis");
+
+        Label title = new Label("Prévisions de la journée");
+        title.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 20px; -fx-font-weight: bold;");
+
+        Label loading = new Label("Chargement des prévisions...");
+        loading.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 14px;");
+
+        HBox timeline = new HBox(15);
+        timeline.setAlignment(Pos.CENTER_LEFT);
+        timeline.setStyle("-fx-padding: 10 0;");
+
+        ScrollPane scroll = new ScrollPane(timeline);
+        scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scroll.setFitToHeight(true);
+
+        VBox root = new VBox(20, title, loading, scroll);
+        root.setStyle("-fx-background-color: #0f172a; -fx-padding: 30;");
+        root.setPrefWidth(700);
+
+        Scene scene = new Scene(root);
+        forecastStage.setScene(scene);
+        forecastStage.initModality(Modality.APPLICATION_MODAL);
+        forecastStage.show();
+
+        // Load forecasts in background
+        new Thread(() -> {
+            java.util.List<gambatta.tn.utils.WeatherUtil.HourlyEntry> entries = gambatta.tn.utils.WeatherUtil.getHourlyForecast();
+            javafx.application.Platform.runLater(() -> {
+                loading.setManaged(false);
+                loading.setVisible(false);
+
+                if (entries.isEmpty()) {
+                    Label err = new Label("Prévisions indisponibles.");
+                    err.setStyle("-fx-text-fill: #ef4444;");
+                    root.getChildren().add(err);
+                    return;
+                }
+
+                for (gambatta.tn.utils.WeatherUtil.HourlyEntry entry : entries) {
+                    VBox card = new VBox(8);
+                    card.setAlignment(Pos.CENTER);
+                    card.setPrefWidth(80);
+                    card.setStyle("-fx-background-color: rgba(30,41,59,0.95); -fx-background-radius: 12; -fx-padding: 15 10; -fx-border-color: rgba(255,215,0,0.2); -fx-border-radius: 12;");
+
+                    Label timeL = new Label(entry.timeText);
+                    timeL.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 13px; -fx-font-weight: bold;");
+
+                    ImageView icon = new ImageView();
+                    icon.setFitWidth(40);
+                    icon.setFitHeight(40);
+                    try { icon.setImage(new Image("http://openweathermap.org/img/wn/" + entry.iconId + ".png", true)); } catch (Exception ignored) {}
+
+                    Label tempL = new Label(entry.getFormattedTemp());
+                    tempL.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
+
+                    Label descL = new Label(entry.description);
+                    descL.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11px;");
+                    descL.setWrapText(true);
+                    descL.setMaxWidth(75);
+                    descL.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+
+                    card.getChildren().addAll(timeL, icon, tempL, descL);
+                    timeline.getChildren().add(card);
+                }
+            });
+        }).start();
     }
 
 

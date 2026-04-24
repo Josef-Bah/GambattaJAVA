@@ -13,6 +13,9 @@ public class ReservationActivite {
     private int userId;
     private Integer creneauId;
 
+    private String email;
+    private String telephone;
+
     // CONSTRUCTORS
     public ReservationActivite() {}
 
@@ -24,6 +27,13 @@ public class ReservationActivite {
         this.activiteId = activiteId;
         this.userId = userId;
         this.creneauId = creneauId;
+    }
+
+    public ReservationActivite(Date datedebut, String heurer, String statutr,
+                               int activiteId, int userId, Integer creneauId, String email, String telephone) {
+        this(datedebut, heurer, statutr, activiteId, userId, creneauId);
+        this.email = email;
+        this.telephone = telephone;
     }
 
     // GETTERS / SETTERS
@@ -49,9 +59,15 @@ public class ReservationActivite {
     public Integer getCreneauId() { return creneauId; }
     public void setCreneauId(Integer creneauId) { this.creneauId = creneauId; }
 
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getTelephone() { return telephone; }
+    public void setTelephone(String telephone) { this.telephone = telephone; }
+
     @Override
     public String toString() {
-        return "Reservation: " + datedebut + " | " + heurer + " | " + statutr;
+        return "Reservation: " + datedebut + " | " + heurer + " | " + statutr + " | " + email;
     }
 }
 

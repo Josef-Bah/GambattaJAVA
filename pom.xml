@@ -58,6 +58,20 @@
             <version>20231013</version>
         </dependency>
 
+        <!-- JavaMail API for Emailing -->
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
+        <!-- JavaFX Web for Maps -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -81,6 +95,12 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>gambatta.tn.mains.MainFx</mainClass>
+                    <options>
+                        <option>--add-modules</option>
+                        <option>javafx.controls,javafx.fxml,javafx.web</option>
+                        <option>--add-opens</option>
+                        <option>javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED</option>
+                    </options>
                 </configuration>
             </plugin>
 

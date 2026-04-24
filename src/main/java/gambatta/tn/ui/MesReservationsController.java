@@ -71,12 +71,33 @@ public class MesReservationsController {
         tableReservations.setItems(reservationsList);
     }
 
+    private boolean validateSaisie() {
+        boolean valid = true;
+
+        // Reset
+        activiteCombo.getStyleClass().remove("error-field");
+        datePicker.getStyleClass().remove("error-field");
+        tfHeure.getStyleClass().remove("error-field");
+
+        if (activiteCombo.getValue() == null) {
+            activiteCombo.getStyleClass().add("error-field");
+            valid = false;
+        }
+        if (datePicker.getValue() == null) {
+            datePicker.getStyleClass().add("error-field");
+            valid = false;
+        }
+        if (tfHeure.getText() == null || tfHeure.getText().trim().isEmpty()) {
+            tfHeure.getStyleClass().add("error-field");
+            valid = false;
+        }
+
+        return valid;
+    }
+
     @FXML
     void handleAdd() {
-        if (activiteCombo.getValue() == null || datePicker.getValue() == null || tfHeure.getText().isEmpty()) {
-            alert("Erreur", "Veuillez remplir tous les champs");
-            return;
-        }
+        if (!validateSaisie()) return;
 
         ReservationActivite r = new ReservationActivite();
         r.setActiviteId(activiteCombo.getValue().getId());
@@ -98,8 +119,10 @@ public class MesReservationsController {
             return;
         }
         
-        if (activiteCombo.getValue() != null) selected.setActiviteId(activiteCombo.getValue().getId());
-        if (datePicker.getValue() != null) selected.setDatedebut(java.sql.Date.valueOf(datePicker.getValue()));
+        if (!validateSaisie()) return;
+        
+        selected.setActiviteId(activiteCombo.getValue().getId());
+        selected.setDatedebut(java.sql.Date.valueOf(datePicker.getValue()));
         selected.setHeurer(tfHeure.getText());
         
         reservationService.update(selected);

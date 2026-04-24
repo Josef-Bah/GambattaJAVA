@@ -1,56 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.String?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.Rectangle?>
-<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.Text?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="gambatta.tn.ui.MapController"
-      alignment="CENTER" spacing="10" style="-fx-background-color: #050b14; -fx-padding: 30;" stylesheets="@style.css" prefWidth="750" prefHeight="500">
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gambatta.tn.ui.MapController"
+            style="-fx-background-color: #0b0f19; -fx-background-image: url('data:image/svg+xml;utf8,&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;40&quot; height=&quot;40&quot;&gt;&lt;rect width=&quot;40&quot; height=&quot;40&quot; fill=&quot;none&quot; stroke=&quot;rgba(0, 210, 255, 0.05)&quot; stroke-width=&quot;1&quot;/&gt;&lt;/svg&gt;');"
+            prefWidth="900" prefHeight="650">
 
-    <Label text="Carte du Complexe Gambatta" styleClass="title" style="-fx-font-size: 28px;"/>
-    <Label fx:id="locationLabel" text="Adresse Introuvable" style="-fx-text-fill: #e6c86e; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 0 0 20 0;"/>
+    <!-- Header info -->
+    <VBox layoutX="20" layoutY="20" spacing="10">
+        <Label text="PLAN DU COMPLEXE GAMBATTA" style="-fx-text-fill: #FFD700; -fx-font-size: 24px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(255,215,0,0.5), 10, 0, 0, 0);"/>
+        <Label fx:id="lblActivity" text="Activité : " style="-fx-text-fill: white; -fx-font-size: 16px;"/>
+        <Label fx:id="lblLocation" text="Emplacement : " style="-fx-text-fill: #00d2ff; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+    </VBox>
 
-    <StackPane VBox.vgrow="ALWAYS">
-        <!-- Base de la carte -->
-        <Rectangle width="650" height="300" fill="#0f172a" stroke="#334155" strokeWidth="2" arcWidth="15" arcHeight="15"/>
+    <!-- Floor Plan Container -->
+    <AnchorPane fx:id="floorPlanPane" layoutX="50" layoutY="120" prefWidth="800" prefHeight="450" style="-fx-border-color: rgba(0, 210, 255, 0.3); -fx-border-width: 3; -fx-border-radius: 5;">
         
-        <GridPane hgap="15" vgap="15" alignment="CENTER" maxWidth="620" maxHeight="270">
-            <rowConstraints>
-                <RowConstraints percentHeight="50"/>
-                <RowConstraints percentHeight="50"/>
-            </rowConstraints>
-            <columnConstraints>
-                <ColumnConstraints percentWidth="33.3"/>
-                <ColumnConstraints percentWidth="33.3"/>
-                <ColumnConstraints percentWidth="33.3"/>
-            </columnConstraints>
-            
-            <!-- Zone 1 : Terrain -->
-            <StackPane fx:id="paneTerrain1" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-background-color: #1e293b; -fx-background-radius: 10;">
-                <Label text="Terrain 1&#10;(Tennis/Foot/Padel)" textAlignment="CENTER" style="-fx-text-fill: #94a3b8;"/>
-                <Label fx:id="pin1" text="📍" style="-fx-text-fill: #ff4757; -fx-font-size: 35px;" visible="false" translateY="-15"/>
-            </StackPane>
+        <!-- Terrain 1 -->
+        <StackPane fx:id="room_terrain1" layoutX="20" layoutY="20" prefWidth="200" prefHeight="410" styleClass="room">
+            <VBox alignment="CENTER" spacing="10">
+                <Text text="⚽" style="-fx-font-size: 30px;"/>
+                <Label text="TERRAIN 1" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            </VBox>
+        </StackPane>
 
-            <!-- Zone 2 : Main Stage -->
-            <StackPane fx:id="paneMainStage" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="2" style="-fx-background-color: #1e293b; -fx-background-radius: 10; -fx-border-color: rgba(255,215,0,0.3); -fx-border-radius: 10;">
-                <Label text="Main Stage / Grand Aréna" style="-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-font-size: 20px;"/>
-                <Label fx:id="pin2" text="📍" style="-fx-text-fill: #ff4757; -fx-font-size: 40px;" visible="false" translateY="-20"/>
-            </StackPane>
+        <!-- Terrain 2 -->
+        <StackPane fx:id="room_terrain2" layoutX="240" layoutY="20" prefWidth="200" prefHeight="410" styleClass="room">
+            <VBox alignment="CENTER" spacing="10">
+                <Text text="⚽" style="-fx-font-size: 30px;"/>
+                <Label text="TERRAIN 2" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            </VBox>
+        </StackPane>
 
-            <!-- Zone 3 : Salle PC -->
-            <StackPane fx:id="paneSallePC" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" style="-fx-background-color: #1e293b; -fx-background-radius: 10;">
-                <Label text="PC Room (LAN / FPS)" style="-fx-text-fill: #94a3b8;"/>
-                <Label fx:id="pin3" text="📍" style="-fx-text-fill: #ff4757; -fx-font-size: 35px;" visible="false" translateY="-15"/>
-            </StackPane>
+        <!-- Salle 1 -->
+        <StackPane fx:id="room_salle1" layoutX="460" layoutY="20" prefWidth="150" prefHeight="130" styleClass="room">
+            <VBox alignment="CENTER" spacing="5">
+                <Text text="💻" style="-fx-font-size: 24px;"/>
+                <Label text="SALLE 1" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            </VBox>
+        </StackPane>
 
-            <!-- Zone 4 : Zone Console -->
-            <StackPane fx:id="paneConsole" GridPane.columnIndex="2" GridPane.rowIndex="1" style="-fx-background-color: #1e293b; -fx-background-radius: 10;">
-                <Label text="Console Area" style="-fx-text-fill: #94a3b8;"/>
-                <Label fx:id="pin4" text="📍" style="-fx-text-fill: #ff4757; -fx-font-size: 35px;" visible="false" translateY="-15"/>
-            </StackPane>
-        </GridPane>
-    </StackPane>
+        <!-- Salle 2 -->
+        <StackPane fx:id="room_salle2" layoutX="630" layoutY="20" prefWidth="150" prefHeight="130" styleClass="room">
+            <VBox alignment="CENTER" spacing="5">
+                <Text text="💻" style="-fx-font-size: 24px;"/>
+                <Label text="SALLE 2" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            </VBox>
+        </StackPane>
 
-    <Button fx:id="closeBtn" text="Fermer la carte" onAction="#closeWindow" styleClass="btn-secondary" style="-fx-padding: 10 30; -fx-margin-top: 20;"/>
-</VBox>
+        <!-- Buvette -->
+        <StackPane fx:id="room_buvette" layoutX="460" layoutY="170" prefWidth="320" prefHeight="130" styleClass="room">
+            <VBox alignment="CENTER" spacing="5">
+                <Text text="🍔" style="-fx-font-size: 24px;"/>
+                <Label text="BUVETTE &amp; RESTO" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            </VBox>
+        </StackPane>
+
+        <!-- Salle VIP / Etage -->
+        <StackPane fx:id="room_salle_vip" layoutX="460" layoutY="320" prefWidth="200" prefHeight="110" styleClass="room">
+            <VBox alignment="CENTER" spacing="5">
+                <Text text="👑" style="-fx-font-size: 24px;"/>
+                <Label text="SALLE VIP" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            </VBox>
+        </StackPane>
+
+        <!-- Accueil -->
+        <StackPane fx:id="room_accueil" layoutX="680" layoutY="320" prefWidth="100" prefHeight="110" styleClass="room">
+            <VBox alignment="CENTER" spacing="5">
+                <Text text="🚪" style="-fx-font-size: 24px;"/>
+                <Label text="ACCUEIL" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            </VBox>
+        </StackPane>
+        
+        <Label text="Entrée Principale ⬇" layoutX="670" layoutY="460" style="-fx-text-fill: #94a3b8;"/>
+    </AnchorPane>
+
+    <!-- Close button -->
+    <Button fx:id="closeBtn" text="✕ Fermer le plan" onAction="#closeWindow"
+            layoutX="700" layoutY="20"
+            style="-fx-background-color: transparent; -fx-text-fill: white; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 8; -fx-padding: 8 20; -fx-cursor: hand;"/>
+
+    <Label fx:id="errorLabel" layoutX="50" layoutY="590" style="-fx-text-fill: #ef4444; -fx-font-size: 14px;"/>
+
+    <!-- Default CSS for rooms directly in FXML for simplicity -->
+    <fx:define>
+        <String fx:value="-fx-background-color: rgba(15, 23, 42, 0.6); -fx-border-color: rgba(0, 210, 255, 0.4); -fx-border-width: 2; -fx-border-radius: 3; -fx-background-radius: 3; -fx-cursor: hand;" fx:id="styleNormal"/>
+        <String fx:value="-fx-background-color: rgba(46, 213, 115, 0.3); -fx-border-color: #2ed573; -fx-border-width: 3; -fx-border-radius: 3; -fx-background-radius: 3; -fx-effect: dropshadow(gaussian, rgba(46, 213, 115, 0.6), 15, 0, 0, 0);" fx:id="styleHighlight"/>
+    </fx:define>
+
+</AnchorPane>
