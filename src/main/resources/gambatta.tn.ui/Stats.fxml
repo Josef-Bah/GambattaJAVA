@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="gambatta.tn.ui.StatsController"
+            styleClass="root" prefWidth="1280" prefHeight="820">
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox spacing="16"
+              style="-fx-padding: 30 20 30 20;
+                     -fx-background-color: rgba(15,23,42,0.95);
+                     -fx-min-width: 220;">
+
+            <Label text="⚡ GAMBATTA" styleClass="title" style="-fx-font-size: 20px;"/>
+            <Label text="Statistiques" styleClass="subtitle"/>
+            <Separator style="-fx-background-color: rgba(255,215,0,0.3);"/>
+
+            <Button text="📊  Voir Graphiques"  styleClass="btn-primary"
+                    maxWidth="180" onAction="#ouvrirCharts"/>
+            <Button text="📥  Exporter CSV"     styleClass="btn-secondary"
+                    maxWidth="180" onAction="#exporterCSV"/>
+            <Button text="⬅  Dashboard"         styleClass="btn-secondary"
+                    maxWidth="180" onAction="#retourDashboard"/>
+
+            <Label fx:id="feedbackLabel" text="" wrapText="true"
+                   style="-fx-font-size: 12px;" maxWidth="180"/>
+        </VBox>
+    </left>
+
+    <!-- CONTENU -->
+    <center>
+        <VBox spacing="24" style="-fx-padding: 40;">
+
+            <Label text="📊 Statistiques Utilisateurs"
+                   styleClass="card-title" style="-fx-font-size: 26px;"/>
+
+            <!-- CARTES CHIFFRES -->
+            <HBox spacing="16">
+
+                <VBox styleClass="card" alignment="CENTER" spacing="8"
+                      prefWidth="160" minWidth="160">
+                    <Label text="👥" style="-fx-font-size: 28px;"/>
+                    <Label fx:id="totalUsersLabel" text="—"
+                           style="-fx-font-size: 38px; -fx-font-weight: 900; -fx-text-fill: #FFD700;"/>
+                    <Label text="Total users" styleClass="card-desc"/>
+                </VBox>
+
+                <VBox styleClass="card" alignment="CENTER" spacing="8"
+                      prefWidth="160" minWidth="160">
+                    <Label text="🛡" style="-fx-font-size: 28px;"/>
+                    <Label fx:id="totalAdminsLabel" text="—"
+                           style="-fx-font-size: 38px; -fx-font-weight: 900; -fx-text-fill: #ff9f43;"/>
+                    <Label text="Admins" styleClass="card-desc"/>
+                </VBox>
+
+                <VBox styleClass="card" alignment="CENTER" spacing="8"
+                      prefWidth="160" minWidth="160">
+                    <Label text="👤" style="-fx-font-size: 28px;"/>
+                    <Label fx:id="totalSimpleLabel" text="—"
+                           style="-fx-font-size: 38px; -fx-font-weight: 900; -fx-text-fill: #2ed573;"/>
+                    <Label text="Simples" styleClass="card-desc"/>
+                </VBox>
+
+                <VBox styleClass="card" alignment="CENTER" spacing="8"
+                      prefWidth="160" minWidth="160">
+                    <Label text="✅" style="-fx-font-size: 28px;"/>
+                    <Label fx:id="totalActifsLabel" text="—"
+                           style="-fx-font-size: 38px; -fx-font-weight: 900; -fx-text-fill: #2ed573;"/>
+                    <Label text="Actifs" styleClass="card-desc"/>
+                </VBox>
+
+                <VBox styleClass="card" alignment="CENTER" spacing="8"
+                      prefWidth="160" minWidth="160">
+                    <Label text="🔴" style="-fx-font-size: 28px;"/>
+                    <Label fx:id="totalInactifsLabel" text="—"
+                           style="-fx-font-size: 38px; -fx-font-weight: 900; -fx-text-fill: #ff4757;"/>
+                    <Label text="Inactifs" styleClass="card-desc"/>
+                </VBox>
+
+                <VBox styleClass="card" alignment="CENTER" spacing="8"
+                      prefWidth="160" minWidth="160">
+                    <Label text="🔑" style="-fx-font-size: 28px;"/>
+                    <Label fx:id="loginsTodayLabel" text="—"
+                           style="-fx-font-size: 38px; -fx-font-weight: 900; -fx-text-fill: #a29bfe;"/>
+                    <Label text="Connexions/jour" styleClass="card-desc"/>
+                </VBox>
+
+            </HBox>
+
+            <!-- MESSAGE INVITE -->
+            <VBox styleClass="card" alignment="CENTER" spacing="12" style="-fx-padding: 40;">
+                <Label text="📊" style="-fx-font-size: 48px;"/>
+                <Label text="Clique sur « Voir Graphiques » pour afficher"
+                       styleClass="card-title" style="-fx-font-size: 16px;"/>
+                <Label text="le camembert des rôles et le graphe des inscriptions par mois"
+                       styleClass="card-desc"/>
+                <Button text="📊  Voir Graphiques" styleClass="btn-primary"
+                        onAction="#ouvrirCharts" style="-fx-padding: 12 30;"/>
+            </VBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>

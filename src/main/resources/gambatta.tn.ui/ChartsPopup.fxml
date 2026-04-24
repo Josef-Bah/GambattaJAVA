@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gambatta.tn.ui.ChartsPopupController"
+      spacing="20" style="-fx-background-color: #050b14; -fx-padding: 24;">
+
+    <!-- TITRE -->
+    <Label text="⚡ GAMBATTA — Statistiques Utilisateurs"
+           style="-fx-text-fill: #FFD700; -fx-font-size: 22px;
+                  -fx-font-weight: 900; -fx-alignment: CENTER;"
+           maxWidth="Infinity"/>
+    <Label text="Tableau de bord administration"
+           style="-fx-text-fill: #94a3b8; -fx-font-size: 13px; -fx-alignment: CENTER;"
+           maxWidth="Infinity"/>
+
+    <!-- CARTES CHIFFRES -->
+    <HBox spacing="12" alignment="CENTER">
+
+        <VBox alignment="CENTER" spacing="4"
+              style="-fx-background-color: rgba(30,41,59,0.9);
+                     -fx-background-radius: 12;
+                     -fx-border-color: rgba(255,255,255,0.1);
+                     -fx-border-radius: 12; -fx-padding: 14 18;">
+            <Label text="👥" style="-fx-font-size: 22px;"/>
+            <Label fx:id="lblTotal"
+                   style="-fx-font-size: 30px; -fx-font-weight: 900; -fx-text-fill: #FFD700;"/>
+            <Label text="Total" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;"/>
+        </VBox>
+
+        <VBox alignment="CENTER" spacing="4"
+              style="-fx-background-color: rgba(30,41,59,0.9);
+                     -fx-background-radius: 12;
+                     -fx-border-color: rgba(255,255,255,0.1);
+                     -fx-border-radius: 12; -fx-padding: 14 18;">
+            <Label text="🛡" style="-fx-font-size: 22px;"/>
+            <Label fx:id="lblAdmins"
+                   style="-fx-font-size: 30px; -fx-font-weight: 900; -fx-text-fill: #ff9f43;"/>
+            <Label text="Admins" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;"/>
+        </VBox>
+
+        <VBox alignment="CENTER" spacing="4"
+              style="-fx-background-color: rgba(30,41,59,0.9);
+                     -fx-background-radius: 12;
+                     -fx-border-color: rgba(255,255,255,0.1);
+                     -fx-border-radius: 12; -fx-padding: 14 18;">
+            <Label text="👤" style="-fx-font-size: 22px;"/>
+            <Label fx:id="lblSimples"
+                   style="-fx-font-size: 30px; -fx-font-weight: 900; -fx-text-fill: #2ed573;"/>
+            <Label text="Simples" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;"/>
+        </VBox>
+
+        <VBox alignment="CENTER" spacing="4"
+              style="-fx-background-color: rgba(30,41,59,0.9);
+                     -fx-background-radius: 12;
+                     -fx-border-color: rgba(255,255,255,0.1);
+                     -fx-border-radius: 12; -fx-padding: 14 18;">
+            <Label text="✅" style="-fx-font-size: 22px;"/>
+            <Label fx:id="lblActifs"
+                   style="-fx-font-size: 30px; -fx-font-weight: 900; -fx-text-fill: #2ed573;"/>
+            <Label text="Actifs" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;"/>
+        </VBox>
+
+        <VBox alignment="CENTER" spacing="4"
+              style="-fx-background-color: rgba(30,41,59,0.9);
+                     -fx-background-radius: 12;
+                     -fx-border-color: rgba(255,255,255,0.1);
+                     -fx-border-radius: 12; -fx-padding: 14 18;">
+            <Label text="🔴" style="-fx-font-size: 22px;"/>
+            <Label fx:id="lblInactifs"
+                   style="-fx-font-size: 30px; -fx-font-weight: 900; -fx-text-fill: #ff4757;"/>
+            <Label text="Inactifs" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;"/>
+        </VBox>
+
+        <VBox alignment="CENTER" spacing="4"
+              style="-fx-background-color: rgba(30,41,59,0.9);
+                     -fx-background-radius: 12;
+                     -fx-border-color: rgba(255,255,255,0.1);
+                     -fx-border-radius: 12; -fx-padding: 14 18;">
+            <Label text="🔑" style="-fx-font-size: 22px;"/>
+            <Label fx:id="lblToday"
+                   style="-fx-font-size: 30px; -fx-font-weight: 900; -fx-text-fill: #a29bfe;"/>
+            <Label text="Connexions" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;"/>
+        </VBox>
+
+    </HBox>
+
+    <!-- GRAPHIQUES -->
+    <HBox spacing="16">
+
+        <!-- CAMEMBERT -->
+        <VBox HBox.hgrow="ALWAYS" spacing="8"
+              style="-fx-background-color: rgba(30,41,59,0.8);
+                     -fx-background-radius: 14;
+                     -fx-border-color: rgba(255,255,255,0.08);
+                     -fx-border-radius: 14; -fx-padding: 16;">
+            <Label text="🎯 Répartition des rôles"
+                   style="-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+            <VBox fx:id="pieContainer"/>
+        </VBox>
+
+        <!-- BARRES -->
+        <VBox HBox.hgrow="ALWAYS" spacing="8"
+              style="-fx-background-color: rgba(30,41,59,0.8);
+                     -fx-background-radius: 14;
+                     -fx-border-color: rgba(255,255,255,0.08);
+                     -fx-border-radius: 14; -fx-padding: 16;">
+            <Label text="📅 Inscriptions par mois"
+                   style="-fx-text-fill: #FFD700; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+            <VBox fx:id="barContainer"/>
+        </VBox>
+
+    </HBox>
+
+</VBox>

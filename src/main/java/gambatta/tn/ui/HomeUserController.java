@@ -59,4 +59,27 @@ public class HomeUserController {
             e.printStackTrace();
         }
     }
+    @FXML
+    public void ouvrirMap() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/gambatta.tn.ui/MapPopup.fxml")
+            );
+            Parent root = loader.load();
+
+            Stage popup = new Stage();
+            popup.setTitle("📍 Localisation — Gambatta E-Sports");
+            popup.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            popup.setResizable(false);
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(
+                    getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm()
+            );
+            popup.setScene(scene);
+            popup.show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

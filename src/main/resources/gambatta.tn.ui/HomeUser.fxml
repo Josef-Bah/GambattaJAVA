@@ -51,6 +51,9 @@
                                 <Button text="🚪"
                                         onAction="#logout"
                                         styleClass="home-logout-btn"/>
+                                <Button text="📍  Trouver le complexe"
+                                        styleClass="btn-secondary"
+                                        onAction="#ouvrirMap"/>
                             </children>
                         </HBox>
                     </children>

@@ -253,4 +253,22 @@ public class AdminDashboardController implements Initializable {
         colRole.setReorderable(false);
         colActions.setReorderable(false);
     }
+    @FXML
+    public void openStats() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/gambatta.tn.ui/Stats.fxml")
+            );
+            Parent root = loader.load();
+            Stage stage = (Stage) userTable.getScene().getWindow();
+            Scene scene = new Scene(root, stage.getWidth(), stage.getHeight());
+            scene.getStylesheets().add(
+                    getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm()
+            );
+            stage.setScene(scene);
+        } catch (Exception e) {
+            feedbackLabel.setText("Erreur stats : " + e.getMessage());
+        }
+    }
+
 }

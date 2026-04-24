@@ -55,6 +55,8 @@
                                 <Label text="⇦" styleClass="sidebar-item-icon"/>
                                 <Hyperlink text="Déconnexion" onAction="#logout" styleClass="sidebar-link-danger"/>
                             </children>
+                            <Button text="📊  Statistiques" styleClass="btn-secondary"
+                                    maxWidth="180" onAction="#openStats"/>
                         </HBox>
                     </children>
                 </VBox>

@@ -242,4 +242,47 @@ public class UserService implements IService<user> {
         u.setNumTel(rs.getString("num_tel"));
         return u;
     }
+    // Inscriptions par mois (6 derniers mois)
+    public java.util.Map<String, Integer> countUsersParMois() {
+        java.util.Map<String, Integer> result = new java.util.LinkedHashMap<>();
+        String sql = "SELECT DATE_FORMAT(created_at, '%Y-%m') as mois, COUNT(*) as total " +
+                "FROM user WHERE created_at IS NOT NULL " +
+                "AND created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH) " +
+                "GROUP BY mois ORDER BY mois ASC";
+        try (Statement st = cnx.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                result.put(rs.getString("mois"), rs.getInt("total"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur stats par mois : " + e.getMessage(), e);
+        }
+        return result;
+    }
+
+    // Répartition des rôles
+    public java.util.Map<String, Integer> countParRole() {
+        java.util.Map<String, Integer> result = new java.util.LinkedHashMap<>();
+        String sql = "SELECT roles, COUNT(*) as total FROM user GROUP BY roles";
+        try (Statement st = cnx.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                String role = rs.getString("roles")
+                        .replace("[\"", "").replace("\"]", "");
+                result.put(role, rs.getInt("total"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur stats rôles : " + e.getMessage(), e);
+        }
+        return result;
+    }
+
+    // Actifs
+    public int countActifs() {
+        return countQuery("SELECT COUNT(*) FROM user WHERE status = 'active'");
+    }
+
+    // Inactifs
+    public int countInactifs() {
+        return countQuery("SELECT COUNT(*) FROM user WHERE status != 'active' OR status IS NULL");
+    }
+
 }

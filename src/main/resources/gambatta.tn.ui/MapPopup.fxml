@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="gambatta.tn.ui.MapPopupController"
+      spacing="0"
+      style="-fx-background-color: #050b14;"
+      prefWidth="520" prefHeight="560">
+
+    <!-- HEADER -->
+    <VBox alignment="CENTER" spacing="8"
+          style="-fx-background-color: linear-gradient(to bottom, #172a46, #050b14);
+                 -fx-padding: 30 20 24 20;">
+        <Label text="📍" style="-fx-font-size: 42px;"/>
+        <Label text="⚡ GAMBATTA E-SPORTS"
+               style="-fx-text-fill: #FFD700; -fx-font-size: 20px;
+                      -fx-font-weight: 900;
+                      -fx-effect: dropshadow(gaussian, rgba(255,215,0,0.5), 10, 0.5, 0, 0);"/>
+        <Label text="Premier complexe e-sports en Tunisie"
+               style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+    </VBox>
+
+    <!-- CARTE SIMULÉE -->
+    <StackPane style="-fx-background-color: #0f172a; -fx-min-height: 180;">
+
+        <!-- Grille simulant une carte -->
+        <VBox alignment="CENTER" spacing="0">
+            <!-- Lignes horizontales -->
+            <Pane style="-fx-border-color: transparent transparent #1e293b transparent;
+                         -fx-border-width: 1; -fx-min-height: 36; -fx-min-width: 520;"/>
+            <Pane style="-fx-border-color: transparent transparent #1e293b transparent;
+                         -fx-border-width: 1; -fx-min-height: 36; -fx-min-width: 520;"/>
+            <Pane style="-fx-border-color: transparent transparent #1e293b transparent;
+                         -fx-border-width: 1; -fx-min-height: 36; -fx-min-width: 520;"/>
+            <Pane style="-fx-border-color: transparent transparent #1e293b transparent;
+                         -fx-border-width: 1; -fx-min-height: 36; -fx-min-width: 520;"/>
+            <Pane style="-fx-min-height: 36; -fx-min-width: 520;"/>
+        </VBox>
+
+        <!-- Routes simulées -->
+        <Pane>
+            <Label style="-fx-background-color: #1e3a5f; -fx-min-width: 520;
+                          -fx-min-height: 12; -fx-translate-y: 20;"/>
+            <Label style="-fx-background-color: #1e3a5f; -fx-min-width: 12;
+                          -fx-min-height: 180; -fx-translate-x: 200;"/>
+            <Label style="-fx-background-color: #1e3a5f; -fx-min-width: 12;
+                          -fx-min-height: 180; -fx-translate-x: 350;"/>
+            <Label style="-fx-background-color: #1e3a5f; -fx-min-width: 520;
+                          -fx-min-height: 12; -fx-translate-y: 100;"/>
+        </Pane>
+
+        <!-- PIN central -->
+        <VBox alignment="CENTER" spacing="2">
+            <Label text="📍"
+                   style="-fx-font-size: 36px;
+                          -fx-effect: dropshadow(gaussian, rgba(255,71,87,0.8), 12, 0.6, 0, 0);"/>
+            <Label text="GAMBATTA"
+                   style="-fx-background-color: #ff4757;
+                          -fx-text-fill: white;
+                          -fx-font-size: 10px;
+                          -fx-font-weight: bold;
+                          -fx-padding: 3 8;
+                          -fx-background-radius: 4;"/>
+        </VBox>
+
+        <!-- Badge "Cliquer pour voir sur Google Maps" -->
+        <Label text="🔗 Cliquer sur 'Ouvrir Google Maps' pour la vraie carte"
+               style="-fx-text-fill: #64748b; -fx-font-size: 10px;"
+               VBox.vgrow="NEVER"
+               StackPane.alignment="BOTTOM_CENTER"
+               translateY="-8"/>
+    </StackPane>
+
+    <!-- INFOS ADRESSE -->
+    <VBox spacing="12" style="-fx-padding: 20 24;">
+
+        <HBox spacing="14" alignment="CENTER_LEFT">
+            <Label text="📍" style="-fx-font-size: 18px;"/>
+            <VBox spacing="2">
+                <Label text="Adresse"
+                       style="-fx-text-fill: #FFD700; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                <Label text="Tunis, Tunisie"
+                       style="-fx-text-fill: #cbd5e1; -fx-font-size: 14px;"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="14" alignment="CENTER_LEFT">
+            <Label text="🕐" style="-fx-font-size: 18px;"/>
+            <VBox spacing="2">
+                <Label text="Horaires"
+                       style="-fx-text-fill: #FFD700; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                <Label text="Lun – Ven : 09h00 – 23h00"
+                       style="-fx-text-fill: #cbd5e1; -fx-font-size: 13px;"/>
+                <Label text="Sam – Dim : 10h00 – 00h00"
+                       style="-fx-text-fill: #cbd5e1; -fx-font-size: 13px;"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="14" alignment="CENTER_LEFT">
+            <Label text="📞" style="-fx-font-size: 18px;"/>
+            <VBox spacing="2">
+                <Label text="Contact"
+                       style="-fx-text-fill: #FFD700; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                <Label text="+216 XX XXX XXX"
+                       style="-fx-text-fill: #cbd5e1; -fx-font-size: 13px;"/>
+            </VBox>
+        </HBox>
+
+    </VBox>
+
+    <!-- BOUTONS -->
+    <HBox spacing="12" alignment="CENTER" style="-fx-padding: 0 24 8 24;">
+        <Button text="🗺  Ouvrir Google Maps"
+                styleClass="btn-primary"
+                prefWidth="220"
+                onAction="#ouvrirGoogleMaps"/>
+        <Button text="🧭  Itinéraire"
+                styleClass="btn-secondary"
+                prefWidth="150"
+                onAction="#ouvrirItineraire"/>
+    </HBox>
+
+    <HBox alignment="CENTER" style="-fx-padding: 0 24 20 24;">
+        <Button text="✕  Fermer"
+                styleClass="btn-secondary"
+                prefWidth="380"
+                onAction="#fermer"/>
+    </HBox>
+
+    <Label fx:id="feedbackLabel" text=""
+           style="-fx-font-size: 12px; -fx-padding: 0 24 10 24;"
+           alignment="CENTER" maxWidth="Infinity"/>
+
+</VBox>
