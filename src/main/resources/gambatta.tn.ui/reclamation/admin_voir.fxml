@@ -51,10 +51,13 @@
 
                 <VBox spacing="8">
                     <Label text="&gt; PREUVE VISUELLE (SCAN)" style="-fx-text-fill: #fcc033; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-font-size: 11px;" />
-                    <StackPane alignment="CENTER" style="-fx-background-color: rgba(15, 23, 42, 0.6); -fx-padding: 10; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-style: dashed; -fx-max-height: 220;">
+
+                    <StackPane fx:id="imageContainer" alignment="CENTER" style="-fx-background-color: rgba(15, 23, 42, 0.6); -fx-padding: 10; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-style: dashed; -fx-max-height: 220; -fx-cursor: hand;">
                         <ImageView fx:id="imgPreuve" fitWidth="350.0" fitHeight="200.0" preserveRatio="true" />
-                        <Label fx:id="lblNoImage" text="[ AUCUNE PIÈCE JOINTE DÉTECTÉE ]" style="-fx-text-fill: #64748b; -fx-font-family: 'Consolas', monospace; -fx-font-weight: bold; -fx-font-size: 11px;" visible="false" />
+                        <Label fx:id="lblNoImage" text="[ AUCUNE PIÈCE JOINTE DÉTECTÉE ]" style="-fx-text-fill: #64748b; -fx-font-family: 'Consolas', monospace; -fx-font-weight: bold; -fx-font-size: 11px;" />
                     </StackPane>
+
+                    <Label fx:id="lblCliquez" text="[ CLIQUEZ SUR L'IMAGE POUR L'OUVRIR DANS LE NAVIGATEUR ]" visible="false" managed="false" alignment="CENTER" maxWidth="Infinity" style="-fx-text-fill: #0ea5e9; -fx-font-size: 10px; -fx-font-weight: bold;" />
                 </VBox>
 
                 <VBox spacing="8">

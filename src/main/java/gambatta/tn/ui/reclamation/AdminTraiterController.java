@@ -29,28 +29,36 @@ public class AdminTraiterController {
 
     @FXML
     public void initialize() {
-        comboStatut.getItems().addAll("En attente", "En cours", "Résolu", "Fermé");
-        comboAssignation.getItems().addAll("Non assigné", "Support Technique", "Service Financier", "Modération");
+        // SÉCURITÉ : On vérifie que les éléments existent dans le FXML avant de les utiliser
+        if (comboStatut != null) {
+            comboStatut.getItems().addAll("En attente", "En cours", "Résolu", "Fermé");
+        }
 
-        comboSaisieRapide.getItems().addAll(
-                "Bonjour, nous avons bien reçu votre demande.",
-                "Merci de nous fournir une capture d'écran du problème.",
-                "Votre demande a été transmise au service technique.",
-                "Le problème est maintenant résolu. Merci de votre patience."
-        );
+        if (comboAssignation != null) {
+            comboAssignation.getItems().addAll("Non assigné", "Support Technique", "Service Financier", "Modération");
+        }
 
-        comboSaisieRapide.setOnAction(e -> {
-            String template = comboSaisieRapide.getValue();
-            if (template != null && !template.isEmpty()) {
-                String currentText = txtReponse.getText();
-                txtReponse.setText(currentText + (currentText.isEmpty() ? "" : "\n") + template);
-                javafx.application.Platform.runLater(() -> {
-                    comboSaisieRapide.getSelectionModel().clearSelection();
-                });
-            }
-        });
+        if (comboSaisieRapide != null) {
+            comboSaisieRapide.getItems().addAll(
+                    "Bonjour, nous avons bien reçu votre demande.",
+                    "Merci de nous fournir une capture d'écran du problème.",
+                    "Votre demande a été transmise au service technique.",
+                    "Le problème est maintenant résolu. Merci de votre patience."
+            );
 
-        // EFFETS HOVER
+            comboSaisieRapide.setOnAction(e -> {
+                String template = comboSaisieRapide.getValue();
+                if (template != null && !template.isEmpty() && txtReponse != null) {
+                    String currentText = txtReponse.getText();
+                    txtReponse.setText(currentText + (currentText.isEmpty() ? "" : "\n") + template);
+                    javafx.application.Platform.runLater(() -> {
+                        comboSaisieRapide.getSelectionModel().clearSelection();
+                    });
+                }
+            });
+        }
+
+        // EFFETS HOVER (La méthode setupNeonHover gère déjà les null)
         setupNeonHover(btnUpdateStatut, "#0ea5e9", "transparent");
         setupNeonHover(btnAssigner, "#f59e0b", "transparent");
         setupNeonHover(btnAmeliorer, "#10b981", "transparent");
@@ -68,13 +76,17 @@ public class AdminTraiterController {
     public void initData(reclamation r, AdminDashboardController parent) {
         this.currentRec = r;
         this.parent = parent;
-        lblRef.setText("TICKET #" + r.getIdrec());
-        comboStatut.setValue(r.getStatutrec() != null ? r.getStatutrec() : "En attente");
-        comboAssignation.setValue("Non assigné");
-        chargerHistorique();
+
+        if (lblRef != null) lblRef.setText("TICKET #" + r.getIdrec());
+        if (comboStatut != null) comboStatut.setValue(r.getStatutrec() != null ? r.getStatutrec() : "En attente");
+        if (comboAssignation != null) comboAssignation.setValue("Non assigné");
+
+        if (vboxHistorique != null) chargerHistorique();
     }
 
     private void chargerHistorique() {
+        if (vboxHistorique == null) return;
+
         vboxHistorique.getChildren().clear();
 
         if (currentRec.getResponses() == null || currentRec.getResponses().isEmpty()) {
@@ -141,6 +153,7 @@ public class AdminTraiterController {
 
     @FXML
     private void handleAmeliorerTexte() {
+        if (txtReponse == null) return;
         String text = txtReponse.getText().trim();
         if (text.isEmpty()) return;
         String texteAmeliore = "Bonjour,\n\n" + text.substring(0, 1).toUpperCase() + text.substring(1) + "\n\nCordialement,\nL'équipe Support Gambatta";
@@ -152,7 +165,7 @@ public class AdminTraiterController {
         if (!creerEtSauvegarderReponse()) return;
         currentRec.setStatutrec("En cours");
         service.modifier(currentRec);
-        txtReponse.clear();
+        if (txtReponse != null) txtReponse.clear();
         chargerHistorique();
         if (parent != null) parent.chargerTableau();
     }
@@ -167,6 +180,7 @@ public class AdminTraiterController {
     }
 
     private boolean creerEtSauvegarderReponse() {
+        if (txtReponse == null) return false;
         String texteSaisi = txtReponse.getText();
         if (texteSaisi == null || texteSaisi.trim().isEmpty()) return false;
         response nouvelleReponse = new response();
@@ -177,21 +191,46 @@ public class AdminTraiterController {
     }
 
     @FXML private void handleChangerStatut() {
-        currentRec.setStatutrec(comboStatut.getValue());
-        service.modifier(currentRec);
-        if (parent != null) parent.chargerTableau();
+        if (comboStatut != null) {
+            currentRec.setStatutrec(comboStatut.getValue());
+            service.modifier(currentRec);
+            if (parent != null) parent.chargerTableau();
+        }
     }
 
     @FXML private void handleAssigner() {
         // Logique d'assignation
     }
 
+    @FXML
+    private void handleSauvegarder() {
+        if (comboStatut != null) {
+            currentRec.setStatutrec(comboStatut.getValue());
+        }
+
+        if (txtReponse != null) {
+            String texteSaisi = txtReponse.getText();
+            if (texteSaisi != null && !texteSaisi.trim().isEmpty()) {
+                response nouvelleReponse = new response();
+                nouvelleReponse.setContenurep(texteSaisi.trim());
+                currentRec.addResponse(nouvelleReponse);
+                service.ajouterReponse(nouvelleReponse);
+            }
+        }
+
+        service.modifier(currentRec);
+
+        if (parent != null) {
+            parent.chargerTableau();
+            parent.masquerFormulaireAjout();
+        }
+    }
+
     @FXML private void handleAnnuler() {
-        // FERMETURE EN INCRUSTATION !
         if (parent != null) {
             parent.masquerFormulaireAjout();
-        } else {
-            comboStatut.getParent().setVisible(false);
+        } else if (lblRef != null) {
+            lblRef.getScene().getWindow().hide();
         }
     }
 }

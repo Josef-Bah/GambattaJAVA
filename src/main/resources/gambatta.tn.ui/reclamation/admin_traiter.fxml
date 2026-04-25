@@ -4,50 +4,58 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.shape.Circle?>
 
-<VBox fx:id="sidePanelRoot" spacing="25" prefWidth="450" style="-fx-background-color: #0f172a; -fx-border-color: #fcc033; -fx-border-width: 0 0 0 3; -fx-padding: 30;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.reclamation.AdminTraiterController">
+<VBox fx:id="sidePanelRoot" spacing="15" prefWidth="500" style="-fx-background-color: #0f172a; -fx-border-color: #fcc033; -fx-border-width: 0 0 0 3; -fx-padding: 25;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.reclamation.AdminTraiterController">
     <children>
+
         <HBox alignment="CENTER_LEFT" spacing="15">
             <VBox>
                 <Label text="⚡ TRAITEMENT DU LOG" style="-fx-text-fill: #fcc033; -fx-font-size: 20px; -fx-font-weight: 900; -fx-letter-spacing: 1px;" />
-                <Label fx:id="lblLogId" text="RÉFÉRENCE : #" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-family: 'Consolas', monospace; -fx-font-size: 11px;" />
+                <Label fx:id="lblRef" text="RÉFÉRENCE : #" style="-fx-text-fill: rgba(255,255,255,0.4); -fx-font-family: 'Consolas', monospace; -fx-font-size: 11px;" />
             </VBox>
             <Region HBox.hgrow="ALWAYS" />
-            <Button text="✕" onAction="#handleAnnuler" style="-fx-background-color: rgba(255,255,255,0.05); -fx-text-fill: #64748b; -fx-font-size: 16px; -fx-background-radius: 20; -fx-cursor: hand;" />
+            <Button fx:id="btnFermer" text="✕" onAction="#handleAnnuler" style="-fx-background-color: rgba(255,255,255,0.05); -fx-text-fill: #64748b; -fx-font-size: 16px; -fx-background-radius: 20; -fx-cursor: hand;" />
         </HBox>
 
         <Separator style="-fx-background-color: rgba(56, 189, 248, 0.1);" />
 
-        <VBox spacing="8">
-            <Label text="STATUT DU PROTOCOLE" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" />
-            <ComboBox fx:id="comboStatut" prefWidth="Infinity" style="-fx-background-color: rgba(2, 6, 23, 0.5); -fx-border-color: #334155; -fx-background-radius: 8; -fx-border-radius: 8; -fx-text-fill: white;" />
-        </VBox>
-
-        <VBox spacing="8" VBox.vgrow="ALWAYS">
-            <Label text="COMPTE-RENDU D'INTERVENTION" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;" />
-            <TextArea fx:id="txtReponse" promptText="Saisir les actions correctives ou les observations..." wrapText="true" style="-fx-background-color: rgba(2, 6, 23, 0.5); -fx-border-color: #334155; -fx-background-radius: 8; -fx-border-radius: 8; -fx-text-fill: white;" VBox.vgrow="ALWAYS" />
-        </VBox>
-
-        <VBox spacing="10" style="-fx-background-color: rgba(0, 0, 0, 0.2); -fx-padding: 15; -fx-background-radius: 10;">
-            <HBox spacing="10">
-                <Circle radius="3" fill="#10b981" />
-                <Label text="DÉTAILS SYSTÈME" style="-fx-text-fill: #cbd5e1; -fx-font-size: 10px; -fx-font-weight: bold;" />
-            </HBox>
-            <HBox>
-                <Label text="Date de création :" style="-fx-text-fill: #64748b; -fx-font-size: 10px;" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="lblDateCreation" text="--" style="-fx-text-fill: #cbd5e1; -fx-font-size: 10px;" />
-            </HBox>
-            <HBox>
-                <Label text="Dernière mise à jour :" style="-fx-text-fill: #64748b; -fx-font-size: 10px;" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Label fx:id="lblLastUpdate" text="--" style="-fx-text-fill: #cbd5e1; -fx-font-size: 10px;" />
-            </HBox>
-        </VBox>
-
-        <HBox spacing="15" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
-            <Button text="ANNULER" onAction="#handleAnnuler" style="-fx-background-color: transparent; -fx-border-color: #334155; -fx-text-fill: #94a3b8; -fx-font-weight: bold; -fx-border-radius: 20; -fx-padding: 10 25; -fx-cursor: hand;" />
-            <Button text="VALIDER LE TRAITEMENT ⚡" onAction="#handleSauvegarder" style="-fx-background-color: #fcc033; -fx-text-fill: #020617; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 30; -fx-cursor: hand;" />
+        <HBox spacing="15">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="STATUT DU PROTOCOLE" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                <ComboBox fx:id="comboStatut" maxWidth="Infinity" style="-fx-background-color: rgba(2, 6, 23, 0.5); -fx-border-color: #334155; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: white;" />
+            </VBox>
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="ASSIGNÉ À" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                <ComboBox fx:id="comboAssignation" maxWidth="Infinity" style="-fx-background-color: rgba(2, 6, 23, 0.5); -fx-border-color: #334155; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: white;" />
+            </VBox>
         </HBox>
+
+        <VBox spacing="6" VBox.vgrow="ALWAYS">
+            <Label text="HISTORIQUE DES ÉCHANGES" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <ScrollPane fitToWidth="true" prefHeight="200" style="-fx-background: transparent; -fx-background-color: rgba(2, 6, 23, 0.3); -fx-border-color: rgba(255,255,255,0.05); -fx-border-radius: 8; -fx-padding: 10;">
+                <VBox fx:id="vboxHistorique" spacing="10" />
+            </ScrollPane>
+        </VBox>
+
+        <VBox spacing="6">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="COMPTE-RENDU / RÉPONSE" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnAmeliorer" text="✨ IA" onAction="#handleAmeliorerTexte" style="-fx-background-color: rgba(16, 185, 129, 0.1); -fx-border-color: #10b981; -fx-text-fill: #10b981; -fx-border-radius: 5; -fx-font-size: 10px; -fx-cursor: hand;" />
+                <ComboBox fx:id="comboSaisieRapide" promptText="⚡ Réponses rapides..." prefWidth="160" style="-fx-background-color: rgba(14, 165, 233, 0.1); -fx-border-color: #0ea5e9; -fx-border-radius: 5; -fx-font-size: 10px;" />
+            </HBox>
+            <TextArea fx:id="txtReponse" promptText="Saisir la réponse au client ou les actions correctives..." wrapText="true" prefHeight="100" style="-fx-background-color: rgba(2, 6, 23, 0.5); -fx-border-color: #334155; -fx-background-radius: 8; -fx-border-radius: 8; -fx-text-fill: white;" />
+        </VBox>
+
+        <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
+
+            <HBox spacing="10">
+                <Button fx:id="btnReponseInteractive" text="ENVOYER &amp; ATTENDRE ⏳" onAction="#handleReponseInteractive" maxWidth="Infinity" HBox.hgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: #f59e0b; -fx-text-fill: #f59e0b; -fx-font-weight: bold; -fx-border-radius: 8; -fx-padding: 10; -fx-cursor: hand;" />
+
+                <Button fx:id="btnReponseUnique" text="ENVOYER &amp; CLÔTURER ✓" onAction="#handleReponseUnique" maxWidth="Infinity" HBox.hgrow="ALWAYS" style="-fx-background-color: #38bdf8; -fx-text-fill: #020617; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10; -fx-cursor: hand;" />
+            </HBox>
+
+            <Button fx:id="btnUpdateStatut" text="JUSTE SAUVEGARDER LE STATUT" onAction="#handleSauvegarder" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-border-color: #334155; -fx-text-fill: #94a3b8; -fx-font-weight: bold; -fx-border-radius: 8; -fx-padding: 8; -fx-cursor: hand;" />
+        </VBox>
 
     </children>
 </VBox>

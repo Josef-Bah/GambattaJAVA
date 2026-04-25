@@ -13,13 +13,18 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-import java.io.File;
+import java.awt.Desktop;
+import java.net.URI;
 
 public class AdminVoirController {
 
     @FXML private Label lblTitre, lblDescription, lblDate, lblCategorie, lblAuteur, lblStatut, lblSentiment, lblNoImage;
+
+    // NOUVEAUX ÉLÉMENTS DE L'INTERFACE (Assure-toi que ces fx:id existent dans ton FXML)
     @FXML private ImageView imgPreuve;
+    @FXML private StackPane imageContainer;
+    @FXML private Label lblCliquez;
+
     @FXML private VBox vboxHistorique;
     @FXML private Button btnClose;
 
@@ -53,23 +58,8 @@ public class AdminVoirController {
 
         analyserSentiment(r.getDescrirec());
 
-        boolean hasImage = false;
-        if (r.getPreuve() != null && r.getPreuve().getImageName() != null) {
-            try {
-                File file = new File(r.getPreuve().getImageName());
-                if (file.exists()) {
-                    imgPreuve.setImage(new Image(file.toURI().toString()));
-                    hasImage = true;
-                }
-            } catch (Exception e) {
-                System.out.println("Erreur de chargement de l'image.");
-            }
-        }
-
-        if (!hasImage) {
-            lblNoImage.setVisible(true);
-            imgPreuve.setVisible(false);
-        }
+        // --- NOUVELLE GESTION DES IMAGES VIA LE CLOUD ---
+        chargerPreuveVisuelle(r);
 
         chargerHistorique(r);
 
@@ -79,6 +69,66 @@ public class AdminVoirController {
 
             btnClose.setOnMouseEntered(e -> btnClose.setStyle(hoverStyle));
             btnClose.setOnMouseExited(e -> btnClose.setStyle(baseStyle));
+        }
+    }
+
+    // Extraction de la logique de chargement de l'image
+    private void chargerPreuveVisuelle(reclamation r) {
+        // Vérification de la présence de l'URL Cloudinary (HTTPS)
+        if (r.getPreuve() != null && r.getPreuve().getImageName() != null && r.getPreuve().getImageName().startsWith("http")) {
+
+            String urlCloud = r.getPreuve().getImageName();
+
+            // true = background loading (indispensable pour les URLs Web pour ne pas freezer JavaFX)
+            Image image = new Image(urlCloud, true);
+
+            imgPreuve.setImage(image);
+            imgPreuve.setVisible(true);
+
+            if(lblNoImage != null) lblNoImage.setVisible(false);
+            if(lblCliquez != null) {
+                lblCliquez.setVisible(true);
+                lblCliquez.setManaged(true);
+            }
+
+            // Styles dynamiques interactifs si imageContainer existe
+            if(imageContainer != null) {
+                String baseStyle = "-fx-background-color: rgba(15, 23, 42, 0.6); -fx-padding: 10; -fx-border-color: #0ea5e9; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-width: 2; -fx-cursor: hand;";
+                String hoverStyle = "-fx-background-color: rgba(15, 23, 42, 0.9); -fx-padding: 10; -fx-border-color: #fcc033; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-width: 2; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(252, 192, 51, 0.5), 15, 0, 0, 0);";
+
+                imageContainer.setStyle(baseStyle);
+                imageContainer.setOnMouseEntered(e -> imageContainer.setStyle(hoverStyle));
+                imageContainer.setOnMouseExited(e -> imageContainer.setStyle(baseStyle));
+
+                // Événement Clic : Ouverture du Navigateur
+                imageContainer.setOnMouseClicked(e -> ouvrirDansNavigateur(urlCloud));
+            }
+
+        } else {
+            // Aucun fichier détecté ou ce n'est pas une URL
+            imgPreuve.setVisible(false);
+            if(lblNoImage != null) lblNoImage.setVisible(true);
+            if(lblCliquez != null) {
+                lblCliquez.setVisible(false);
+                lblCliquez.setManaged(false);
+            }
+            if(imageContainer != null) {
+                imageContainer.setStyle("-fx-background-color: rgba(15, 23, 42, 0.6); -fx-padding: 10; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-style: dashed;");
+                imageContainer.setOnMouseClicked(null);
+                imageContainer.setOnMouseEntered(null);
+                imageContainer.setOnMouseExited(null);
+            }
+        }
+    }
+
+    private void ouvrirDansNavigateur(String url) {
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(new URI(url));
+            }
+        } catch (Exception ex) {
+            System.err.println("Impossible d'ouvrir le lien Web : " + url);
+            ex.printStackTrace();
         }
     }
 
