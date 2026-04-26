@@ -3,6 +3,7 @@ package gambatta.tn.ui.reclamation;
 import gambatta.tn.entites.reclamation.reclamation;
 import gambatta.tn.services.reclamation.ServiceReclamation;
 import gambatta.tn.services.reclamation.PdfService;
+import gambatta.tn.services.reclamation.AIService; // IMPORT DE TON IA
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -36,7 +37,6 @@ public class ReclamationController implements Initializable {
     @FXML private ScrollPane cyberScroll;
     @FXML private StackPane overlayContainer;
 
-    // Éléments de Filtre et Tri
     @FXML private TextField searchField;
     @FXML private ToggleGroup filterGroup;
     @FXML private ToggleButton btnTous, btnAttente, btnResolu;
@@ -45,7 +45,6 @@ public class ReclamationController implements Initializable {
 
     private ServiceReclamation service = new ServiceReclamation();
 
-    // Listes magiques JavaFX pour le live-reload
     private ObservableList<reclamation> masterData = FXCollections.observableArrayList();
     private FilteredList<reclamation> filteredData;
     private SortedList<reclamation> sortedData;
@@ -56,18 +55,23 @@ public class ReclamationController implements Initializable {
             cyberScroll.setStyle("-fx-background: #020617; -fx-background-color: transparent; -fx-control-inner-background: #020617;");
         }
 
-        // Initialisation des listes déroulantes
-        comboModule.getItems().addAll("TOUS", "Service Technique / Bug en jeu", "Facturation & Paiement", "Gestion de Compte", "Comportement Joueur / Signalement", "Autre Demande");
+        comboModule.getItems().addAll("TOUS LES MODULES",
+                "Service Technique",
+                "Facturation & Paiement",
+                "Gestion de Compte",
+                "Comportement Joueur",
+                "Gestion des Activités",
+                "Tournois & Compétitions",
+                "Restauration & Nourriture",
+                "Gestion d'Équipe");
         comboModule.setValue("TOUS");
 
         comboTri.getItems().addAll("Plus récent", "Plus ancien", "Ordre Alphabétique (A-Z)");
         comboTri.setValue("Plus récent");
 
-        // Configuration des listes filtrées et triées
         filteredData = new FilteredList<>(masterData, p -> true);
         sortedData = new SortedList<>(filteredData);
 
-        // Écouteurs d'événements (dès qu'on tape ou clique, ça met à jour)
         searchField.textProperty().addListener((obs, oldVal, newVal) -> updateFiltresEtTri());
         filterGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> updateFiltresEtTri());
         comboModule.valueProperty().addListener((obs, oldVal, newVal) -> updateFiltresEtTri());
@@ -80,7 +84,6 @@ public class ReclamationController implements Initializable {
     public void chargerTableau() {
         List<reclamation> dataDB = service.afficher();
         masterData.setAll(dataDB);
-
         calculerStatistiques();
         updateFiltresEtTri();
     }
@@ -91,13 +94,13 @@ public class ReclamationController implements Initializable {
         long resolu = masterData.stream().filter(r -> "RÉSOLU".equalsIgnoreCase(r.getStatutrec())).count();
 
         lblTotalTickets.setText("TOTAL : " + total + " TICKETS");
-        btnTous.setText("TOUS (" + total + ")");
-        btnAttente.setText("EN ATTENTE (" + attente + ")");
-        btnResolu.setText("RÉSOLUS (" + resolu + ")");
+        if(btnTous != null) btnTous.setText("TOUS (" + total + ")");
+        if(btnAttente != null) btnAttente.setText("EN ATTENTE (" + attente + ")");
+        if(btnResolu != null) btnResolu.setText("RÉSOLUS (" + resolu + ")");
     }
 
     // =========================================================================
-    // MÉTIER : ANALYSE STATISTIQUE PERSONNELLE (SIDE PANEL)
+    // MÉTIER : ANALYSE STATISTIQUE & AUTO-TRIAGE IA
     // =========================================================================
 
     @FXML
@@ -106,7 +109,6 @@ public class ReclamationController implements Initializable {
         statsRoot.setPrefWidth(450);
         statsRoot.setStyle("-fx-background-color: #0f172a; -fx-border-color: #a855f7; -fx-border-width: 0 0 0 3; -fx-padding: 30;");
 
-        // En-tête du panneau
         Label title = new Label("📊 ANALYSE PERSONNELLE");
         title.setStyle("-fx-text-fill: #a855f7; -fx-font-size: 20px; -fx-font-weight: 900; -fx-letter-spacing: 1px;");
 
@@ -126,7 +128,12 @@ public class ReclamationController implements Initializable {
             return;
         }
 
-        // Création des camemberts
+        // --- NOUVEAU : BOUTON D'AUTO-TRIAGE IA ---
+        Button btnAutoTriage = new Button("✨ IA : AUTO-TRIER LES TICKETS NON CLASSÉS");
+        styleNeonButton(btnAutoTriage, "#fcc033", "#020617");
+        btnAutoTriage.setMaxWidth(Double.MAX_VALUE);
+        btnAutoTriage.setOnAction(e -> handleAutoTriage());
+
         PieChart pieStatut = new PieChart();
         pieStatut.setTitle("RÉPARTITION PAR STATUT");
         pieStatut.setLegendSide(Side.BOTTOM);
@@ -137,7 +144,6 @@ public class ReclamationController implements Initializable {
         pieModule.setLegendSide(Side.BOTTOM);
         pieModule.setPrefHeight(300);
 
-        // Calcul des données
         long total = masterData.size();
 
         Map<String, Long> mapStatut = masterData.stream().collect(Collectors.groupingBy(r -> r.getStatutrec().toUpperCase(), Collectors.counting()));
@@ -146,15 +152,55 @@ public class ReclamationController implements Initializable {
         Map<String, Long> mapModule = masterData.stream().collect(Collectors.groupingBy(r -> r.getCategorierec() != null ? r.getCategorierec().toUpperCase() : "GÉNÉRAL", Collectors.counting()));
         mapModule.forEach((k, v) -> pieModule.getData().add(new PieChart.Data(k, v)));
 
-        statsRoot.getChildren().addAll(pieStatut, new Separator(), pieModule);
+        // On ajoute le bouton IA avant les camemberts
+        statsRoot.getChildren().addAll(btnAutoTriage, pieStatut, new Separator(), pieModule);
 
-        // Style et Hover
         Platform.runLater(() -> {
             appliquerCyberStyle(pieStatut, total);
             appliquerCyberStyle(pieModule, total);
         });
 
         afficherSidePanel(statsRoot);
+    }
+
+    // --- LE MOTEUR D'AUTO-TRIAGE EN ARRIÈRE-PLAN ---
+    private void handleAutoTriage() {
+        Alert info = new Alert(Alert.AlertType.INFORMATION);
+        info.setTitle("IA GAMBATTA - CO-PILOT");
+        info.setHeaderText("Analyse neuronale en cours... 🧠");
+        info.setContentText("L'IA lit les descriptions et re-catégorise les tickets mal rangés. Cela peut prendre quelques secondes.");
+        info.show();
+
+        // On utilise un Thread pour ne pas bloquer l'interface graphique (Super pro pour la démo !)
+        new Thread(() -> {
+            AIService ai = new AIService();
+            int count = 0;
+
+            for (reclamation r : masterData) {
+                String cat = r.getCategorierec();
+                // On cible les tickets mal classés ou non spécifiés
+                if (cat == null || cat.equalsIgnoreCase("GÉNÉRAL") || cat.equalsIgnoreCase("Autre Demande") || cat.equalsIgnoreCase("NON SPÉCIFIÉ")) {
+                    String vraieCat = ai.determinerCategorie(r.getDescrirec());
+                    r.setCategorierec(vraieCat);
+                    service.modifier(r); // Mise à jour dans la base de données
+                    count++;
+                }
+            }
+
+            final int finalCount = count;
+
+            // Retour sur le Thread principal pour mettre à jour l'UI
+            Platform.runLater(() -> {
+                info.close();
+                chargerTableau(); // Rafraîchit les cartes et les camemberts
+
+                Alert success = new Alert(Alert.AlertType.INFORMATION);
+                success.setTitle("IA GAMBATTA");
+                success.setHeaderText("Smart Routing Terminé ! ✓");
+                success.setContentText(finalCount + " ticket(s) ont été analysés et redirigés vers le bon service par l'IA.");
+                success.show();
+            });
+        }).start();
     }
 
     private void appliquerCyberStyle(PieChart chart, long totalGlobal) {
@@ -167,7 +213,6 @@ public class ReclamationController implements Initializable {
                 String color = palette[i % palette.length];
                 slice.setStyle("-fx-pie-color: " + color + "; -fx-border-color: #020617; -fx-border-width: 2px;");
 
-                // HOVER : Calcul pourcentage
                 double percentage = (data.getPieValue() / totalGlobal) * 100;
                 String text = String.format("%s : %.1f%%", data.getName(), percentage);
 
@@ -196,7 +241,9 @@ public class ReclamationController implements Initializable {
                     (r.getTitre() != null && r.getTitre().toLowerCase().contains(search)) ||
                     String.valueOf(r.getIdrec()).contains(search);
 
-            ToggleButton selectedToggle = (ToggleButton) filterGroup.getSelectedToggle();
+            ToggleButton selectedToggle = null;
+            if(filterGroup != null) selectedToggle = (ToggleButton) filterGroup.getSelectedToggle();
+
             boolean matchStatus = true;
             if (selectedToggle == btnAttente) matchStatus = "EN ATTENTE".equalsIgnoreCase(r.getStatutrec());
             if (selectedToggle == btnResolu) matchStatus = "RÉSOLU".equalsIgnoreCase(r.getStatutrec());
@@ -325,7 +372,7 @@ public class ReclamationController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("ERREUR EXPORT");
             alert.setHeaderText("Échec de la génération");
-            alert.setContentText("Vérifiez que le fichier n'est pas déjà ouvert par un autre programme.");
+            alert.setContentText("Vérifiez que le fichier n'est pas déjà ouvert.");
             alert.showAndWait();
         }
     }

@@ -3,6 +3,7 @@ package gambatta.tn.ui.reclamation;
 import gambatta.tn.entites.reclamation.reclamation;
 import gambatta.tn.services.reclamation.ServiceReclamation;
 import gambatta.tn.services.reclamation.PdfService;
+import gambatta.tn.services.reclamation.AIService;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -15,12 +16,12 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.json.JSONObject;
 
 import java.net.URL;
 import java.util.List;
@@ -34,16 +35,19 @@ public class AdminDashboardController implements Initializable {
     @FXML private ScrollPane cyberScroll;
     @FXML private StackPane overlayContainer;
 
-    // --- ANALYSE SYSTÈME (CAMEMBERTS) ---
     @FXML private PieChart pieChartStatut;
     @FXML private PieChart pieChartModule;
-    @FXML private Label lblTotal;
+    @FXML private Label lblTotalInfo;
 
-    // --- RECHERCHE ET FILTRES ---
     @FXML private TextField searchField;
     @FXML private ToggleGroup filterGroup;
     @FXML private ToggleButton btnTous, btnAttente, btnResolu;
     @FXML private ComboBox<String> comboModule, comboTri;
+
+    // --- ÉLÉMENTS : COPILOT GLOBAL ---
+    @FXML private Button btnToggleCopilot;
+    @FXML private HBox boxCopilot;
+    @FXML private TextField txtGlobalCopilot;
 
     private ServiceReclamation service = new ServiceReclamation();
 
@@ -59,7 +63,15 @@ public class AdminDashboardController implements Initializable {
         }
 
         if (comboModule != null) {
-            comboModule.getItems().addAll("TOUS LES MODULES", "Service Technique / Bug en jeu", "Facturation & Paiement", "Gestion de Compte", "Comportement Joueur / Signalement", "Autre Demande");
+            comboModule.getItems().addAll("TOUS LES MODULES",
+                    "Service Technique",
+                    "Facturation & Paiement",
+                    "Gestion de Compte",
+                    "Comportement Joueur",
+                    "Gestion des Activités",
+                    "Tournois & Compétitions",
+                    "Restauration & Nourriture",
+                    "Gestion d'Équipe");
             comboModule.setValue("TOUS LES MODULES");
         }
 
@@ -88,13 +100,128 @@ public class AdminDashboardController implements Initializable {
     }
 
     // =========================================================================
-    // STATISTIQUES ET HOVER EFFECT (SANS CSS EXTERNE)
+    // NOUVEAUTÉ : MOTEUR DU COPILOT GLOBAL
     // =========================================================================
+    @FXML
+    private void toggleCopilot() {
+        if (boxCopilot != null) {
+            boolean isVisible = boxCopilot.isVisible();
+            boxCopilot.setVisible(!isVisible);
+            boxCopilot.setManaged(!isVisible);
+            if (!isVisible && txtGlobalCopilot != null) {
+                txtGlobalCopilot.requestFocus(); // Focus auto sur la barre
+            }
+        }
+    }
+
+    @FXML
+    private void handleExecuterCopilotGlobal() {
+        if (txtGlobalCopilot == null || txtGlobalCopilot.getText().trim().isEmpty()) return;
+        String commande = txtGlobalCopilot.getText().trim();
+        txtGlobalCopilot.setText("Exécution en cours... 🤖");
+        txtGlobalCopilot.setDisable(true);
+
+        new Thread(() -> {
+            AIService ai = new AIService();
+            String jsonResult = ai.executerCopilotGlobal(commande);
+
+            Platform.runLater(() -> {
+                txtGlobalCopilot.clear();
+                txtGlobalCopilot.setDisable(false);
+
+                if (jsonResult.contains("QUOTA") || jsonResult.contains("ERREUR")) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Copilot Global");
+                    alert.setHeaderText("Surcharge Systèmes");
+                    alert.setContentText("Les serveurs IA sont surchargés. Réessayez dans 1 minute.");
+                    alert.show();
+                    return;
+                }
+
+                try {
+                    JSONObject json = new JSONObject(jsonResult);
+                    String action = json.has("action") ? json.getString("action") : "UNKNOWN";
+
+                    switch (action) {
+                        case "AUTO_TRIAGE":
+                            handleAutoTriage();
+                            break;
+                        case "EXPORT_PDF":
+                            handleExporterRapportGlobal();
+                            break;
+                        case "FILTER":
+                            if (json.has("filtre_statut") && !json.isNull("filtre_statut")) {
+                                String stat = json.getString("filtre_statut");
+                                if (stat.equals("EN ATTENTE") && btnAttente != null) btnAttente.setSelected(true);
+                                else if (stat.equals("RÉSOLU") && btnResolu != null) btnResolu.setSelected(true);
+                                else if (btnTous != null) btnTous.setSelected(true);
+                            }
+                            if (json.has("filtre_module") && !json.isNull("filtre_module") && comboModule != null) {
+                                String module = json.getString("filtre_module");
+                                if (comboModule.getItems().contains(module)) {
+                                    comboModule.setValue(module);
+                                }
+                            }
+                            break;
+                        default:
+                            Alert alert = new Alert(Alert.AlertType.WARNING);
+                            alert.setHeaderText("Commande non reconnue.");
+                            alert.setContentText("Le Copilot ne peut faire que : Auto-triage, Exporter PDF, ou Filtrer/Chercher.");
+                            alert.show();
+                            break;
+                    }
+                    // On referme le Copilot après une action réussie
+                    toggleCopilot();
+                } catch (Exception e) {
+                    System.err.println("JSON copilot malformé : " + jsonResult);
+                }
+            });
+        }).start();
+    }
+
+    @FXML
+    private void handleAutoTriage() {
+        Alert info = new Alert(Alert.AlertType.INFORMATION);
+        info.setTitle("IA GAMBATTA - CO-PILOT");
+        info.setHeaderText("Analyse neuronale en masse en cours... 🧠");
+        info.setContentText("L'IA lit les descriptions et re-catégorise les tickets mal rangés. Veuillez patienter.");
+        info.show();
+
+        new Thread(() -> {
+            AIService ai = new AIService();
+            int count = 0;
+
+            for (reclamation r : masterData) {
+                String cat = r.getCategorierec();
+                if (cat == null || cat.equalsIgnoreCase("GÉNÉRAL") || cat.equalsIgnoreCase("Autre Demande") || cat.equalsIgnoreCase("NON SPÉCIFIÉ")) {
+                    String vraieCat = ai.determinerCategorie(r.getDescrirec());
+
+                    if (vraieCat != null && !vraieCat.equalsIgnoreCase("Autre Demande") && !vraieCat.equals(cat) && !vraieCat.contains("QUOTA")) {
+                        r.setCategorierec(vraieCat);
+                        service.modifier(r);
+                        count++;
+                    }
+                }
+            }
+            final int finalCount = count;
+
+            Platform.runLater(() -> {
+                info.close();
+                chargerTableau();
+
+                Alert success = new Alert(Alert.AlertType.INFORMATION);
+                success.setTitle("IA GAMBATTA");
+                success.setHeaderText("Smart Routing Terminé ! ✓");
+                success.setContentText(finalCount + " ticket(s) ont été analysés et redirigés vers le bon service par l'IA.");
+                success.show();
+            });
+        }).start();
+    }
+
     private void mettreAJourStatistiques() {
         if (pieChartStatut == null || pieChartModule == null) return;
-
         int total = masterData.size();
-        if (lblTotal != null) lblTotal.setText(String.valueOf(total));
+        if (lblTotalInfo != null) lblTotalInfo.setText("TOTAL TICKETS : " + total);
 
         if (total == 0) {
             pieChartStatut.setData(FXCollections.observableArrayList());
@@ -102,7 +229,6 @@ public class AdminDashboardController implements Initializable {
             return;
         }
 
-        // 1. Données Statut
         long attente = masterData.stream().filter(r -> "EN ATTENTE".equalsIgnoreCase(r.getStatutrec())).count();
         long cours = masterData.stream().filter(r -> "EN COURS".equalsIgnoreCase(r.getStatutrec())).count();
         long resolu = masterData.stream().filter(r -> "RÉSOLU".equalsIgnoreCase(r.getStatutrec())).count();
@@ -113,7 +239,6 @@ public class AdminDashboardController implements Initializable {
         if (resolu > 0) dataStatut.add(new PieChart.Data("RÉSOLUS", resolu));
         pieChartStatut.setData(dataStatut);
 
-        // 2. Données Modules
         Map<String, Long> parModule = masterData.stream()
                 .collect(Collectors.groupingBy(r -> r.getCategorierec() != null ? r.getCategorierec().toUpperCase() : "GÉNÉRAL", Collectors.counting()));
 
@@ -121,44 +246,32 @@ public class AdminDashboardController implements Initializable {
         parModule.forEach((key, val) -> dataModule.add(new PieChart.Data(key, val)));
         pieChartModule.setData(dataModule);
 
-        // 3. Application du design et du HOVER
         Platform.runLater(() -> appliquerStyleEtHover(total));
     }
 
     private void appliquerStyleEtHover(int totalGlobal) {
         String[] palette = {"#f59e0b", "#0ea5e9", "#10b981", "#a855f7", "#ec4899", "#f43f5e"};
-
-        // --- TRAITEMENT DU CAMEMBERT STATUT ---
         int i = 0;
         for (PieChart.Data data : pieChartStatut.getData()) {
             Node slice = data.getNode();
             if (slice != null) {
-                // Style visuel
                 slice.setStyle("-fx-pie-color: " + palette[i % palette.length] + "; -fx-border-color: #020617; -fx-border-width: 2px;");
-
-                // Calcul du pourcentage
                 double percentage = (data.getPieValue() / totalGlobal) * 100;
                 String info = String.format("%s : %.1f%% (%d)", data.getName(), percentage, (int)data.getPieValue());
-
-                // Ajout du Tooltip (L'effet HOVER)
                 Tooltip tt = new Tooltip(info);
                 tt.setStyle("-fx-background-color: #0f172a; -fx-text-fill: " + palette[i % palette.length] + "; -fx-font-weight: bold; -fx-border-color: " + palette[i % palette.length] + "; -fx-border-radius: 5;");
-                tt.setShowDelay(Duration.ZERO); // Affichage instantané
+                tt.setShowDelay(Duration.ZERO);
                 Tooltip.install(slice, tt);
             }
             i++;
         }
-
-        // --- TRAITEMENT DU CAMEMBERT MODULE ---
         int j = 2;
         for (PieChart.Data data : pieChartModule.getData()) {
             Node slice = data.getNode();
             if (slice != null) {
                 slice.setStyle("-fx-pie-color: " + palette[j % palette.length] + "; -fx-border-color: #020617; -fx-border-width: 2px;");
-
                 double percentage = (data.getPieValue() / totalGlobal) * 100;
                 String info = String.format("%s : %.1f%% (%d)", data.getName(), percentage, (int)data.getPieValue());
-
                 Tooltip tt = new Tooltip(info);
                 tt.setStyle("-fx-background-color: #0f172a; -fx-text-fill: " + palette[j % palette.length] + "; -fx-font-weight: bold; -fx-border-color: " + palette[j % palette.length] + "; -fx-border-radius: 5;");
                 tt.setShowDelay(Duration.ZERO);
@@ -166,13 +279,9 @@ public class AdminDashboardController implements Initializable {
             }
             j++;
         }
-
-        // Légendes en blanc
         pieChartStatut.lookupAll(".chart-legend-item").forEach(n -> { if (n instanceof Label) ((Label) n).setStyle("-fx-text-fill: white; -fx-font-size: 10px;"); });
         pieChartModule.lookupAll(".chart-legend-item").forEach(n -> { if (n instanceof Label) ((Label) n).setStyle("-fx-text-fill: white; -fx-font-size: 10px;"); });
     }
-
-    // =========================================================================
 
     private void updateFiltresEtTri() {
         filteredData.setPredicate(r -> {
@@ -217,7 +326,6 @@ public class AdminDashboardController implements Initializable {
                 return 0;
             });
         }
-
         dessinerCartesUI();
     }
 
@@ -259,9 +367,9 @@ public class AdminDashboardController implements Initializable {
 
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
-        Button btnVoir = new Button("👁 VOIR"); styleNeonButton(btnVoir, "#38bdf8", "#020617"); btnVoir.setOnAction(e -> handleVoir(r));
-        Button btnTraiter = new Button("⚡ TRAITER"); styleNeonButton(btnTraiter, "#fcc033", "#020617"); btnTraiter.setOnAction(e -> handleTraiter(r));
-        Button btnArchiver = new Button("🚫 ARCHIVER"); styleNeonButton(btnArchiver, "#ef4444", "white"); btnArchiver.setOnAction(e -> handleArchiver(r));
+        Button btnVoir = new Button("[VOIR]"); styleNeonButton(btnVoir, "#38bdf8", "#020617"); btnVoir.setOnAction(e -> handleVoir(r));
+        Button btnTraiter = new Button("[TRAITER]"); styleNeonButton(btnTraiter, "#fcc033", "#020617"); btnTraiter.setOnAction(e -> handleTraiter(r));
+        Button btnArchiver = new Button("[ARCHIVER]"); styleNeonButton(btnArchiver, "#ef4444", "white"); btnArchiver.setOnAction(e -> handleArchiver(r));
         actions.getChildren().addAll(btnVoir, btnTraiter, btnArchiver);
 
         card.getChildren().addAll(header, title, moduleLabel, new Separator(), actions);

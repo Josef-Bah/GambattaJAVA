@@ -18,6 +18,15 @@
 
         <Separator style="-fx-background-color: rgba(56, 189, 248, 0.1);" />
 
+        <VBox spacing="8" style="-fx-background-color: rgba(16, 185, 129, 0.05); -fx-border-color: rgba(16, 185, 129, 0.3); -fx-border-radius: 8; -fx-padding: 15;">
+            <Label text="TERMINAL COPILOT 🪄" style="-fx-text-fill: #10b981; -fx-font-size: 10px; -fx-font-weight: bold; -fx-font-family: 'Consolas', monospace;" />
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="txtCopilot" promptText="Ex: Assigne ce ticket au financier, passe-le en résolu..." HBox.hgrow="ALWAYS" style="-fx-background-color: rgba(2, 6, 23, 0.8); -fx-text-fill: #10b981; -fx-border-color: #10b981; -fx-border-radius: 5; -fx-background-radius: 5; -fx-font-family: 'Consolas', monospace; -fx-prompt-text-fill: #064e3b; -fx-padding: 8;" onAction="#handleCopilot" />
+                <Button fx:id="btnCopilot" text="EXÉCUTER &gt;" onAction="#handleCopilot" style="-fx-background-color: transparent; -fx-border-color: #10b981; -fx-text-fill: #10b981; -fx-font-weight: bold; -fx-border-radius: 5; -fx-cursor: hand; -fx-padding: 8 15;" />
+            </HBox>
+            <Label fx:id="lblCopilotStatus" text="En attente d'instruction..." style="-fx-text-fill: #065f46; -fx-font-size: 10px; -fx-font-style: italic; -fx-font-family: 'Consolas', monospace;" />
+        </VBox>
+
         <HBox spacing="15">
             <VBox spacing="6" HBox.hgrow="ALWAYS">
                 <Label text="STATUT DU PROTOCOLE" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" />
@@ -29,31 +38,49 @@
             </VBox>
         </HBox>
 
-        <VBox spacing="6" VBox.vgrow="ALWAYS">
+        <VBox spacing="6">
             <Label text="HISTORIQUE DES ÉCHANGES" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" />
-            <ScrollPane fitToWidth="true" prefHeight="200" style="-fx-background: transparent; -fx-background-color: rgba(2, 6, 23, 0.3); -fx-border-color: rgba(255,255,255,0.05); -fx-border-radius: 8; -fx-padding: 10;">
+            <ScrollPane fitToWidth="true" prefHeight="130" style="-fx-background: transparent; -fx-background-color: rgba(2, 6, 23, 0.3); -fx-border-color: rgba(255,255,255,0.05); -fx-border-radius: 8; -fx-padding: 10;">
                 <VBox fx:id="vboxHistorique" spacing="10" />
             </ScrollPane>
         </VBox>
 
-        <VBox spacing="6">
+        <VBox spacing="8" style="-fx-background-color: rgba(239, 68, 68, 0.05); -fx-border-color: rgba(239, 68, 68, 0.2); -fx-border-radius: 8; -fx-padding: 10;">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Button fx:id="btnScanFraude" text="🔍 SCAN DE CRÉDIBILITÉ (IA)" onAction="#handleScanFraude" style="-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-border-radius: 5; -fx-cursor: hand; -fx-font-size: 10px;" />
+            </HBox>
+            <Label fx:id="lblResultatFraude" text="Cliquez pour analyser la crédibilité..." wrapText="true" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-style: italic;" />
+        </VBox>
+
+        <VBox spacing="8" style="-fx-background-color: rgba(14, 165, 233, 0.05); -fx-border-color: rgba(14, 165, 233, 0.3); -fx-border-radius: 8; -fx-padding: 10;">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Button fx:id="btnDuplicateHunter" text="🔗 RECHERCHER DES DOUBLONS (IA)" onAction="#handleDuplicateHunter" style="-fx-background-color: transparent; -fx-border-color: #0ea5e9; -fx-text-fill: #0ea5e9; -fx-font-weight: bold; -fx-border-radius: 5; -fx-cursor: hand; -fx-font-size: 10px;" />
+            </HBox>
+            <Label fx:id="lblResultatDoublon" text="Vérifier si ce problème a déjà été signalé récemment..." wrapText="true" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-style: italic;" />
+            <HBox fx:id="boxLiensDoublons" spacing="8" alignment="CENTER_LEFT" />
+        </VBox>
+
+        <VBox spacing="8" style="-fx-background-color: rgba(168, 85, 247, 0.05); -fx-border-color: rgba(168, 85, 247, 0.3); -fx-border-radius: 8; -fx-padding: 10;">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Button fx:id="btnGenererReponse" text="✨ GÉNÉRER UNE RÉPONSE (IA)" onAction="#handleGenererReponse" style="-fx-background-color: transparent; -fx-border-color: #a855f7; -fx-text-fill: #a855f7; -fx-font-weight: bold; -fx-border-radius: 5; -fx-cursor: hand; -fx-font-size: 10px;" />
+            </HBox>
+            <Label fx:id="lblStatutIA" text="Laissez l'IA rédiger le message pour vous..." wrapText="true" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-style: italic;" />
+        </VBox>
+
+        <VBox spacing="6" VBox.vgrow="ALWAYS">
             <HBox alignment="CENTER_LEFT" spacing="10">
                 <Label text="COMPTE-RENDU / RÉPONSE" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" />
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnAmeliorer" text="✨ IA" onAction="#handleAmeliorerTexte" style="-fx-background-color: rgba(16, 185, 129, 0.1); -fx-border-color: #10b981; -fx-text-fill: #10b981; -fx-border-radius: 5; -fx-font-size: 10px; -fx-cursor: hand;" />
                 <ComboBox fx:id="comboSaisieRapide" promptText="⚡ Réponses rapides..." prefWidth="160" style="-fx-background-color: rgba(14, 165, 233, 0.1); -fx-border-color: #0ea5e9; -fx-border-radius: 5; -fx-font-size: 10px;" />
             </HBox>
-            <TextArea fx:id="txtReponse" promptText="Saisir la réponse au client ou les actions correctives..." wrapText="true" prefHeight="100" style="-fx-background-color: rgba(2, 6, 23, 0.5); -fx-border-color: #334155; -fx-background-radius: 8; -fx-border-radius: 8; -fx-text-fill: white;" />
+            <TextArea fx:id="txtReponse" promptText="La réponse apparaîtra ici..." wrapText="true" prefHeight="180" VBox.vgrow="ALWAYS" style="-fx-background-color: rgba(2, 6, 23, 0.5); -fx-border-color: #334155; -fx-background-radius: 8; -fx-border-radius: 8; -fx-text-fill: white;" />
         </VBox>
 
         <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
-
             <HBox spacing="10">
                 <Button fx:id="btnReponseInteractive" text="ENVOYER &amp; ATTENDRE ⏳" onAction="#handleReponseInteractive" maxWidth="Infinity" HBox.hgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: #f59e0b; -fx-text-fill: #f59e0b; -fx-font-weight: bold; -fx-border-radius: 8; -fx-padding: 10; -fx-cursor: hand;" />
-
                 <Button fx:id="btnReponseUnique" text="ENVOYER &amp; CLÔTURER ✓" onAction="#handleReponseUnique" maxWidth="Infinity" HBox.hgrow="ALWAYS" style="-fx-background-color: #38bdf8; -fx-text-fill: #020617; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10; -fx-cursor: hand;" />
             </HBox>
-
             <Button fx:id="btnUpdateStatut" text="JUSTE SAUVEGARDER LE STATUT" onAction="#handleSauvegarder" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-border-color: #334155; -fx-text-fill: #94a3b8; -fx-font-weight: bold; -fx-border-radius: 8; -fx-padding: 8; -fx-cursor: hand;" />
         </VBox>
 
