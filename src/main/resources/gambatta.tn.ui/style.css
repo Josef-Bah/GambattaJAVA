@@ -235,6 +235,82 @@
     -fx-padding: 5;
 }
 
+/* --- Premium Card System --- */
+.premium-card {
+    -fx-background-color: -fx-surface-medium;
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(197, 179, 88, 0.2);
+    -fx-border-width: 1.2;
+    -fx-border-radius: 12;
+    -fx-padding: 22;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 12, 0, 0, 8);
+    -fx-pref-width: 320;
+}
+
+.premium-card:hover {
+    -fx-border-color: -fx-gold;
+    -fx-effect: dropshadow(three-pass-box, -fx-gold-glow, 15, 0, 0, 0);
+}
+
+.status-badge {
+    -fx-background-radius: 15;
+    -fx-padding: 3 12;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 10px;
+    -fx-background-color: #3498db; 
+}
+
+.status-en_attente { -fx-background-color: #f39c12; }
+.status-valide     { -fx-background-color: #27ae60; }
+.status-termine    { -fx-background-color: #7f8c8d; }
+.status-refusee    { -fx-background-color: #e74c3c; }
+
+.card-title {
+    -fx-text-fill: white;
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+}
+
+.card-subtitle {
+    -fx-text-fill: -fx-text-muted;
+    -fx-font-size: 12px;
+}
+
+.card-id {
+    -fx-text-fill: rgba(255,255,255,0.4);
+    -fx-font-size: 10px;
+}
+
+.card-separator {
+    -fx-border-color: rgba(255,255,255,0.08) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.action-card-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(197, 179, 88, 0.4);
+    -fx-border-radius: 5;
+    -fx-text-fill: -fx-gold;
+    -fx-padding: 4 12;
+    -fx-font-size: 10px;
+}
+
+.action-card-btn:hover {
+    -fx-background-color: -fx-gold;
+    -fx-text-fill: -fx-black;
+}
+
+.btn-delete-card {
+    -fx-border-color: #e74c3c;
+    -fx-text-fill: #e74c3c;
+}
+
+.btn-delete-card:hover {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+}
+
 .msg-error {
     -fx-text-fill: #ff6b6b;
     -fx-font-size: 13px;

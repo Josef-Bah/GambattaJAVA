@@ -1,6 +1,6 @@
 package gambatta.tn.ui;
 
-import gambatta.tn.tools.GeminiService;
+import gambatta.tn.services.tournoi.GeminiService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;

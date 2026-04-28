@@ -1,4 +1,4 @@
-package gambatta.tn.tools;
+package gambatta.tn.services.tournoi;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -9,9 +9,9 @@ import java.util.Map;
 public class CloudinaryService {
 
     // Identifiants récupérés de la gestion réclamation
-    private static final String CLOUD_NAME = "dh0jz5ruc";
-    private static final String API_KEY = "887475919413442";
-    private static final String API_SECRET = "VntQ0sqXcoPvTyiwStJ3KbTH5GA";
+    private static final String CLOUD_NAME = "dgjihus18";
+    private static final String API_KEY = "544787974269455";
+    private static final String API_SECRET = "GRshvMmeMH6SErfZp83dQSHQigY";
 
     private final Cloudinary cloudinary;
 
@@ -30,8 +30,8 @@ public class CloudinaryService {
     public String uploadImage(File file) {
         try {
             Map uploadResult = cloudinary.uploader().upload(file, ObjectUtils.asMap(
-                    "folder", "gambatta/uploads",
-                    "resource_type", "image"
+                    "folder", "gambatta/pdfs",
+                    "resource_type", "auto" // Auto détecte PDF, Images, etc.
             ));
             return (String) uploadResult.get("secure_url");
         } catch (IOException e) {

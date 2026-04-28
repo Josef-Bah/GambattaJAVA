@@ -1,4 +1,4 @@
-package gambatta.tn.tools;
+package gambatta.tn.services.tournoi;
 
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -10,9 +10,12 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import gambatta.tn.entites.tournois.equipe;
 import gambatta.tn.entites.tournois.inscriptiontournoi;
 import gambatta.tn.entites.tournois.tournoi;
 import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class PdfService {
@@ -22,7 +25,17 @@ public class PdfService {
     private static final DeviceRgb GOLD = new DeviceRgb(197, 179, 88);
 
     /**
-     * Génère un ticket PDF pour une inscription de tournoi.
+     * Génère un ticket PDF dans un fichier temporaire.
+     */
+    public File generateTicketFile(inscriptiontournoi inscription) throws IOException {
+        File tempFile = File.createTempFile("Ticket_" + inscription.getId() + "_", ".pdf");
+        tempFile.deleteOnExit();
+        generateTicket(inscription, tempFile.getAbsolutePath());
+        return tempFile;
+    }
+
+    /**
+     * Génère un ticket PDF pour une inscription de tournoi vers un chemin précis.
      */
     public void generateTicket(inscriptiontournoi inscription, String destPath) throws FileNotFoundException {
         PdfWriter writer = new PdfWriter(destPath);
@@ -69,6 +82,16 @@ public class PdfService {
     }
 
     /**
+     * Génère une liste récapitulative dans un fichier temporaire.
+     */
+    public File generateTournamentListFile(List<tournoi> tournois) throws IOException {
+        File tempFile = File.createTempFile("ListeTournois_", ".pdf");
+        tempFile.deleteOnExit();
+        generateTournamentList(tournois, tempFile.getAbsolutePath());
+        return tempFile;
+    }
+
+    /**
      * Génère une liste récapitulative de tous les tournois.
      */
     public void generateTournamentList(List<tournoi> tournois, String destPath) throws FileNotFoundException {
@@ -100,6 +123,52 @@ public class PdfService {
         document.add(table);
         document.add(new Paragraph("\n"));
         document.add(new Paragraph("Total de tournois : " + tournois.size()).setItalic().setFontColor(NAVY));
+
+        document.close();
+    }
+
+    /**
+     * Génère une liste d'équipes dans un fichier temporaire.
+     */
+    public File generateEquipeListFile(List<equipe> equipes) throws IOException {
+        File tempFile = File.createTempFile("ListeEquipes_", ".pdf");
+        tempFile.deleteOnExit();
+        generateEquipeList(equipes, tempFile.getAbsolutePath());
+        return tempFile;
+    }
+
+    /**
+     * Génère une liste récapitulative de toutes les équipes.
+     */
+    public void generateEquipeList(List<equipe> equipes, String destPath) throws FileNotFoundException {
+        PdfWriter writer = new PdfWriter(destPath);
+        PdfDocument pdf = new PdfDocument(writer);
+        Document document = new Document(pdf);
+
+        document.add(new Paragraph("LISTE OFFICIELLE DES ÉQUIPES")
+                .setFontColor(NAVY).setBold().setFontSize(22).setTextAlignment(TextAlignment.CENTER));
+        document.add(new Paragraph("\n"));
+
+        float[] columnWidths = {3, 3, 2, 1, 2};
+        Table table = new Table(UnitValue.createPercentArray(columnWidths)).useAllAvailableWidth();
+
+        table.addHeaderCell(new Cell().add(new Paragraph("Nom")).setBackgroundColor(NAVY).setFontColor(DeviceRgb.WHITE).setBold());
+        table.addHeaderCell(new Cell().add(new Paragraph("Capitaine")).setBackgroundColor(NAVY).setFontColor(DeviceRgb.WHITE).setBold());
+        table.addHeaderCell(new Cell().add(new Paragraph("Coach")).setBackgroundColor(NAVY).setFontColor(DeviceRgb.WHITE).setBold());
+        table.addHeaderCell(new Cell().add(new Paragraph("ID")).setBackgroundColor(NAVY).setFontColor(DeviceRgb.WHITE).setBold());
+        table.addHeaderCell(new Cell().add(new Paragraph("Statut")).setBackgroundColor(NAVY).setFontColor(DeviceRgb.WHITE).setBold());
+
+        for (equipe e : equipes) {
+            table.addCell(new Cell().add(new Paragraph(e.getNom())));
+            table.addCell(new Cell().add(new Paragraph(e.getTeamLeader() != null ? e.getTeamLeader() : "-")));
+            table.addCell(new Cell().add(new Paragraph(e.getCoach() != null ? e.getCoach() : "-")));
+            table.addCell(new Cell().add(new Paragraph("#" + e.getId())));
+            table.addCell(new Cell().add(new Paragraph(e.getStatus()).setFontColor(GOLD)));
+        }
+
+        document.add(table);
+        document.add(new Paragraph("\n"));
+        document.add(new Paragraph("Total d'équipes : " + equipes.size()).setItalic().setFontColor(NAVY));
 
         document.close();
     }

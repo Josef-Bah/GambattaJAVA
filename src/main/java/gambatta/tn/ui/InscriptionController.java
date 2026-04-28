@@ -41,6 +41,11 @@ public class InscriptionController {
         openWindow("/gambatta.tn.ui/RejoindreEquipeForm.fxml", "Rejoindre une équipe");
     }
 
+    @FXML
+    private void handleTrouverTournoi() {
+        openWindow("/gambatta.tn.ui/trouverTournoiInterface.fxml", "Trouver un Tournoi");
+    }
+
     private void openWindow(String fxml, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));

@@ -2,8 +2,8 @@ package gambatta.tn.ui;
 
 import gambatta.tn.entites.tournois.tournoi;
 import gambatta.tn.services.tournoi.TournoiService;
-import gambatta.tn.tools.CloudinaryService;
-import gambatta.tn.tools.PdfService;
+import gambatta.tn.services.tournoi.CloudinaryService;
+import gambatta.tn.services.tournoi.PdfService;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -15,10 +15,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -44,23 +43,19 @@ public class TournoiController {
     @FXML private Label errDateFin;
     @FXML private Label globalMsg;
     @FXML private Button btnPDF;
+    @FXML private TextField txtSearch;
     @FXML private TextField logoField;
     @FXML private ImageView logoPreview;
 
-    // ── Table ──
-    @FXML private TableView<tournoi>              table;
-
-    @FXML private TableColumn<tournoi, String>    nomCol;
-    @FXML private TableColumn<tournoi, String>    dateDebutCol;
-    @FXML private TableColumn<tournoi, String>    dateFinCol;
-    @FXML private TableColumn<tournoi, String>    statutCol;
-    @FXML private TableColumn<tournoi, Void>      colModifier;
-    @FXML private TableColumn<tournoi, Void>      colSupprimer;
+    // ── Grid Area ──
+    @FXML private FlowPane cardsContainer;
 
     private TournoiService service = new TournoiService();
     private ObservableList<tournoi> tournois = FXCollections.observableArrayList();
     private tournoi editingTournoi = null;
     private static final double DRAWER_WIDTH = 380;
+
+
 
     @FXML
     public void initialize() {
@@ -76,33 +71,77 @@ public class TournoiController {
             }
         });
 
-
-        nomCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getNomt()));
-        dateDebutCol.setCellValueFactory(d -> {
-            LocalDateTime dt = d.getValue().getDatedebutt();
-            return new javafx.beans.property.SimpleStringProperty(dt != null ? dt.toLocalDate().toString() : "");
-        });
-        dateFinCol.setCellValueFactory(d -> {
-            LocalDateTime dt = d.getValue().getDatefint();
-            return new javafx.beans.property.SimpleStringProperty(dt != null ? dt.toLocalDate().toString() : "");
-        });
-        statutCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getStatutt()));
-
-        colModifier.setCellFactory(p -> new TableCell<>() {
-            private final Button btn = new Button("✏ Modifier");
-            { btn.setStyle("-fx-background-color: #1B3A5C; -fx-text-fill: #C5B358; -fx-cursor: hand; -fx-border-color: #C5B358; -fx-border-width:1; -fx-border-radius:6; -fx-background-radius:6;");
-              btn.setOnAction(e -> openDrawerEdit(getTableView().getItems().get(getIndex()))); }
-            @Override protected void updateItem(Void i, boolean empty) { super.updateItem(i, empty); setGraphic(empty ? null : btn); }
-        });
-
-        colSupprimer.setCellFactory(p -> new TableCell<>() {
-            private final Button btn = new Button("🗑 Supprimer");
-            { btn.setStyle("-fx-background-color: #3B0A0A; -fx-text-fill: #ff6b6b; -fx-cursor: hand; -fx-border-color: #8B1E2D; -fx-border-width:1; -fx-border-radius:6; -fx-background-radius:6;");
-              btn.setOnAction(e -> deleteTournoi(getTableView().getItems().get(getIndex()))); }
-            @Override protected void updateItem(Void i, boolean empty) { super.updateItem(i, empty); setGraphic(empty ? null : btn); }
-        });
+        txtSearch.textProperty().addListener((obs, o, n) -> filterTournois(n));
 
         loadData();
+    }
+
+    private void filterTournois(String q) {
+        if (q == null || q.isEmpty()) { renderCards(); return; }
+        cardsContainer.getChildren().clear();
+        for (tournoi t : tournois) {
+            if (t.getNomt().toLowerCase().contains(q.toLowerCase())) {
+                cardsContainer.getChildren().add(createTournamentCard(t));
+            }
+        }
+    }
+
+    private void renderCards() {
+        cardsContainer.getChildren().clear();
+        for (tournoi t : tournois) {
+            VBox card = createTournamentCard(t);
+            cardsContainer.getChildren().add(card);
+        }
+    }
+
+    private VBox createTournamentCard(tournoi t) {
+        VBox card = new VBox(15);
+        card.getStyleClass().add("premium-card");
+
+        // Top Bar: ID & Status
+        HBox top = new HBox();
+        top.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        Label idLab = new Label("ID: #" + (t.getId() != null ? t.getId() : "??"));
+        idLab.getStyleClass().add("card-id");
+        Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
+        Label statusBadge = new Label(t.getStatutt() != null ? t.getStatutt().toUpperCase() : "OUVERT");
+        statusBadge.getStyleClass().addAll("status-badge", "status-" + (t.getStatutt() != null ? t.getStatutt().toLowerCase() : "valide"));
+        top.getChildren().addAll(idLab, spacer, statusBadge);
+
+        // Content: Title & Dates
+        VBox content = new VBox(5);
+        Label title = new Label(t.getNomt());
+        title.getStyleClass().add("card-title");
+        title.setWrapText(true);
+        String datesStr = "📅 " + (t.getDatedebutt() != null ? t.getDatedebutt().toLocalDate().toString() : "??") 
+                        + " ➔ " + (t.getDatefint() != null ? t.getDatefint().toLocalDate().toString() : "??");
+        Label dates = new Label(datesStr);
+        dates.getStyleClass().add("card-subtitle");
+        content.getChildren().addAll(title, dates);
+
+        // Separator
+        Region sep = new Region();
+        sep.getStyleClass().add("card-separator");
+        sep.setMinHeight(1);
+
+        // Buttons
+        HBox actions = new HBox(10);
+        actions.setAlignment(javafx.geometry.Pos.CENTER);
+        Button btnView = new Button("[VOIR]");
+        btnView.getStyleClass().add("action-card-btn");
+        
+        Button btnEdit = new Button("[MODIFIER]");
+        btnEdit.getStyleClass().add("action-card-btn");
+        btnEdit.setOnAction(e -> openDrawerEdit(t));
+
+        Button btnDel = new Button("[SUPPRIMER]");
+        btnDel.getStyleClass().addAll("action-card-btn", "btn-delete-card");
+        btnDel.setOnAction(e -> deleteTournoi(t));
+
+        actions.getChildren().addAll(btnView, btnEdit, btnDel);
+
+        card.getChildren().addAll(top, content, sep, actions);
+        return card;
     }
 
     // ── DRAWER ──────────────────────────────────────────────
@@ -202,7 +241,7 @@ public class TournoiController {
             editingTournoi.setDatedebutt(debut); editingTournoi.setDatefint(fin);
             editingTournoi.setLogo(logoField.getText().trim());
             if (service.update(editingTournoi)) { 
-                table.refresh(); 
+                renderCards(); 
                 showInlineMsg("✅ Succès: Tournoi modifié !", false); 
                 new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2)).setOnFinished(e -> closeDrawer());
             }
@@ -213,7 +252,10 @@ public class TournoiController {
     // ── DELETE ──────────────────────────────────────────────
 
     private void deleteTournoi(tournoi t) {
-        if (service.delete(t.getId())) tournois.remove(t);
+        if (service.delete(t.getId())) {
+            tournois.remove(t);
+            renderCards();
+        }
     }
 
     // ── VALIDATION ──────────────────────────────────────────
@@ -259,36 +301,41 @@ public class TournoiController {
 
     // ── DATA ────────────────────────────────────────────────
 
-    private void loadData() { tournois.setAll(service.findAll()); table.setItems(tournois); }
-
-    private void exportPDF() {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Exporter Liste des Tournois");
-        fc.setInitialFileName("Liste_Tournois.pdf");
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
-        File file = fc.showSaveDialog(table.getScene().getWindow());
-        if (file != null) {
-            try {
-                // On va créer une nouvelle méthode spécifique dans PdfService pour la liste
-                generateTournamentListPdf(file.getAbsolutePath());
-                showInlineMsg("✅ Liste exportée avec succès !", false);
-            } catch (Exception e) {
-                e.printStackTrace();
-                showInlineMsg("❌ Erreur lors de l'export PDF.", true);
-            }
-        }
+    private void loadData() { 
+        tournois.setAll(service.findAll()); 
+        renderCards(); 
     }
 
-    private void generateTournamentListPdf(String path) throws Exception {
-        // Optionnel : Je peux aussi ajouter une méthode directe dans PdfService
-        // Pour gagner du temps, j'utilise la logique iText ici ou j'appelle une version étendue de PdfService
-        // Mais pour rester propre, je vais ajouter 'generateTournamentList' dans PdfService.java
-        new PdfService().generateTournamentList(tournois, path);
+    private void exportPDF() {
+        if (tournois.isEmpty()) {
+            showInlineMsg("⚠ Aucune donnée à exporter.", true);
+            return;
+        }
+
+        try {
+            PdfService pdfService = new PdfService();
+            CloudinaryService cloudinary = new CloudinaryService();
+
+            showInlineMsg("⏳ Génération du rapport cloud...", false);
+            File tempFile = pdfService.generateTournamentListFile(tournois);
+            String url = cloudinary.uploadImage(tempFile);
+
+            if (url != null) {
+                showInlineMsg("✅ Rapport disponible en ligne !", false);
+                // Ouvrir l'URL dans le navigateur par défaut
+                if (java.awt.Desktop.isDesktopSupported()) {
+                    java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showInlineMsg("❌ Erreur lors de l'export cloud.", true);
+        }
     }
 
     // ── NAVIGATION ──────────────────────────────────────────
 
-    @FXML public void goBack() { ((Stage) table.getScene().getWindow()).close(); }
+    @FXML public void goBack() { ((Stage) cardsContainer.getScene().getWindow()).close(); }
 
     @FXML public void showStats(ActionEvent ev) {
         try {

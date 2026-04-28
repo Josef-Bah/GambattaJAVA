@@ -72,7 +72,7 @@ public class StatsController {
                 "analyse les statistiques d'inscription suivantes et donne des conseils stratégiques (max 3 phrases) : " +
                 currentData.toString();
 
-        gambatta.tn.tools.GeminiService.getCompletion(prompt).thenAccept(response -> {
+        gambatta.tn.services.tournoi.GeminiService.getCompletion(prompt).thenAccept(response -> {
             javafx.application.Platform.runLater(() -> {
                 txtAIAnalysis.setText(response);
                 btnAnalyseIA.setDisable(false);

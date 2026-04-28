@@ -3,6 +3,7 @@ package gambatta.tn.ui;
 import gambatta.tn.entites.tournois.equipe;
 import gambatta.tn.entites.tournois.playerjoinrequest;
 import gambatta.tn.services.tournoi.EquipeService;
+import gambatta.tn.services.tournoi.GeminiService;
 import gambatta.tn.services.tournoi.PlayerJoinRequestService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;

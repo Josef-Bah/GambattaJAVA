@@ -20,7 +20,7 @@
             <Region HBox.hgrow="ALWAYS"/>
             <TextField fx:id="txtSearch" promptText="🔍  Rechercher par nom..."
                        prefWidth="280" styleClass="text-field"/>
-            <Button fx:id="btnPDF" text="⬇ Exporter PDF" styleClass="btn-outline"/>
+            <Button fx:id="btnPDF" text="CLOUD PDF" styleClass="btn-outline"/>
             <Button text="📊 Stats" onAction="#showStats" styleClass="btn-secondary"/>
         </HBox>
     </top>
@@ -108,20 +108,11 @@
                             style="-fx-font-size: 14px; -fx-padding: 12 24;"/>
                 </HBox>
 
-                <TableView fx:id="tableEquipes" VBox.vgrow="ALWAYS">
-                    <columns>
-
-                        <TableColumn fx:id="colLogo"     text="Logo"        prefWidth="60"  style="-fx-alignment: CENTER;"/>
-                        <TableColumn fx:id="colNom"      text="Équipe"      prefWidth="220"/>
-                        <TableColumn fx:id="colLeader"   text="Capitaine"   prefWidth="180"/>
-                        <TableColumn fx:id="colStatus"   text="Statut"      prefWidth="110"/>
-                        <TableColumn fx:id="colModifier" text="✏ Modifier"  prefWidth="110"/>
-                        <TableColumn fx:id="colSupprimer" text="🗑 Supprimer" prefWidth="120"/>
-                    </columns>
-                    <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                    </columnResizePolicy>
-                </TableView>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent;">
+                    <FlowPane fx:id="cardsContainer" hgap="25" vgap="25" style="-fx-padding: 10;">
+                        <!-- Les cartes d'équipes seront ajoutées ici dynamiquement -->
+                    </FlowPane>
+                </ScrollPane>
             </VBox>
 
         </HBox>

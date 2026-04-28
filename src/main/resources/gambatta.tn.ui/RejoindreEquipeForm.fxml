@@ -39,6 +39,8 @@
                     <ComboBox fx:id="comboEquipeSelection" promptText="Sélectionner une équipe..."
                               maxWidth="Infinity" styleClass="text-field"/>
                     <Label fx:id="errEquipe" text="" style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px;"/>
+                </VBox>
+
                 <Label fx:id="globalMsg" text="" wrapText="true" maxWidth="Infinity" style="-fx-padding: 0 0 10 0;"/>
 
                 <Button text="📩 ENVOYER MA DEMANDE" onAction="#handleEnvoyerDemande"

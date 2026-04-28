@@ -46,8 +46,8 @@
                 <Button fx:id="btnAnalyseIA" text="LANCER L'ANALYSE" onAction="#handleAnalyseIA" styleClass="btn-primary" style="-fx-font-size: 11px;"/>
             </HBox>
             <TextArea fx:id="txtAIAnalysis" promptText="Appuyez sur 'Lancer l'analyse' pour obtenir des insights IA sur ces données..." 
-                      prefHeight="100" editable="false" wrapText="true" 
-                      style="-fx-control-inner-background: #001f3f; -fx-text-fill: white; -fx-font-style: italic;"/>
+                      prefHeight="220" editable="false" wrapText="true" 
+                      style="-fx-control-inner-background: #001f3f; -fx-text-fill: #ffd700; -fx-font-family: 'Segoe UI'; -fx-font-size: 13px;"/>
         </VBox>
         
         <HBox alignment="CENTER">

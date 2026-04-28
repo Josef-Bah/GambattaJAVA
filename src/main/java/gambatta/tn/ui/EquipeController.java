@@ -2,7 +2,8 @@ package gambatta.tn.ui;
 
 import gambatta.tn.entites.tournois.equipe;
 import gambatta.tn.services.tournoi.EquipeService;
-import gambatta.tn.tools.CloudinaryService;
+import gambatta.tn.services.tournoi.CloudinaryService;
+import gambatta.tn.services.tournoi.PdfService;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -16,26 +17,23 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import java.io.File;
 
 import java.util.List;
 
 public class EquipeController {
 
-    // ── Tableau ──
-    @FXML private TableView<equipe>              tableEquipes;
-
-    @FXML private TableColumn<equipe, String>    colLogo;
-    @FXML private TableColumn<equipe, String>    colNom;
-    @FXML private TableColumn<equipe, String>    colLeader;
-    @FXML private TableColumn<equipe, String>    colStatus;
-    @FXML private TableColumn<equipe, Void>      colModifier;
-    @FXML private TableColumn<equipe, Void>      colSupprimer;
-    @FXML private TextField                      txtSearch;
     @FXML private Button                         btnPDF;
+    @FXML private TextField                      txtSearch;
+    @FXML private FlowPane                       cardsContainer;
 
     // ── Drawer (panneau glissant) ──
     @FXML private VBox      drawerPanel;
@@ -63,26 +61,7 @@ public class EquipeController {
     @FXML
     public void initialize() {
         equipeService = new EquipeService();
-
         drawerStatut.setItems(FXCollections.observableArrayList("EN_ATTENTE", "VALIDE", "REFUSEE"));
-
-
-        colLogo.setCellValueFactory(c -> c.getValue().logoProperty());
-        colLogo.setCellFactory(p -> new TableCell<>() {
-            private final ImageView img = new ImageView();
-            { 
-                img.setFitWidth(35); img.setFitHeight(35); img.setPreserveRatio(true);
-                Circle clip = new Circle(17.5, 17.5, 17.5); img.setClip(clip);
-            }
-            @Override protected void updateItem(String url, boolean empty) {
-                super.updateItem(url, empty);
-                if (empty || url == null || url.isEmpty()) setGraphic(null);
-                else {
-                    try { img.setImage(new Image(url, true)); setGraphic(img); }
-                    catch (Exception ex) { setGraphic(null); }
-                }
-            }
-        });
 
         // Mise à jour de l'aperçu si l'URL change (clavier ou upload)
         drawerLogo.textProperty().addListener((obs, o, n) -> {
@@ -93,28 +72,74 @@ public class EquipeController {
             }
         });
 
-        colNom.setCellValueFactory(c -> c.getValue().nomProperty());
-        colLeader.setCellValueFactory(c -> c.getValue().teamLeaderProperty());
-        colStatus.setCellValueFactory(c -> c.getValue().statusProperty());
-
-        colModifier.setCellFactory(p -> new TableCell<>() {
-            private final Button btn = new Button("✏ Modifier");
-            { btn.setStyle("-fx-background-color: #1B3A5C; -fx-text-fill: #C5B358; -fx-cursor: hand; -fx-border-color: #C5B358; -fx-border-width:1; -fx-border-radius:6; -fx-background-radius:6;");
-              btn.setOnAction(e -> openDrawerEdit(getTableView().getItems().get(getIndex()))); }
-            @Override protected void updateItem(Void i, boolean empty) { super.updateItem(i, empty); setGraphic(empty ? null : btn); }
-        });
-
-        colSupprimer.setCellFactory(p -> new TableCell<>() {
-            private final Button btn = new Button("🗑 Supprimer");
-            { btn.setStyle("-fx-background-color: #3B0A0A; -fx-text-fill: #ff6b6b; -fx-cursor: hand; -fx-border-color: #8B1E2D; -fx-border-width:1; -fx-border-radius:6; -fx-background-radius:6;");
-              btn.setOnAction(e -> deleteEquipe(getTableView().getItems().get(getIndex()))); }
-            @Override protected void updateItem(Void i, boolean empty) { super.updateItem(i, empty); setGraphic(empty ? null : btn); }
-        });
-
         btnPDF.setOnAction(e -> exportPDF());
         txtSearch.textProperty().addListener((obs, o, n) -> filterEquipes(n));
 
         loadData();
+    }
+
+    private void renderCards() {
+        cardsContainer.getChildren().clear();
+        for (equipe e : equipes) {
+            cardsContainer.getChildren().add(createEquipeCard(e));
+        }
+    }
+
+    private VBox createEquipeCard(equipe e) {
+        VBox card = new VBox(15);
+        card.getStyleClass().add("premium-card");
+
+        // Top: ID & Status
+        HBox top = new HBox();
+        top.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        Label idLab = new Label("ID: #" + (e.getId() != 0 ? e.getId() : "??"));
+        idLab.getStyleClass().add("card-id");
+        Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
+        Label statusBadge = new Label(e.getStatus() != null ? e.getStatus() : "EN_ATTENTE");
+        statusBadge.getStyleClass().addAll("status-badge", "status-" + (e.getStatus() != null ? e.getStatus().toLowerCase() : "en_attente"));
+        top.getChildren().addAll(idLab, spacer, statusBadge);
+
+        // Center: Logo & Name
+        HBox center = new HBox(15);
+        center.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        
+        ImageView img = new ImageView();
+        img.setFitWidth(50); img.setFitHeight(50); img.setPreserveRatio(true);
+        Circle clip = new Circle(25, 25, 25); img.setClip(clip);
+        if (e.getLogo() != null && !e.getLogo().isEmpty()) {
+            try { img.setImage(new Image(e.getLogo(), true)); } catch (Exception ex) {}
+        }
+        
+        VBox texts = new VBox(2);
+        Label nom = new Label(e.getNom());
+        nom.getStyleClass().add("card-title");
+        Label leader = new Label("👤 " + (e.getTeamLeader() != null ? e.getTeamLeader() : "Inconnu"));
+        leader.getStyleClass().add("card-subtitle");
+        texts.getChildren().addAll(nom, leader);
+        
+        center.getChildren().addAll(img, texts);
+
+        // Separator
+        Region sep = new Region();
+        sep.getStyleClass().add("card-separator");
+        sep.setMinHeight(1);
+
+        // Bottom: Actions
+        HBox actions = new HBox(10);
+        actions.setAlignment(javafx.geometry.Pos.CENTER);
+        
+        Button btnEdit = new Button("[MODIFIER]");
+        btnEdit.getStyleClass().add("action-card-btn");
+        btnEdit.setOnAction(ev -> openDrawerEdit(e));
+
+        Button btnDel = new Button("[SUPPRIMER]");
+        btnDel.getStyleClass().addAll("action-card-btn", "btn-delete-card");
+        btnDel.setOnAction(ev -> deleteEquipe(e));
+
+        actions.getChildren().addAll(btnEdit, btnDel);
+
+        card.getChildren().addAll(top, center, sep, actions);
+        return card;
     }
 
     // ── DRAWER CONTROL ──────────────────────────────────────
@@ -226,7 +251,7 @@ public class EquipeController {
             editingEquipe.setStatus(statut);
             editingEquipe.setTitres(titres); editingEquipe.setObjectifs(objectifs);
             if (equipeService.save(editingEquipe)) {
-                tableEquipes.refresh();
+                renderCards();
                 showInlineMsg("✅ Succès: Équipe mise à jour !", false);
                 new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2)).setOnFinished(ev -> closeDrawer());
             } else {
@@ -238,7 +263,10 @@ public class EquipeController {
     // ── DELETE ──────────────────────────────────────────────
 
     private void deleteEquipe(equipe e) {
-        if (equipeService.delete(e.getId())) equipes.remove(e);
+        if (equipeService.delete(e.getId())) {
+            equipes.remove(e);
+            renderCards();
+        }
     }
 
     // ── VALIDATION ───────────────────────────────────────────
@@ -296,28 +324,49 @@ public class EquipeController {
 
     private void loadData() {
         equipes.setAll(equipeService.findAll());
-        tableEquipes.setItems(equipes);
+        renderCards();
     }
 
     private void filterEquipes(String q) {
-        if (q == null || q.isEmpty()) { tableEquipes.setItems(equipes); return; }
+        if (q == null || q.isEmpty()) { renderCards(); return; }
         ObservableList<equipe> f = FXCollections.observableArrayList();
         for (equipe e : equipes)
             if (e.getNom().toLowerCase().contains(q.toLowerCase())) f.add(e);
-        tableEquipes.setItems(f);
+        
+        cardsContainer.getChildren().clear();
+        for (equipe e : f) cardsContainer.getChildren().add(createEquipeCard(e));
     }
 
     private void exportPDF() {
-        javafx.stage.FileChooser fc = new javafx.stage.FileChooser();
-        fc.setTitle("Exporter PDF"); fc.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("PDF", "*.pdf"));
-        java.io.File file = fc.showSaveDialog(tableEquipes.getScene().getWindow());
-        if (file != null) System.out.println(equipeService.generatePdf());
+        if (equipes.isEmpty()) {
+            showInlineMsg("⚠ Aucune donnée à exporter.", true);
+            return;
+        }
+
+        try {
+            PdfService pdfService = new PdfService();
+            CloudinaryService cloudinary = new CloudinaryService();
+
+            showInlineMsg("⏳ Génération du rapport cloud...", false);
+            File tempFile = pdfService.generateEquipeListFile(equipes);
+            String url = cloudinary.uploadImage(tempFile);
+
+            if (url != null) {
+                showInlineMsg("✅ Liste d'équipes disponible !", false);
+                if (java.awt.Desktop.isDesktopSupported()) {
+                    java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showInlineMsg("❌ Erreur lors de l'export cloud.", true);
+        }
     }
 
     // ── NAVIGATION ───────────────────────────────────────────
 
     @FXML public void goBack() {
-        Stage stage = (Stage) tableEquipes.getScene().getWindow();
+        Stage stage = (Stage) cardsContainer.getScene().getWindow();
         stage.close();
     }
 

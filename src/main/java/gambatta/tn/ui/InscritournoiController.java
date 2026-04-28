@@ -6,6 +6,8 @@ import gambatta.tn.entites.tournois.tournoi;
 import gambatta.tn.services.tournoi.EquipeService;
 import gambatta.tn.services.tournoi.InscritournoiService;
 import gambatta.tn.services.tournoi.TournoiService;
+import gambatta.tn.services.tournoi.CloudinaryService;
+import gambatta.tn.services.tournoi.PdfService;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -226,11 +228,30 @@ public class InscritournoiController {
     }
 
     private void exportPDF() {
-        FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Texte", "*.txt"));
-        File file = fc.showSaveDialog(tableInscriptions.getScene().getWindow());
-        if (file != null)
-            System.out.println(service.generatePdf());
+        inscriptiontournoi selected = tableInscriptions.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showInlineMsg("⚠ Veuillez sélectionner une inscription.", true);
+            return;
+        }
+
+        try {
+            PdfService pdfService = new PdfService();
+            CloudinaryService cloudinary = new CloudinaryService();
+
+            showInlineMsg("⏳ Génération du ticket cloud...", false);
+            File tempFile = pdfService.generateTicketFile(selected);
+            String url = cloudinary.uploadImage(tempFile);
+
+            if (url != null) {
+                showInlineMsg("✅ Ticket disponible en ligne !", false);
+                if (java.awt.Desktop.isDesktopSupported()) {
+                    java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showInlineMsg("❌ Erreur lors de l'export cloud.", true);
+        }
     }
 
     // ── NAVIGATION ──────────────────────────────────────────

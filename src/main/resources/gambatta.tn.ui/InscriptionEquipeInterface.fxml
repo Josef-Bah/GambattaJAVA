@@ -57,7 +57,7 @@
                     <Label text="Consultez les tournois disponibles et inscrivez votre équipe à la compétition."
                            wrapText="true" style="-fx-text-fill: #8892b0;"/>
                     <Region VBox.vgrow="ALWAYS"/>
-                    <Button fx:id="btnTrouverTournoi" text="VOIR LES TOURNOIS"
+                    <Button fx:id="btnTrouverTournoi" text="VOIR LES TOURNOIS" onAction="#handleTrouverTournoi"
                             styleClass="btn-outline" maxWidth="Infinity"/>
                 </VBox>
             </HBox>
