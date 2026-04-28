@@ -25,6 +25,17 @@
 
     <!-- CONTENT AREA -->
     <center>
-        <StackPane fx:id="contentArea" style="-fx-background-color:#0f172a;"/>
+        <StackPane fx:id="mainStack" style="-fx-background-color:#0f172a;">
+            <StackPane fx:id="contentArea"/>
+            
+            <!-- DIM OVERLAY for Stats Modal -->
+            <Region fx:id="statsOverlay" style="-fx-background-color:rgba(0,0,0,0.7);" visible="false" onMouseClicked="#toggleStats"/>
+
+            <!-- STATS MODAL (Centered, scale=0, opacity=0 by default) -->
+            <StackPane fx:id="statsSidebar" alignment="CENTER" maxWidth="900" maxHeight="600" visible="false" scaleX="0.8" scaleY="0.8" opacity="0" 
+                        style="-fx-background-color: #1e293b; -fx-background-radius: 25; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 25; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 30, 0, 0, 15);">
+                <fx:include fx:id="statsView" source="StatsView.fxml"/>
+            </StackPane>
+        </StackPane>
     </center>
 </BorderPane>

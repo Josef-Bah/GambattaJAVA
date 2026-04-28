@@ -330,23 +330,16 @@ public class CrudProduitController {
         loadTable();
     }
 
+    private BuvetteMainController mainController;
+
+    public void setMainController(BuvetteMainController mainController) {
+        this.mainController = mainController;
+    }
+
     @FXML
     public void showStats() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/buvette/StatsView.fxml"));
-            Parent root = loader.load();
-            
-            StatsController controller = loader.getController();
-            controller.initProduitData(masterData);
-            
-            Stage stage = new Stage();
-            stage.setTitle("Statistiques Produits");
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            statusLabel.setText("Error opening stats: " + e.getMessage());
-            e.printStackTrace();
+        if (mainController != null) {
+            mainController.showProduitStats();
         }
     }
 }

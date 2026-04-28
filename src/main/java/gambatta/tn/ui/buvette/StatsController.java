@@ -3,9 +3,10 @@ package gambatta.tn.ui.buvette;
 import javafx.fxml.FXML;
 import javafx.scene.chart.*;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 import gambatta.tn.entites.buvette.produit;
 import gambatta.tn.entites.buvette.vente;
+import gambatta.tn.services.buvette.ProduitService;
+import gambatta.tn.services.buvette.VenteService;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,63 +16,86 @@ public class StatsController {
     @FXML private Label titleLabel;
     @FXML private Label pieTitle;
     @FXML private Label barTitle;
+    @FXML private Label totalSalesLabel;
+    @FXML private Label lowStockLabel;
     @FXML private PieChart pieChart;
     @FXML private BarChart<String, Number> barChart;
     @FXML private CategoryAxis xAxis;
     @FXML private NumberAxis yAxis;
 
-    public void initProduitData(List<produit> produits) {
-        titleLabel.setText("Statistiques des Produits");
-        pieTitle.setText("Répartition du Stock par Catégorie (Description)");
-        barTitle.setText("Prix des Produits (Comparaison)");
+    private BuvetteMainController mainController;
+    private final ProduitService ps = new ProduitService();
+    private final VenteService vs = new VenteService();
 
-        pieChart.setAnimated(true);
-        barChart.setAnimated(true);
+    public void setMainController(BuvetteMainController mainController) {
+        this.mainController = mainController;
+    }
 
-        // Pie Chart: Group by description (descrip)
+    public void refreshData(String type) {
+        List<produit> produits = ps.getAll();
+        List<vente> ventes = vs.getAll();
+
+        updateKPIs(produits, ventes);
+
+        if ("PRODUITS".equals(type)) {
+            showProduitStats(produits);
+        } else {
+            showVenteStats(ventes);
+        }
+    }
+
+    private void updateKPIs(List<produit> produits, List<vente> ventes) {
+        double totalRevenue = ventes.stream().mapToDouble(vente::getMontantv).sum();
+        totalSalesLabel.setText(String.format("%.2f TND", totalRevenue));
+
+        // Show Total products instead of Stock Critique
+        lowStockLabel.setText(String.valueOf(produits.size()));
+    }
+
+    private void showProduitStats(List<produit> produits) {
+        pieTitle.setText("Répartition du Stock par Catégorie");
+        barTitle.setText("Top 10 : Comparaison des Prix");
+
+        // Pie Chart: Category breakdown
         Map<String, Double> stockByCategory = produits.stream()
             .collect(Collectors.groupingBy(
-                (produit p) -> (p.getDescrip() == null || p.getDescrip().isEmpty()) ? "Sans Catégorie" : p.getDescrip(),
+                (produit p) -> (p.getDescrip() == null || p.getDescrip().isEmpty()) ? "Autres" : p.getDescrip(),
                 Collectors.summingDouble((produit p) -> (double) p.getStockp())
             ));
 
         pieChart.getData().clear();
         stockByCategory.forEach((desc, stock) -> {
-            if (stock > 0) {
-                pieChart.getData().add(new PieChart.Data(desc, stock));
-            }
+            if (stock > 0) pieChart.getData().add(new PieChart.Data(desc, stock));
         });
 
-        // Bar Chart: Prices
+        // Bar Chart: Top 10 prices
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Prix (DT)");
-        for (produit p : produits) {
-            series.getData().add(new XYChart.Data<>(p.getNomp(), p.getPrixp()));
-        }
+        series.setName("Prix (TND)");
+        produits.stream()
+            .sorted((p1, p2) -> Double.compare(p2.getPrixp(), p1.getPrixp()))
+            .limit(10)
+            .forEach(p -> series.getData().add(new XYChart.Data<>(p.getNomp(), p.getPrixp())));
+
         barChart.getData().clear();
         barChart.getData().add(series);
         xAxis.setLabel("Produits");
-        yAxis.setLabel("Prix (DT)");
+        yAxis.setLabel("Prix (TND)");
     }
 
-    public void initVenteData(List<vente> ventes) {
-        titleLabel.setText("Statistiques des Ventes");
-        pieTitle.setText("Volume de Vente par Transaction");
-        barTitle.setText("Évolution du Chiffre d'Affaires");
+    private void showVenteStats(List<vente> ventes) {
+        pieTitle.setText("Volume de Ventes par Client");
+        barTitle.setText("Historique des Recettes (15 dernières)");
 
-        pieChart.setAnimated(true);
-        barChart.setAnimated(true);
-
-        // Pie Chart: Quantities per sale
+        // Pie Chart: Top customers or recent volumes
         pieChart.getData().clear();
-        for (int i = 0; i < Math.min(ventes.size(), 10); i++) {
+        for (int i = 0; i < Math.min(ventes.size(), 8); i++) {
             vente v = ventes.get(i);
             pieChart.getData().add(new PieChart.Data("Vente #" + v.getId(), v.getQuantv()));
         }
 
-        // Bar Chart: Revenue over time (simplified as transaction amounts)
+        // Bar Chart: Recent revenue
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Montant (DT)");
+        series.setName("Montant (TND)");
         for (int i = 0; i < Math.min(ventes.size(), 15); i++) {
             vente v = ventes.get(i);
             series.getData().add(new XYChart.Data<>("V#" + v.getId(), v.getMontantv()));
@@ -79,11 +103,11 @@ public class StatsController {
         barChart.getData().clear();
         barChart.getData().add(series);
         xAxis.setLabel("Transactions");
-        yAxis.setLabel("Montant (DT)");
+        yAxis.setLabel("Montant (TND)");
     }
 
     @FXML
     public void close() {
-        ((Stage) titleLabel.getScene().getWindow()).close();
+        if (mainController != null) mainController.toggleStats();
     }
 }

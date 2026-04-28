@@ -256,8 +256,7 @@ public class ShopController {
     private void fetchNutriScore(String productName) {
         if (productName == null || productName.isEmpty()) return;
 
-        // Setup loading state
-        nutriTitle.setText("Analyse pour : " + productName + "...");
+        nutriTitle.setText("Analyse : " + productName + "...");
         nutriScoreLabel.setText("⏳");
         nutriScoreLabel.setStyle("-fx-background-color:#334155; -fx-text-fill:white; -fx-font-size:40px; -fx-padding:5 35; -fx-background-radius:25;");
         nutriCal.setText("Recherche...");
@@ -268,74 +267,107 @@ public class ShopController {
         showNutriModal();
 
         new Thread(() -> {
-            try {
-                // Ensure correct encoding for the API
-                String encodedName = java.net.URLEncoder.encode(productName, "UTF-8");
-                String urlStr = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodedName + "&search_simple=1&action=process&json=1&page_size=1";
-                
-                java.net.URL url = new java.net.URL(urlStr);
-                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setRequestProperty("User-Agent", "GambattaBuvette/1.0");
+            // Try searching with full name, then fallback to first 2 words if no results
+            if (!executeSearch(productName)) {
+                String[] words = productName.split("\\s+");
+                if (words.length > 2) {
+                    String fallbackName = words[0] + " " + words[1];
+                    System.out.println("NutriScore: Full name search failed, trying fallback: " + fallbackName);
+                    Platform.runLater(() -> nutriTitle.setText("Tentative n°2 : " + fallbackName + "..."));
+                    executeSearch(fallbackName);
+                }
+            }
+        }).start();
+    }
 
-                java.io.BufferedReader reader = new java.io.BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) response.append(line);
-                reader.close();
+    private boolean executeSearch(String searchTerm) {
+        try {
+            String encodedName = java.net.URLEncoder.encode(searchTerm.trim(), "UTF-8");
+            String urlStr = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodedName + "&search_simple=1&action=process&json=1&page_size=1";
+            
+            System.out.println("NutriScore: Searching URL: " + urlStr);
+            URL url = new URL(urlStr);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setConnectTimeout(6000);
+            conn.setReadTimeout(6000);
+            conn.setRequestProperty("User-Agent", "GambattaBuvette/1.1 (JavaFX Application)");
+            conn.setRequestProperty("Accept", "application/json");
 
-                org.json.JSONObject jsonResponse = new org.json.JSONObject(response.toString());
-                org.json.JSONArray products = jsonResponse.optJSONArray("products");
+            int code = conn.getResponseCode();
+            if (code != 200) {
+                System.err.println("NutriScore: Server returned HTTP " + code);
+                throw new Exception("HTTP " + code);
+            }
 
-                Platform.runLater(() -> {
-                    if (products != null && products.length() > 0) {
-                        org.json.JSONObject prod = products.getJSONObject(0);
-                        String grade = prod.optString("nutriscore_grade", "inconnu").toUpperCase();
-                        String brand = prod.optString("brands", "Non spécifiée");
-                        
-                        org.json.JSONObject nutriments = prod.optJSONObject("nutriments");
-                        String energy = "N/A", sugar = "N/A", salt = "N/A";
-                        if (nutriments != null) {
-                            energy = nutriments.optString("energy-kcal_100g", "N/A") + " kcal / 100g";
-                            sugar = nutriments.optString("sugars_100g", "N/A") + " g / 100g";
-                            salt = nutriments.optString("salt_100g", "N/A") + " g / 100g";
-                        }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) response.append(line);
+            reader.close();
 
-                        nutriTitle.setText(prod.optString("product_name", productName));
-                        nutriScoreLabel.setText(grade.equals("INCONNU") ? "?" : grade);
-                        
-                        String color = "#94a3b8"; // Default
-                        switch (grade) {
-                            case "A": color = "#15803d"; break;
-                            case "B": color = "#84cc16"; break;
-                            case "C": color = "#eab308"; break;
-                            case "D": color = "#f97316"; break;
-                            case "E": color = "#ef4444"; break;
-                        }
-                        nutriScoreLabel.setStyle("-fx-background-color:" + color + "; -fx-text-fill:white; -fx-font-size:50px; -fx-font-weight:900; -fx-padding:5 35; -fx-background-radius:25;");
-                        
-                        nutriBrand.setText(brand);
-                        nutriCal.setText(energy);
-                        nutriSugar.setText(sugar);
-                        nutriSalt.setText(salt);
-                    } else {
+            JSONObject json = new JSONObject(response.toString());
+            JSONArray products = json.optJSONArray("products");
+
+            if (products != null && products.length() > 0) {
+                JSONObject prod = products.getJSONObject(0);
+                Platform.runLater(() -> updateNutriUI(prod));
+                return true;
+            } else {
+                System.out.println("NutriScore: No results for '" + searchTerm + "'");
+                if (searchTerm.split("\\s+").length <= 2) {
+                    Platform.runLater(() -> {
                         nutriTitle.setText("Produit non trouvé :(");
                         nutriScoreLabel.setText("?");
                         nutriScoreLabel.setStyle("-fx-background-color:#ef4444; -fx-text-fill:white; -fx-font-size:50px; -fx-padding:5 35; -fx-background-radius:25;");
-                        nutriBrand.setText("Données indisponibles");
-                        nutriCal.setText("-");
-                        nutriSugar.setText("-");
-                        nutriSalt.setText("-");
-                    }
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> {
-                    nutriTitle.setText("Erreur réseau");
-                    nutriScoreLabel.setText("!");
-                    nutriScoreLabel.setStyle("-fx-background-color:#ef4444; -fx-text-fill:white; -fx-font-size:50px; -fx-padding:5 35; -fx-background-radius:25;");
-                });
+                        nutriBrand.setText("Base mondiale OFF");
+                        nutriCal.setText("Inconnu");
+                        nutriSugar.setText("Inconnu");
+                        nutriSalt.setText("Inconnu");
+                    });
+                }
+                return false;
             }
-        }).start();
+        } catch (Exception e) {
+            System.err.println("NutriScore: Exception during search: " + e.getMessage());
+            Platform.runLater(() -> {
+                nutriTitle.setText("Erreur Connexion");
+                nutriScoreLabel.setText("!");
+                nutriScoreLabel.setStyle("-fx-background-color:#ef4444; -fx-text-fill:white; -fx-font-size:50px; -fx-padding:5 35; -fx-background-radius:25;");
+            });
+            return false;
+        }
+    }
+
+    private void updateNutriUI(JSONObject prod) {
+        String grade = prod.optString("nutriscore_grade", "inconnu").toUpperCase();
+        String brand = prod.optString("brands", "Non spécifiée");
+        
+        JSONObject nutriments = prod.optJSONObject("nutriments");
+        String energy = "N/A", sugar = "N/A", salt = "N/A";
+        if (nutriments != null) {
+            energy = nutriments.optString("energy-kcal_100g", "N/A") + " kcal";
+            sugar = nutriments.optString("sugars_100g", "N/A") + " g";
+            salt = nutriments.optString("salt_100g", "N/A") + " g";
+        }
+
+        nutriTitle.setText(prod.optString("product_name", "Produit trouvé"));
+        nutriScoreLabel.setText(grade.equals("INCONNU") ? "?" : grade);
+        
+        String color = "#94a3b8"; 
+        switch (grade) {
+            case "A": color = "#15803d"; break;
+            case "B": color = "#84cc16"; break;
+            case "C": color = "#eab308"; break;
+            case "D": color = "#f97316"; break;
+            case "E": color = "#ef4444"; break;
+        }
+        nutriScoreLabel.setStyle("-fx-background-color:" + color + "; -fx-text-fill:white; -fx-font-size:50px; -fx-font-weight:900; -fx-padding:5 35; -fx-background-radius:25;");
+        
+        nutriBrand.setText(brand);
+        nutriCal.setText(energy + " / 100g");
+        nutriSugar.setText(sugar + " / 100g");
+        nutriSalt.setText(salt + " / 100g");
     }
 
     private void showNutriModal() {
