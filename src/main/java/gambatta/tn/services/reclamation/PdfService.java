@@ -1,5 +1,9 @@
 package gambatta.tn.services.reclamation;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import io.github.cdimascio.dotenv.Dotenv;
+
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -23,13 +27,15 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.AreaBreakType;
 import com.itextpdf.layout.properties.TextAlignment;
-import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.renderer.DivRenderer;
 import com.itextpdf.layout.renderer.DrawContext;
 import gambatta.tn.entites.reclamation.reclamation;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 public class PdfService {
 
@@ -40,6 +46,20 @@ public class PdfService {
     private static final Color RED_NEON = new DeviceRgb(239, 68, 68);    // #ef4444
     private static final Color TEXT_WHITE = new DeviceRgb(248, 250, 252); // #f8fafc
     private static final Color TEXT_GRAY = new DeviceRgb(100, 116, 139);
+
+    // ==========================================
+    // SÉCURITÉ : CHARGEMENT DE LA CLÉ CLOUDINARY
+    // ==========================================
+    private static String recupererCloudinaryUrl() {
+        Dotenv envStandard = Dotenv.configure().ignoreIfMissing().load();
+        String url = envStandard.get("CLOUDINARY_URL");
+        if (url != null && !url.isEmpty()) return url;
+
+        Dotenv envMaven = Dotenv.configure().directory("../").ignoreIfMissing().load();
+        return envMaven.get("CLOUDINARY_URL");
+    }
+
+    private static final String CLOUD_URL = recupererCloudinaryUrl();
 
     // =========================================================================
     // 1. PDF INDIVIDUEL (Utilisé pour un seul ticket)
@@ -64,6 +84,7 @@ public class PdfService {
      */
     private static String construireDocumentIntegral(List<reclamation> liste, String fileName, String mainTitle) {
         try {
+            // 1. CRÉATION DU PDF EN LOCAL
             PdfWriter writer = new PdfWriter(fileName);
             PdfDocument pdf = new PdfDocument(writer);
             pdf.addEventHandler(PdfDocumentEvent.INSERT_PAGE, new BackgroundEventHandler());
@@ -114,16 +135,43 @@ public class PdfService {
 
                 // --- SÉPARATEUR OU SAUT DE PAGE ---
                 if (i < liste.size() - 1) {
-                    // Si ce n'est pas le dernier élément, on force un saut de page pour le ticket suivant
                     document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
                 } else {
-                    document.add(new Paragraph("\n[ FIN DE L'ARCHIVE TOTALE ]")
+                    document.add(new Paragraph("\n[ FIN DE L'ARCHIVE ]")
                             .setFont(fontMono).setFontSize(10).setFontColor(TEXT_GRAY).setTextAlignment(TextAlignment.CENTER));
                 }
             }
 
             document.close();
-            return fileName;
+
+            // ==========================================
+            // 2. UPLOAD SUR CLOUDINARY
+            // ==========================================
+            if (CLOUD_URL == null || CLOUD_URL.isEmpty()) {
+                System.err.println("🔴 ATTENTION : Pas de clé Cloudinary trouvée. Le PDF reste en local : " + fileName);
+                return fileName; // On retourne le chemin local si le cloud n'est pas configuré
+            }
+
+            System.out.println("☁️ Upload du PDF sur Cloudinary en cours...");
+            Cloudinary cloudinary = new Cloudinary(CLOUD_URL);
+            File fileToUpload = new File(fileName);
+
+            Map uploadResult = cloudinary.uploader().upload(fileToUpload, ObjectUtils.asMap(
+                    "resource_type", "image", // Astuce : "image" permet à Cloudinary de générer un aperçu PDF si besoin
+                    "folder", "gambatta_rapports"
+            ));
+
+            String urlCloudinary = (String) uploadResult.get("secure_url");
+            System.out.println("✅ Upload réussi ! Lien : " + urlCloudinary);
+
+            // 3. NETTOYAGE : SUPPRESSION DU PDF LOCAL POUR GAGNER DE LA PLACE
+            try {
+                Files.deleteIfExists(Paths.get(fileName));
+            } catch (Exception ex) {
+                System.err.println("Impossible de supprimer le fichier temporaire : " + ex.getMessage());
+            }
+
+            return urlCloudinary;
 
         } catch (Exception e) {
             e.printStackTrace();

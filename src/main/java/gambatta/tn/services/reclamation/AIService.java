@@ -2,6 +2,7 @@ package gambatta.tn.services.reclamation;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -15,22 +16,48 @@ import java.util.List;
 
 public class AIService {
 
-    // TA CLÉ GOOGLE AI STUDIO
-    private static final String API_KEY = "AIzaSyCZuIcWto7rOvqJSvoDQrpYP_GSWRo1OXo";
+    // ==========================================
+    // SÉCURITÉ : CHARGEMENT BLINDÉ DE LA CLÉ (ANTI-MAVEN BUG)
+    // ==========================================
+    private static String recupererCleSecrete() {
+        // On demande à dotenv d'aller chercher la variable nommée "GEMINI_API_KEY" dans le fichier .env
 
-    // Modèle actif : gemini-2.5-flash
-    private static final String API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
+        // 1. Essai standard (Fonctionne si lancé depuis l'IDE directement)
+        Dotenv envStandard = Dotenv.configure().ignoreIfMissing().load();
+        String key = envStandard.get("GEMINI_API_KEY");
+        if (key != null && !key.isEmpty()) return key;
 
+        // 2. Contournement Maven (On remonte d'un dossier si on est piégé dans /target)
+        Dotenv envMaven = Dotenv.configure().directory("../").ignoreIfMissing().load();
+        key = envMaven.get("GEMINI_API_KEY");
+        if (key != null && !key.isEmpty()) return key;
+
+        return null; // Échec total
+    }
+
+    private static final String API_KEY = recupererCleSecrete();
+
+    // =========================================================================================
+    // CORRECTION QUOTA : Utilisation de gemini-1.5-flash (1500 requêtes/jour gratuites)
+    // =========================================================================================
+    private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY;
     private final HttpClient client;
-
     public AIService() {
         this.client = HttpClient.newHttpClient();
+
+        if (API_KEY == null || API_KEY.isEmpty()) {
+            System.err.println("🔴 ERREUR CRITIQUE : Impossible de trouver le .env ou la clé GEMINI_API_KEY.");
+        } else {
+            System.out.println("🟢 SUCCÈS : Clé Gemini chargée en toute sécurité !");
+        }
     }
 
     // ==========================================
     // MÉTHODE CENTRALE POUR GÉRER L'API ET LES QUOTAS
     // ==========================================
     private String executerRequeteGenerique(String prompt) {
+        if (API_KEY == null || API_KEY.isEmpty()) return "ERREUR_CLE_MANQUANTE";
+
         try {
             JSONObject requestBody = new JSONObject();
             JSONArray contents = new JSONArray();
@@ -57,8 +84,11 @@ public class AIService {
                         .getJSONObject(0).getJSONObject("content").getJSONArray("parts")
                         .getJSONObject(0).getString("text").trim();
             } else if (response.statusCode() == 429) {
-                System.err.println("⚠️ ALERTE QUOTA IA : Vous avez dépassé les 15 requêtes/minute. Attendez 60 secondes.");
+                System.err.println("⚠️ ALERTE QUOTA IA : Vous avez dépassé la limite par minute. Attendez 60 secondes.");
                 return "QUOTA_ATTEINT";
+            } else if (response.statusCode() == 503) {
+                System.err.println("🔥 SERVEURS GOOGLE SATURÉS (503) : Le modèle est trop demandé actuellement.");
+                return "SERVEUR_SATURE";
             } else {
                 System.err.println("❌ Erreur API Gemini - HTTP " + response.statusCode() + " : " + response.body());
                 return "ERREUR_API";
@@ -79,7 +109,8 @@ public class AIService {
         String prompt = "Tu es un assistant professionnel pour une plateforme e-sport. Corrige les fautes, améliore le style et rends ce texte de réclamation très respectueux et clair. Ne réponds QUE par le texte corrigé, sans ajouter de commentaires d'introduction ou de conclusion : " + texteBrouillon;
 
         String resultat = executerRequeteGenerique(prompt);
-        return (resultat.equals("QUOTA_ATTEINT") || resultat.startsWith("ERREUR")) ? texteBrouillon : resultat;
+        if (resultat.equals("QUOTA_ATTEINT") || resultat.equals("SERVEUR_SATURE") || resultat.startsWith("ERREUR")) return texteBrouillon;
+        return resultat;
     }
 
     public String analyserSentiment(String texte) {
@@ -106,7 +137,8 @@ public class AIService {
                 + "Réponds UNIQUEMENT par le nom exact de la catégorie. Ne mets ni guillemets, ni explication.";
 
         String resultat = executerRequeteGenerique(prompt);
-        return (resultat.equals("QUOTA_ATTEINT") || resultat.startsWith("ERREUR")) ? "Autre Demande" : resultat.replace("\"", "").replace("'", "");
+        if (resultat.equals("QUOTA_ATTEINT") || resultat.equals("SERVEUR_SATURE") || resultat.startsWith("ERREUR")) return "Autre Demande";
+        return resultat.replace("\"", "").replace("'", "");
     }
 
     public String detecterMensonge(String texte) {
@@ -120,6 +152,7 @@ public class AIService {
 
         String resultat = executerRequeteGenerique(prompt);
         if (resultat.equals("QUOTA_ATTEINT")) return "⚠️ Quota dépassé. Attendez 1 minute.";
+        if (resultat.equals("SERVEUR_SATURE")) return "⚠️ Serveurs Google surchargés. Réessayez dans un instant.";
         if (resultat.startsWith("ERREUR")) return "❌ Erreur d'analyse IA.";
         return resultat;
     }
@@ -137,6 +170,7 @@ public class AIService {
 
         String resultat = executerRequeteGenerique(prompt);
         if (resultat.equals("QUOTA_ATTEINT")) return "⚠️ Surcharge API|||L'IA a trop travaillé cette minute. Faites une pause de 60 secondes pour recharger les quotas gratuits.";
+        if (resultat.equals("SERVEUR_SATURE")) return "⚠️ Surcharge Serveurs|||Les serveurs Google sont actuellement saturés. Réessayez dans un instant.";
         if (resultat.startsWith("ERREUR")) return "❌ Erreur IA|||Une erreur s'est produite lors de la connexion à Gemini.";
         return resultat;
     }
@@ -163,6 +197,7 @@ public class AIService {
 
         String resultat = executerRequeteGenerique(prompt);
         if (resultat.equals("QUOTA_ATTEINT")) return "⚠️ Quota API dépassé. Veuillez patienter 1 min.";
+        if (resultat.equals("SERVEUR_SATURE")) return "⚠️ Serveurs Google surchargés. Réessayez dans un instant.";
         if (resultat.startsWith("ERREUR")) return "❌ Erreur lors de la recherche de doublons.";
         return resultat;
     }
@@ -214,7 +249,10 @@ public class AIService {
                 } else if (response.statusCode() == 429) {
                     System.err.println("⚠️ ALERTE QUOTA IA VISION : Attendez 60 secondes.");
                     return "⚠️ Limite d'API atteinte. Attendez 1 minute.";
+                } else if (response.statusCode() == 503) {
+                    return "⚠️ Serveurs Google Vision surchargés. Réessayez dans un instant.";
                 } else {
+                    System.err.println("Erreur API Gemini (Vision) HTTP " + response.statusCode() + " : " + response.body());
                     return "Erreur Serveur IA.";
                 }
             }

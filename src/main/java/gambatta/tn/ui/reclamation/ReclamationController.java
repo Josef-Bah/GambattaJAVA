@@ -3,7 +3,7 @@ package gambatta.tn.ui.reclamation;
 import gambatta.tn.entites.reclamation.reclamation;
 import gambatta.tn.services.reclamation.ServiceReclamation;
 import gambatta.tn.services.reclamation.PdfService;
-import gambatta.tn.services.reclamation.AIService; // IMPORT DE TON IA
+import gambatta.tn.services.reclamation.AIService;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -24,6 +24,8 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.awt.Desktop;
+import java.net.URI;
 import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
@@ -64,7 +66,7 @@ public class ReclamationController implements Initializable {
                 "Tournois & Compétitions",
                 "Restauration & Nourriture",
                 "Gestion d'Équipe");
-        comboModule.setValue("TOUS");
+        comboModule.setValue("TOUS LES MODULES");
 
         comboTri.getItems().addAll("Plus récent", "Plus ancien", "Ordre Alphabétique (A-Z)");
         comboTri.setValue("Plus récent");
@@ -100,6 +102,117 @@ public class ReclamationController implements Initializable {
     }
 
     // =========================================================================
+    // SYSTEME D'ALERTES CYBER (UNIFIÉ AVEC CLOUDINARY SUPPORT)
+    // =========================================================================
+
+    private void showCyberAlert(String type, String titre, String message, String urlCloud) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.NONE);
+            DialogPane pane = alert.getDialogPane();
+            String color = type.equals("ERREUR") ? "#ef4444" : type.equals("SUCCES") ? "#10b981" : "#38bdf8";
+
+            pane.setStyle("-fx-background-color: #0f172a; -fx-border-color: " + color + "; -fx-border-width: 2px; -fx-border-radius: 10;");
+
+            VBox root = new VBox(15);
+            root.setAlignment(Pos.CENTER);
+            root.setPadding(new javafx.geometry.Insets(25));
+
+            Label t = new Label(titre.toUpperCase());
+            t.setStyle("-fx-text-fill: " + color + "; -fx-font-family: 'Consolas'; -fx-font-size: 18px; -fx-font-weight: bold;");
+
+            Label m = new Label(message);
+            m.setStyle("-fx-text-fill: white; -fx-font-family: 'Consolas'; -fx-font-size: 12px; -fx-text-alignment: center;");
+            m.setWrapText(true);
+
+            root.getChildren().addAll(t, m);
+
+            // Bouton spécial si lien Cloudinary présent
+            if (urlCloud != null && !urlCloud.isEmpty()) {
+                HBox urlBox = new HBox(10);
+                urlBox.setAlignment(Pos.CENTER);
+                TextField txtUrl = new TextField(urlCloud);
+                txtUrl.setEditable(false);
+                txtUrl.setStyle("-fx-background-color: #020617; -fx-text-fill: #38bdf8; -fx-border-color: #38bdf8; -fx-font-family: 'Consolas';");
+
+                Button btnOpen = new Button("🌐 OUVRIR");
+                btnOpen.setStyle("-fx-background-color: #38bdf8; -fx-text-fill: #020617; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 5 15;");
+                btnOpen.setOnAction(e -> {
+                    try { Desktop.getDesktop().browse(new URI(urlCloud)); } catch (Exception ex) { ex.printStackTrace(); }
+                });
+                urlBox.getChildren().addAll(txtUrl, btnOpen);
+                root.getChildren().add(urlBox);
+            }
+
+            pane.setContent(root);
+            pane.getButtonTypes().add(ButtonType.OK);
+            Node okBtn = pane.lookupButton(ButtonType.OK);
+            if (okBtn != null) {
+                okBtn.setStyle("-fx-background-color: transparent; -fx-border-color: " + color + "; -fx-text-fill: white; -fx-cursor: hand;");
+            }
+            alert.showAndWait();
+        });
+    }
+
+    private Alert showCyberLoading(String titre, String message) {
+        Alert alert = new Alert(Alert.AlertType.NONE);
+        DialogPane pane = alert.getDialogPane();
+        pane.setStyle("-fx-background-color: #0f172a; -fx-border-color: #0ea5e9; -fx-border-width: 2px; -fx-border-radius: 10;");
+        VBox root = new VBox(10);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new javafx.geometry.Insets(25));
+        Label t = new Label(titre.toUpperCase());
+        t.setStyle("-fx-text-fill: #0ea5e9; -fx-font-family: 'Consolas'; -fx-font-size: 16px; -fx-font-weight: bold;");
+        Label m = new Label(message);
+        m.setStyle("-fx-text-fill: white; -fx-font-size: 12px; -fx-font-family: 'Consolas';");
+        root.getChildren().addAll(t, m);
+        pane.setContent(root);
+        alert.show();
+        return alert;
+    }
+
+    // =========================================================================
+    // EXPORT PDF (INTÉGRATION CLOUDINARY)
+    // =========================================================================
+
+    private void handleGenererPdf(reclamation r) {
+        Alert loading = showCyberLoading("Protocole PDF", "Génération du dossier et transfert sécurisé vers Cloudinary...");
+
+        new Thread(() -> {
+            String url = PdfService.genererPdfLocal(r);
+            Platform.runLater(() -> {
+                loading.close();
+                if (url != null && url.startsWith("http")) {
+                    showCyberAlert("SUCCES", "Dossier Sécurisé", "Le dossier individuel du ticket #" + r.getIdrec() + " est prêt.", url);
+                } else {
+                    showCyberAlert("ERREUR", "Échec Système", "Le protocole de transfert Cloudinary a échoué.", null);
+                }
+            });
+        }).start();
+    }
+
+    @FXML
+    private void handleExporterRapportGlobal() {
+        if (sortedData == null || sortedData.isEmpty()) {
+            showCyberAlert("INFO", "Base Vide", "Aucune donnée détectée pour l'export.", null);
+            return;
+        }
+
+        Alert loading = showCyberLoading("Archive Totale", "Compilation des logs système et synchronisation Cloud...");
+
+        new Thread(() -> {
+            String url = PdfService.genererRapportComplet(sortedData);
+            Platform.runLater(() -> {
+                loading.close();
+                if (url != null && url.startsWith("http")) {
+                    showCyberAlert("SUCCES", "Archive Complète", "L'archive globale a été sauvegardée dans le Cloud.", url);
+                } else {
+                    showCyberAlert("ERREUR", "Échec Archive", "Erreur lors de la compilation ou de l'upload.", null);
+                }
+            });
+        }).start();
+    }
+
+    // =========================================================================
     // MÉTIER : ANALYSE STATISTIQUE & AUTO-TRIAGE IA
     // =========================================================================
 
@@ -128,7 +241,6 @@ public class ReclamationController implements Initializable {
             return;
         }
 
-        // --- NOUVEAU : BOUTON D'AUTO-TRIAGE IA ---
         Button btnAutoTriage = new Button("✨ IA : AUTO-TRIER LES TICKETS NON CLASSÉS");
         styleNeonButton(btnAutoTriage, "#fcc033", "#020617");
         btnAutoTriage.setMaxWidth(Double.MAX_VALUE);
@@ -152,7 +264,6 @@ public class ReclamationController implements Initializable {
         Map<String, Long> mapModule = masterData.stream().collect(Collectors.groupingBy(r -> r.getCategorierec() != null ? r.getCategorierec().toUpperCase() : "GÉNÉRAL", Collectors.counting()));
         mapModule.forEach((k, v) -> pieModule.getData().add(new PieChart.Data(k, v)));
 
-        // On ajoute le bouton IA avant les camemberts
         statsRoot.getChildren().addAll(btnAutoTriage, pieStatut, new Separator(), pieModule);
 
         Platform.runLater(() -> {
@@ -163,42 +274,31 @@ public class ReclamationController implements Initializable {
         afficherSidePanel(statsRoot);
     }
 
-    // --- LE MOTEUR D'AUTO-TRIAGE EN ARRIÈRE-PLAN ---
     private void handleAutoTriage() {
-        Alert info = new Alert(Alert.AlertType.INFORMATION);
-        info.setTitle("IA GAMBATTA - CO-PILOT");
-        info.setHeaderText("Analyse neuronale en cours... 🧠");
-        info.setContentText("L'IA lit les descriptions et re-catégorise les tickets mal rangés. Cela peut prendre quelques secondes.");
-        info.show();
+        Alert info = showCyberLoading("IA Co-Pilot", "Analyse neuronale des descriptions en cours...");
 
-        // On utilise un Thread pour ne pas bloquer l'interface graphique (Super pro pour la démo !)
         new Thread(() -> {
             AIService ai = new AIService();
             int count = 0;
 
             for (reclamation r : masterData) {
                 String cat = r.getCategorierec();
-                // On cible les tickets mal classés ou non spécifiés
                 if (cat == null || cat.equalsIgnoreCase("GÉNÉRAL") || cat.equalsIgnoreCase("Autre Demande") || cat.equalsIgnoreCase("NON SPÉCIFIÉ")) {
                     String vraieCat = ai.determinerCategorie(r.getDescrirec());
-                    r.setCategorierec(vraieCat);
-                    service.modifier(r); // Mise à jour dans la base de données
-                    count++;
+                    if (vraieCat != null && !vraieCat.equalsIgnoreCase("Autre Demande") && !vraieCat.equals(cat) && !vraieCat.contains("QUOTA") && !vraieCat.contains("SATURE")) {
+                        r.setCategorierec(vraieCat);
+                        service.modifier(r);
+                        count++;
+                    }
                 }
             }
 
             final int finalCount = count;
 
-            // Retour sur le Thread principal pour mettre à jour l'UI
             Platform.runLater(() -> {
                 info.close();
-                chargerTableau(); // Rafraîchit les cartes et les camemberts
-
-                Alert success = new Alert(Alert.AlertType.INFORMATION);
-                success.setTitle("IA GAMBATTA");
-                success.setHeaderText("Smart Routing Terminé ! ✓");
-                success.setContentText(finalCount + " ticket(s) ont été analysés et redirigés vers le bon service par l'IA.");
-                success.show();
+                chargerTableau();
+                showCyberAlert("SUCCES", "Smart Routing Terminé", finalCount + " ticket(s) ont été analysés et redirigés par l'IA.", null);
             });
         }).start();
     }
@@ -249,7 +349,7 @@ public class ReclamationController implements Initializable {
             if (selectedToggle == btnResolu) matchStatus = "RÉSOLU".equalsIgnoreCase(r.getStatutrec());
 
             String selectedModule = comboModule.getValue();
-            boolean matchModule = "TOUS".equals(selectedModule) || (r.getCategorierec() != null && r.getCategorierec().equalsIgnoreCase(selectedModule));
+            boolean matchModule = "TOUS LES MODULES".equals(selectedModule) || (r.getCategorierec() != null && r.getCategorierec().equalsIgnoreCase(selectedModule));
 
             return matchSearch && matchStatus && matchModule;
         });
@@ -360,51 +460,6 @@ public class ReclamationController implements Initializable {
         btn.setOnMouseExited(e -> btn.setStyle(base));
     }
 
-    private void handleGenererPdf(reclamation r) {
-        String cheminFichier = PdfService.genererPdfLocal(r);
-        if (cheminFichier != null) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("EXPORT RÉUSSI");
-            alert.setHeaderText("PDF généré avec succès !");
-            alert.setContentText("Le fichier a été sauvegardé ici :\n" + cheminFichier);
-            alert.showAndWait();
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("ERREUR EXPORT");
-            alert.setHeaderText("Échec de la génération");
-            alert.setContentText("Vérifiez que le fichier n'est pas déjà ouvert.");
-            alert.showAndWait();
-        }
-    }
-
-    @FXML
-    private void handleExporterRapportGlobal() {
-        if (sortedData == null || sortedData.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("EXPORT IMPOSSIBLE");
-            alert.setHeaderText("Aucune donnée à exporter");
-            alert.setContentText("Votre liste de tickets est vide.");
-            alert.showAndWait();
-            return;
-        }
-
-        String cheminFichier = PdfService.genererRapportComplet(sortedData);
-
-        if (cheminFichier != null) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("EXPORT GLOBAL RÉUSSI");
-            alert.setHeaderText("Rapport généré avec succès !");
-            alert.setContentText("Le fichier a été sauvegardé ici :\n" + cheminFichier);
-            alert.showAndWait();
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("ERREUR EXPORT");
-            alert.setHeaderText("Échec de la génération");
-            alert.setContentText("Une erreur est survenue lors de la création du PDF.");
-            alert.showAndWait();
-        }
-    }
-
     public void afficherSidePanel(Parent node) {
         if (node instanceof Region) {
             ((Region) node).setMaxWidth(400);
@@ -495,7 +550,7 @@ public class ReclamationController implements Initializable {
         root.setStyle("-fx-background-color: rgba(15, 23, 42, 0.95); -fx-border-color: #ef4444; -fx-border-width: 2; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 40; -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.5), 25, 0, 0, 0);");
 
         Label title = new Label("PURGE SYSTÈME");
-        title.setStyle("-fx-font-family: 'Segoe UI Black'; -fx-font-size: 22px; -fx-text-fill: #ef4444;");
+        title.setStyle("-fx-font-family: 'Segoe UI Black', 'Consolas'; -fx-font-size: 22px; -fx-text-fill: #ef4444;");
 
         Label message = new Label("Supprimer définitivement le ticket :\n\"" + r.getTitre() + "\" ?");
         message.setStyle("-fx-text-fill: #cbd5e1; -fx-font-size: 14px; -fx-text-alignment: center;");

@@ -19,11 +19,9 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
-import org.json.JSONObject; // NOUVEAU : Nécessaire pour lire la réponse du Copilot
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class AdminTraiterController {
 
@@ -44,12 +42,7 @@ public class AdminTraiterController {
     @FXML private Label lblResultatDoublon;
     @FXML private HBox boxLiensDoublons;
 
-    // --- NOUVEAUX ÉLÉMENTS : COPILOT ---
-    @FXML private TextField txtCopilot;
-    @FXML private Button btnCopilot;
-    @FXML private Label lblCopilotStatus;
-
-    @FXML private Button btnUpdateStatut, btnAssigner, btnFermer, btnAmeliorer, btnReponseInteractive, btnReponseUnique;
+    @FXML private Button btnAssigner, btnFermer, btnAmeliorer, btnReponseInteractive, btnReponseUnique;
 
     private reclamation currentRec;
     private AdminDashboardController parent;
@@ -79,7 +72,6 @@ public class AdminTraiterController {
             });
         }
 
-        setupNeonHover(btnUpdateStatut, "#0ea5e9", "transparent");
         setupNeonHover(btnAssigner, "#f59e0b", "transparent");
         setupNeonHover(btnAmeliorer, "#10b981", "transparent");
         setupNeonHover(btnReponseInteractive, "#f59e0b", "transparent");
@@ -88,9 +80,6 @@ public class AdminTraiterController {
         setupNeonHover(btnScanFraude, "#ef4444", "transparent");
         setupNeonHover(btnDuplicateHunter, "#0ea5e9", "transparent");
         setupNeonHover(btnGenererReponse, "#a855f7", "transparent");
-
-        // Hover vert pour le Copilot
-        setupNeonHover(btnCopilot, "#10b981", "transparent");
 
         if(btnFermer != null) {
             String baseFermer = "-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-font-weight: 900; -fx-font-family: 'Consolas', monospace; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-width: 2; -fx-padding: 10; -fx-cursor: hand;";
@@ -126,80 +115,6 @@ public class AdminTraiterController {
             lblStatutIA.setText("Laissez l'IA rédiger le message pour vous...");
             lblStatutIA.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-style: italic;");
         }
-        if (lblCopilotStatus != null) {
-            lblCopilotStatus.setText("En attente d'instruction...");
-            lblCopilotStatus.setStyle("-fx-text-fill: #065f46; -fx-font-size: 10px; -fx-font-style: italic;");
-        }
-        if (txtCopilot != null) txtCopilot.clear();
-    }
-
-    // ==========================================
-    // LE MOTEUR DU COPILOT (TEXT-TO-ACTION)
-    // ==========================================
-    @FXML
-    private void handleCopilot() {
-        if (txtCopilot == null || txtCopilot.getText().trim().isEmpty()) return;
-        String commande = txtCopilot.getText().trim();
-
-        if (lblCopilotStatus != null) {
-            lblCopilotStatus.setText("Le Copilot analyse la commande... 🧠");
-            lblCopilotStatus.setStyle("-fx-text-fill: #10b981; -fx-font-style: italic; -fx-font-weight: bold; -fx-font-size: 11px;");
-        }
-
-        new Thread(() -> {
-            AIService ai = new AIService();
-            String jsonResult = ai.executerCopilot(commande);
-
-            Platform.runLater(() -> {
-                if (jsonResult.contains("QUOTA") || jsonResult.contains("ERREUR")) {
-                    if(lblCopilotStatus != null) {
-                        lblCopilotStatus.setText("❌ Erreur Copilot : Surcharge API.");
-                        lblCopilotStatus.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px;");
-                    }
-                    return;
-                }
-
-                try {
-                    JSONObject json = new JSONObject(jsonResult);
-
-                    // 1. Mise à jour automatique du Statut
-                    if (json.has("statut") && !json.isNull("statut") && comboStatut != null) {
-                        comboStatut.setValue(json.getString("statut"));
-                    }
-
-                    // 2. Mise à jour automatique de l'Assignation
-                    if (json.has("assignation") && !json.isNull("assignation") && comboAssignation != null) {
-                        comboAssignation.setValue(json.getString("assignation"));
-                    }
-
-                    // 3. Rédaction automatique du message
-                    if (json.has("message") && !json.isNull("message") && txtReponse != null) {
-                        txtReponse.setText(json.getString("message"));
-                    }
-
-                    if(lblCopilotStatus != null) {
-                        lblCopilotStatus.setText("✅ Ordre exécuté avec succès !");
-                        lblCopilotStatus.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold; -fx-font-size: 11px;");
-                    }
-                    if(txtCopilot != null) txtCopilot.clear();
-
-                    // 4. Déclenchement automatique de la sauvegarde si demandé
-                    if (json.has("auto_envoyer") && json.getBoolean("auto_envoyer")) {
-                        String statutPrevu = comboStatut != null ? comboStatut.getValue() : "En cours";
-                        verifierEtExecuterSauvegarde(statutPrevu);
-                        if (parent != null) parent.chargerTableau();
-                        handleAnnuler();
-                    }
-
-                } catch (Exception e) {
-                    if(lblCopilotStatus != null) {
-                        lblCopilotStatus.setText("❌ Impossible de comprendre l'ordre.");
-                        lblCopilotStatus.setStyle("-fx-text-fill: #ef4444; -fx-font-size: 11px;");
-                    }
-                    System.err.println("JSON copilot malformé : " + jsonResult);
-                }
-            });
-        }).start();
     }
 
     @FXML
@@ -220,7 +135,7 @@ public class AdminTraiterController {
                     if (resultat.contains("7") || resultat.contains("8") || resultat.contains("9") || resultat.contains("100")) {
                         lblResultatFraude.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-font-size: 11px;");
                     } else if (resultat.contains("⚠️") || resultat.contains("❌")) {
-                        lblResultatFraude.setStyle("-fx-text-fill: #f59e0b; -fx-font-weight: bold; -fx-font-size: 11px;"); // Orange si erreur quota
+                        lblResultatFraude.setStyle("-fx-text-fill: #f59e0b; -fx-font-weight: bold; -fx-font-size: 11px;");
                     } else {
                         lblResultatFraude.setStyle("-fx-text-fill: #10b981; -fx-font-weight: bold; -fx-font-size: 11px;");
                     }
@@ -293,27 +208,27 @@ public class AdminTraiterController {
             dialog.initStyle(StageStyle.UNDECORATED);
 
             VBox root = new VBox(15);
-            root.setStyle("-fx-background-color: #0f172a; -fx-border-color: #0ea5e9; -fx-border-width: 2; -fx-padding: 20; -fx-background-radius: 10; -fx-border-radius: 10;");
+            root.setStyle("-fx-background-color: #0f172a; -fx-border-color: #0ea5e9; -fx-border-width: 2px; -fx-padding: 25; -fx-background-radius: 10; -fx-border-radius: 10;");
             root.setEffect(new DropShadow(20, Color.BLACK));
-            root.setPrefWidth(400);
+            root.setPrefWidth(420);
 
-            Label title = new Label("🔍 APERÇU DU TICKET #" + cible.getIdrec());
-            title.setStyle("-fx-text-fill: #0ea5e9; -fx-font-size: 16px; -fx-font-weight: bold; -fx-font-family: 'Consolas', monospace;");
+            Label title = new Label("🔍 LOG #" + cible.getIdrec());
+            title.setStyle("-fx-text-fill: #0ea5e9; -fx-font-size: 18px; -fx-font-weight: bold; -fx-font-family: 'Consolas', monospace;");
 
             Label lblCat = new Label("MODULE : " + (cible.getCategorierec() != null ? cible.getCategorierec() : "N/A"));
-            lblCat.setStyle("-fx-text-fill: #94a3b8; -fx-font-weight: bold; -fx-font-size: 11px;");
+            lblCat.setStyle("-fx-text-fill: #94a3b8; -fx-font-weight: bold; -fx-font-size: 12px;");
 
-            Label lblStat = new Label("STATUT ACTUEL : " + (cible.getStatutrec() != null ? cible.getStatutrec() : "N/A"));
-            lblStat.setStyle("-fx-text-fill: #f59e0b; -fx-font-weight: bold; -fx-font-size: 11px;");
+            Label lblStat = new Label("STATUT : " + (cible.getStatutrec() != null ? cible.getStatutrec() : "N/A"));
+            lblStat.setStyle("-fx-text-fill: #f59e0b; -fx-font-weight: bold; -fx-font-size: 12px;");
 
             TextArea areaDesc = new TextArea(cible.getDescrirec() != null ? cible.getDescrirec() : "Aucune description.");
             areaDesc.setWrapText(true);
             areaDesc.setEditable(false);
-            areaDesc.setPrefRowCount(5);
-            areaDesc.setStyle("-fx-control-inner-background: #1e293b; -fx-text-fill: white; -fx-background-radius: 8;");
+            areaDesc.setPrefRowCount(6);
+            areaDesc.setStyle("-fx-control-inner-background: #1e293b; -fx-text-fill: white; -fx-background-radius: 8; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 8;");
 
-            Button btnFermerApercu = new Button("FERMER L'APERÇU");
-            btnFermerApercu.setStyle("-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5; -fx-border-radius: 5;");
+            Button btnFermerApercu = new Button("FERMER");
+            btnFermerApercu.setStyle("-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5; -fx-border-radius: 5; -fx-padding: 8;");
             btnFermerApercu.setMaxWidth(Double.MAX_VALUE);
             btnFermerApercu.setOnAction(e -> dialog.close());
 
@@ -324,6 +239,52 @@ public class AdminTraiterController {
             dialog.setScene(scene);
             dialog.showAndWait();
         }
+    }
+
+    private Boolean[] afficherPopupConfirmation(int nbDoublons) {
+        Boolean[] choix = new Boolean[]{false, false};
+
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initStyle(StageStyle.UNDECORATED);
+
+        VBox root = new VBox(20);
+        root.setStyle("-fx-background-color: #0f172a; -fx-border-color: #f59e0b; -fx-border-width: 2px; -fx-padding: 30; -fx-background-radius: 15; -fx-border-radius: 15;");
+        root.setEffect(new DropShadow(20, Color.BLACK));
+        root.setAlignment(Pos.CENTER);
+
+        Label title = new Label("⚠️ DÉCISION SYSTÈME");
+        title.setStyle("-fx-text-fill: #f59e0b; -fx-font-size: 20px; -fx-font-weight: bold; -fx-font-family: 'Consolas', monospace;");
+
+        Label message = new Label("Ce log est lié à " + nbDoublons + " autres réclamations similaires.\nAppliquer la réponse à l'ensemble du cluster ?");
+        message.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-text-alignment: center; -fx-font-family: 'Consolas', monospace;");
+        message.setWrapText(true);
+
+        Button btnTous = new Button("🚀 RÉPONDRE À TOUS (" + (nbDoublons + 1) + ")");
+        btnTous.setStyle("-fx-background-color: #10b981; -fx-text-fill: #020617; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10 20; -fx-background-radius: 8;");
+        btnTous.setMaxWidth(Double.MAX_VALUE);
+        btnTous.setOnAction(e -> { choix[0] = true; choix[1] = true; dialog.close(); });
+
+        Button btnUn = new Button("👤 JUSTE CE TICKET");
+        btnUn.setStyle("-fx-background-color: transparent; -fx-border-color: #0ea5e9; -fx-text-fill: #0ea5e9; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10 20; -fx-background-radius: 8; -fx-border-radius: 8;");
+        btnUn.setMaxWidth(Double.MAX_VALUE);
+        btnUn.setOnAction(e -> { choix[0] = true; choix[1] = false; dialog.close(); });
+
+        Button btnAnnuler = new Button("ABORT");
+        btnAnnuler.setStyle("-fx-background-color: transparent; -fx-border-color: #ef4444; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 20; -fx-background-radius: 8; -fx-border-radius: 8;");
+        btnAnnuler.setOnAction(e -> { choix[0] = false; dialog.close(); });
+
+        VBox buttonsBox = new VBox(12, btnTous, btnUn, new Separator(), btnAnnuler);
+        buttonsBox.setAlignment(Pos.CENTER);
+
+        root.getChildren().addAll(title, message, buttonsBox);
+
+        Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+
+        return choix;
     }
 
     @FXML
@@ -346,7 +307,7 @@ public class AdminTraiterController {
 
                     if (lblStatutIA != null) {
                         if (decoupage[0].contains("⚠️") || decoupage[0].contains("❌")) {
-                            lblStatutIA.setText(decoupage[0].trim()); // Affiche l'alerte Quota
+                            lblStatutIA.setText(decoupage[0].trim());
                             lblStatutIA.setStyle("-fx-text-fill: #f59e0b; -fx-font-weight: bold; -fx-font-size: 11px;");
                         } else {
                             lblStatutIA.setText("✨ Réponse générée avec succès ! (" + decoupage[0].trim() + ")");
@@ -443,61 +404,6 @@ public class AdminTraiterController {
         handleAnnuler();
     }
 
-    @FXML
-    private void handleSauvegarder() {
-        if (!verifierEtExecuterSauvegarde(null)) return;
-        if (parent != null) {
-            parent.chargerTableau();
-            parent.masquerFormulaireAjout();
-        }
-    }
-
-    private Boolean[] afficherPopupConfirmation(int nbDoublons) {
-        Boolean[] choix = new Boolean[]{false, false};
-
-        Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.initStyle(StageStyle.UNDECORATED);
-
-        VBox root = new VBox(20);
-        root.setStyle("-fx-background-color: #0f172a; -fx-border-color: #f59e0b; -fx-border-width: 2; -fx-padding: 25; -fx-background-radius: 10; -fx-border-radius: 10;");
-        root.setEffect(new DropShadow(20, Color.BLACK));
-        root.setAlignment(Pos.CENTER);
-
-        Label title = new Label("⚠️ DÉCISION REQUISE");
-        title.setStyle("-fx-text-fill: #f59e0b; -fx-font-size: 18px; -fx-font-weight: bold; -fx-font-family: 'Consolas', monospace;");
-
-        Label message = new Label("L'IA a lié ce ticket à " + nbDoublons + " autres réclamations similaires.\nVoulez-vous envoyer cette réponse à TOUT LE MONDE ?");
-        message.setStyle("-fx-text-fill: white; -fx-font-size: 13px; -fx-text-alignment: center;");
-        message.setWrapText(true);
-
-        Button btnTous = new Button("🚀 OUI, RÉPONDRE À TOUS (" + (nbDoublons + 1) + " Tickets)");
-        btnTous.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10 20; -fx-background-radius: 8;");
-        btnTous.setMaxWidth(Double.MAX_VALUE);
-        btnTous.setOnAction(e -> { choix[0] = true; choix[1] = true; dialog.close(); });
-
-        Button btnUn = new Button("👤 NON, JUSTE CE TICKET");
-        btnUn.setStyle("-fx-background-color: transparent; -fx-border-color: #0ea5e9; -fx-text-fill: #0ea5e9; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10 20; -fx-background-radius: 8; -fx-border-radius: 8;");
-        btnUn.setMaxWidth(Double.MAX_VALUE);
-        btnUn.setOnAction(e -> { choix[0] = true; choix[1] = false; dialog.close(); });
-
-        Button btnAnnuler = new Button("ANNULER L'ACTION");
-        btnAnnuler.setStyle("-fx-background-color: transparent; -fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10 20;");
-        btnAnnuler.setOnAction(e -> { choix[0] = false; dialog.close(); });
-
-        VBox buttonsBox = new VBox(10, btnTous, btnUn, btnAnnuler);
-        buttonsBox.setAlignment(Pos.CENTER);
-
-        root.getChildren().addAll(title, message, buttonsBox);
-
-        Scene scene = new Scene(root);
-        scene.setFill(Color.TRANSPARENT);
-        dialog.setScene(scene);
-        dialog.showAndWait();
-
-        return choix;
-    }
-
     private boolean verifierEtExecuterSauvegarde(String statutForce) {
         if (txtReponse == null || txtReponse.getText().trim().isEmpty() && statutForce == null) {
             return executerSauvegarde(statutForce, false);
@@ -579,8 +485,17 @@ public class AdminTraiterController {
 
     @FXML private void handleAssigner() {}
 
-    @FXML private void handleAnnuler() {
-        if (parent != null) parent.masquerFormulaireAjout();
-        else if (lblRef != null) lblRef.getScene().getWindow().hide();
+    @FXML
+    private void handleAnnuler() {
+        // 1. Sauvegarde automatique et invisible de l'état en cours
+        verifierEtExecuterSauvegarde(null);
+
+        // 2. Fermeture du panel
+        if (parent != null) {
+            parent.chargerTableau();
+            parent.masquerFormulaireAjout();
+        } else if (lblRef != null) {
+            lblRef.getScene().getWindow().hide();
+        }
     }
 }

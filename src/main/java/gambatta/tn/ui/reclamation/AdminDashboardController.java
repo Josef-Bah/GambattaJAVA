@@ -23,6 +23,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.json.JSONObject;
 
+import java.awt.Desktop; // AJOUTÉ
+import java.net.URI;     // AJOUTÉ
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +46,6 @@ public class AdminDashboardController implements Initializable {
     @FXML private ToggleButton btnTous, btnAttente, btnResolu;
     @FXML private ComboBox<String> comboModule, comboTri;
 
-    // --- ÉLÉMENTS : COPILOT GLOBAL ---
     @FXML private Button btnToggleCopilot;
     @FXML private HBox boxCopilot;
     @FXML private TextField txtGlobalCopilot;
@@ -54,6 +55,20 @@ public class AdminDashboardController implements Initializable {
     private ObservableList<reclamation> masterData = FXCollections.observableArrayList();
     private FilteredList<reclamation> filteredData;
     private SortedList<reclamation> sortedData;
+
+    private String departementAdminConnecte = "SUPER_ADMIN";
+
+    public void setAdminRole(String departement) {
+        this.departementAdminConnecte = departement;
+        if (!departement.equals("SUPER_ADMIN")) {
+            if (btnToggleCopilot != null) btnToggleCopilot.setVisible(false);
+            if (comboModule != null) {
+                comboModule.setValue(departement);
+                comboModule.setDisable(true);
+            }
+        }
+        chargerTableau();
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -100,8 +115,109 @@ public class AdminDashboardController implements Initializable {
     }
 
     // =========================================================================
-    // NOUVEAUTÉ : MOTEUR DU COPILOT GLOBAL
+    // TEMPLATE D'ALERTE UNIVERSEL (GAMBATTA STYLE) - VERSION AVEC BOUTON WEB
     // =========================================================================
+    private void afficherAlerteGambatta(String type, String titre, String message, String urlOptionnelle) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.NONE);
+            alert.setTitle(titre);
+
+            DialogPane dialogPane = alert.getDialogPane();
+            String color = type.equals("ERREUR") ? "#ef4444" : type.equals("SUCCES") ? "#10b981" : "#fcc033";
+            dialogPane.setStyle("-fx-background-color: #0f172a; -fx-border-color: " + color + "; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8;");
+
+            VBox content = new VBox(15);
+            content.setPadding(new javafx.geometry.Insets(20));
+
+            Label lblTitre = new Label(titre.toUpperCase());
+            lblTitre.setStyle("-fx-text-fill: " + color + "; -fx-font-family: 'Consolas'; -fx-font-size: 16px; -fx-font-weight: bold;");
+
+            Label lblMsg = new Label(message);
+            lblMsg.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
+            lblMsg.setWrapText(true);
+
+            content.getChildren().addAll(lblTitre, lblMsg);
+
+            // GESTION DU LIEN CLOUDINARY AVEC BOUTON D'OUVERTURE DIRECTE
+            if (urlOptionnelle != null && !urlOptionnelle.isEmpty()) {
+                HBox urlBox = new HBox(10);
+                urlBox.setAlignment(Pos.CENTER_LEFT);
+
+                TextField txtUrl = new TextField(urlOptionnelle);
+                txtUrl.setEditable(false);
+                txtUrl.setStyle("-fx-background-color: #020617; -fx-text-fill: #38bdf8; -fx-border-color: #38bdf8; -fx-font-family: 'Consolas'; -fx-padding: 8;");
+                HBox.setHgrow(txtUrl, Priority.ALWAYS);
+
+                Button btnOpen = new Button("🌐 OUVRIR");
+                btnOpen.setStyle("-fx-background-color: #38bdf8; -fx-text-fill: #020617; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 8 15;");
+                btnOpen.setOnAction(e -> {
+                    try {
+                        Desktop.getDesktop().browse(new URI(urlOptionnelle));
+                    } catch (Exception ex) {
+                        System.err.println("Erreur navigateur : " + ex.getMessage());
+                    }
+                });
+
+                urlBox.getChildren().addAll(txtUrl, btnOpen);
+                content.getChildren().add(urlBox);
+            }
+
+            dialogPane.setContent(content);
+            dialogPane.getButtonTypes().add(ButtonType.OK);
+
+            Node okButton = dialogPane.lookupButton(ButtonType.OK);
+            if (okButton != null) {
+                okButton.setStyle("-fx-background-color: transparent; -fx-border-color: " + color + "; -fx-text-fill: " + color + "; -fx-font-weight: bold; -fx-cursor: hand; -fx-border-radius: 5;");
+            }
+
+            alert.showAndWait();
+        });
+    }
+
+    private Alert afficherAlerteChargement(String titre, String message) {
+        Alert alert = new Alert(Alert.AlertType.NONE);
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setStyle("-fx-background-color: #0f172a; -fx-border-color: #0ea5e9; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8;");
+
+        VBox content = new VBox(10);
+        content.setPadding(new javafx.geometry.Insets(20));
+
+        Label lblTitre = new Label(titre.toUpperCase());
+        lblTitre.setStyle("-fx-text-fill: #0ea5e9; -fx-font-family: 'Consolas'; -fx-font-size: 16px; -fx-font-weight: bold;");
+
+        Label lblMsg = new Label(message);
+        lblMsg.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
+
+        content.getChildren().addAll(lblTitre, lblMsg);
+        dialogPane.setContent(content);
+        alert.show();
+        return alert;
+    }
+
+    @FXML
+    private void handleExporterRapportGlobal() {
+        if (sortedData == null || sortedData.isEmpty()) {
+            afficherAlerteGambatta("INFO", "Base vide", "Aucune réclamation à exporter.", null);
+            return;
+        }
+
+        Alert loadingAlert = afficherAlerteChargement("Génération Cloud", "Création et upload du PDF sécurisé en cours...\nVeuillez patienter ☁️");
+
+        new Thread(() -> {
+            // Utilisation de la méthode mise à jour dans PdfService
+            String urlCloud = PdfService.genererRapportComplet(sortedData);
+            Platform.runLater(() -> {
+                loadingAlert.close();
+
+                if (urlCloud != null && urlCloud.startsWith("http")) {
+                    afficherAlerteGambatta("SUCCES", "Archive Sécurisée", "Le rapport PDF a été archivé en ligne avec succès.", urlCloud);
+                } else {
+                    afficherAlerteGambatta("ERREUR", "Échec Upload", "Erreur technique lors de l'envoi vers Cloudinary.", null);
+                }
+            });
+        }).start();
+    }
+
     @FXML
     private void toggleCopilot() {
         if (boxCopilot != null) {
@@ -109,7 +225,7 @@ public class AdminDashboardController implements Initializable {
             boxCopilot.setVisible(!isVisible);
             boxCopilot.setManaged(!isVisible);
             if (!isVisible && txtGlobalCopilot != null) {
-                txtGlobalCopilot.requestFocus(); // Focus auto sur la barre
+                txtGlobalCopilot.requestFocus();
             }
         }
     }
@@ -129,12 +245,8 @@ public class AdminDashboardController implements Initializable {
                 txtGlobalCopilot.clear();
                 txtGlobalCopilot.setDisable(false);
 
-                if (jsonResult.contains("QUOTA") || jsonResult.contains("ERREUR")) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Copilot Global");
-                    alert.setHeaderText("Surcharge Systèmes");
-                    alert.setContentText("Les serveurs IA sont surchargés. Réessayez dans 1 minute.");
-                    alert.show();
+                if (jsonResult.contains("QUOTA") || jsonResult.contains("ERREUR") || jsonResult.contains("SATURE")) {
+                    afficherAlerteGambatta("ERREUR", "Surcharge Système", "Les serveurs IA sont surchargés. Réessayez plus tard.", null);
                     return;
                 }
 
@@ -164,13 +276,9 @@ public class AdminDashboardController implements Initializable {
                             }
                             break;
                         default:
-                            Alert alert = new Alert(Alert.AlertType.WARNING);
-                            alert.setHeaderText("Commande non reconnue.");
-                            alert.setContentText("Le Copilot ne peut faire que : Auto-triage, Exporter PDF, ou Filtrer/Chercher.");
-                            alert.show();
+                            afficherAlerteGambatta("INFO", "Non Reconnu", "Je peux uniquement faire du triage, générer un PDF, ou filtrer l'affichage.", null);
                             break;
                     }
-                    // On referme le Copilot après une action réussie
                     toggleCopilot();
                 } catch (Exception e) {
                     System.err.println("JSON copilot malformé : " + jsonResult);
@@ -181,11 +289,7 @@ public class AdminDashboardController implements Initializable {
 
     @FXML
     private void handleAutoTriage() {
-        Alert info = new Alert(Alert.AlertType.INFORMATION);
-        info.setTitle("IA GAMBATTA - CO-PILOT");
-        info.setHeaderText("Analyse neuronale en masse en cours... 🧠");
-        info.setContentText("L'IA lit les descriptions et re-catégorise les tickets mal rangés. Veuillez patienter.");
-        info.show();
+        Alert loadingAlert = afficherAlerteChargement("Smart Routing", "Analyse neuronale en cours... 🧠\nL'IA redirige les tickets.");
 
         new Thread(() -> {
             AIService ai = new AIService();
@@ -196,7 +300,7 @@ public class AdminDashboardController implements Initializable {
                 if (cat == null || cat.equalsIgnoreCase("GÉNÉRAL") || cat.equalsIgnoreCase("Autre Demande") || cat.equalsIgnoreCase("NON SPÉCIFIÉ")) {
                     String vraieCat = ai.determinerCategorie(r.getDescrirec());
 
-                    if (vraieCat != null && !vraieCat.equalsIgnoreCase("Autre Demande") && !vraieCat.equals(cat) && !vraieCat.contains("QUOTA")) {
+                    if (vraieCat != null && !vraieCat.equalsIgnoreCase("Autre Demande") && !vraieCat.equals(cat) && !vraieCat.contains("QUOTA") && !vraieCat.contains("SATURE")) {
                         r.setCategorierec(vraieCat);
                         service.modifier(r);
                         count++;
@@ -206,21 +310,68 @@ public class AdminDashboardController implements Initializable {
             final int finalCount = count;
 
             Platform.runLater(() -> {
-                info.close();
+                loadingAlert.close();
                 chargerTableau();
-
-                Alert success = new Alert(Alert.AlertType.INFORMATION);
-                success.setTitle("IA GAMBATTA");
-                success.setHeaderText("Smart Routing Terminé ! ✓");
-                success.setContentText(finalCount + " ticket(s) ont été analysés et redirigés vers le bon service par l'IA.");
-                success.show();
+                afficherAlerteGambatta("SUCCES", "Routing Terminé", finalCount + " ticket(s) ont été réassignés au bon service par l'IA.", null);
             });
         }).start();
     }
 
+    private void updateFiltresEtTri() {
+        filteredData.setPredicate(r -> {
+            boolean matchRole = true;
+            if (!departementAdminConnecte.equals("SUPER_ADMIN")) {
+                matchRole = r.getCategorierec() != null && r.getCategorierec().equalsIgnoreCase(departementAdminConnecte);
+            }
+
+            boolean matchSearch = true;
+            if (searchField != null) {
+                String search = searchField.getText().toLowerCase();
+                matchSearch = search.isEmpty() ||
+                        (r.getTitre() != null && r.getTitre().toLowerCase().contains(search)) ||
+                        String.valueOf(r.getIdrec()).contains(search);
+            }
+
+            boolean matchStatus = true;
+            if (filterGroup != null) {
+                ToggleButton selectedToggle = (ToggleButton) filterGroup.getSelectedToggle();
+                if (selectedToggle == btnAttente) matchStatus = "EN ATTENTE".equalsIgnoreCase(r.getStatutrec());
+                if (selectedToggle == btnResolu) matchStatus = "RÉSOLU".equalsIgnoreCase(r.getStatutrec());
+            }
+
+            boolean matchModule = true;
+            if (comboModule != null && !comboModule.isDisabled()) {
+                String selectedModule = comboModule.getValue();
+                matchModule = "TOUS LES MODULES".equals(selectedModule) || (r.getCategorierec() != null && r.getCategorierec().equalsIgnoreCase(selectedModule));
+            }
+
+            return matchRole && matchSearch && matchStatus && matchModule;
+        });
+
+        if (comboTri != null) {
+            String critereTri = comboTri.getValue();
+            sortedData.setComparator((r1, r2) -> {
+                if ("Plus récent".equals(critereTri)) {
+                    if (r1.getDaterec() == null || r2.getDaterec() == null) return 0;
+                    return r2.getDaterec().compareTo(r1.getDaterec());
+                } else if ("Plus ancien".equals(critereTri)) {
+                    if (r1.getDaterec() == null || r2.getDaterec() == null) return 0;
+                    return r1.getDaterec().compareTo(r2.getDaterec());
+                } else if ("Ordre Alphabétique (A-Z)".equals(critereTri)) {
+                    String t1 = r1.getTitre() != null ? r1.getTitre() : "";
+                    String t2 = r2.getTitre() != null ? r2.getTitre() : "";
+                    return t1.compareToIgnoreCase(t2);
+                }
+                return 0;
+            });
+        }
+        dessinerCartesUI();
+    }
+
     private void mettreAJourStatistiques() {
         if (pieChartStatut == null || pieChartModule == null) return;
-        int total = masterData.size();
+
+        int total = filteredData.size();
         if (lblTotalInfo != null) lblTotalInfo.setText("TOTAL TICKETS : " + total);
 
         if (total == 0) {
@@ -229,9 +380,9 @@ public class AdminDashboardController implements Initializable {
             return;
         }
 
-        long attente = masterData.stream().filter(r -> "EN ATTENTE".equalsIgnoreCase(r.getStatutrec())).count();
-        long cours = masterData.stream().filter(r -> "EN COURS".equalsIgnoreCase(r.getStatutrec())).count();
-        long resolu = masterData.stream().filter(r -> "RÉSOLU".equalsIgnoreCase(r.getStatutrec())).count();
+        long attente = filteredData.stream().filter(r -> "EN ATTENTE".equalsIgnoreCase(r.getStatutrec())).count();
+        long cours = filteredData.stream().filter(r -> "EN COURS".equalsIgnoreCase(r.getStatutrec())).count();
+        long resolu = filteredData.stream().filter(r -> "RÉSOLU".equalsIgnoreCase(r.getStatutrec())).count();
 
         ObservableList<PieChart.Data> dataStatut = FXCollections.observableArrayList();
         if (attente > 0) dataStatut.add(new PieChart.Data("ATTENTE", attente));
@@ -239,7 +390,7 @@ public class AdminDashboardController implements Initializable {
         if (resolu > 0) dataStatut.add(new PieChart.Data("RÉSOLUS", resolu));
         pieChartStatut.setData(dataStatut);
 
-        Map<String, Long> parModule = masterData.stream()
+        Map<String, Long> parModule = filteredData.stream()
                 .collect(Collectors.groupingBy(r -> r.getCategorierec() != null ? r.getCategorierec().toUpperCase() : "GÉNÉRAL", Collectors.counting()));
 
         ObservableList<PieChart.Data> dataModule = FXCollections.observableArrayList();
@@ -281,52 +432,6 @@ public class AdminDashboardController implements Initializable {
         }
         pieChartStatut.lookupAll(".chart-legend-item").forEach(n -> { if (n instanceof Label) ((Label) n).setStyle("-fx-text-fill: white; -fx-font-size: 10px;"); });
         pieChartModule.lookupAll(".chart-legend-item").forEach(n -> { if (n instanceof Label) ((Label) n).setStyle("-fx-text-fill: white; -fx-font-size: 10px;"); });
-    }
-
-    private void updateFiltresEtTri() {
-        filteredData.setPredicate(r -> {
-            boolean matchSearch = true;
-            if (searchField != null) {
-                String search = searchField.getText().toLowerCase();
-                matchSearch = search.isEmpty() ||
-                        (r.getTitre() != null && r.getTitre().toLowerCase().contains(search)) ||
-                        String.valueOf(r.getIdrec()).contains(search);
-            }
-
-            boolean matchStatus = true;
-            if (filterGroup != null) {
-                ToggleButton selectedToggle = (ToggleButton) filterGroup.getSelectedToggle();
-                if (selectedToggle == btnAttente) matchStatus = "EN ATTENTE".equalsIgnoreCase(r.getStatutrec());
-                if (selectedToggle == btnResolu) matchStatus = "RÉSOLU".equalsIgnoreCase(r.getStatutrec());
-            }
-
-            boolean matchModule = true;
-            if (comboModule != null) {
-                String selectedModule = comboModule.getValue();
-                matchModule = "TOUS LES MODULES".equals(selectedModule) || (r.getCategorierec() != null && r.getCategorierec().equalsIgnoreCase(selectedModule));
-            }
-
-            return matchSearch && matchStatus && matchModule;
-        });
-
-        if (comboTri != null) {
-            String critereTri = comboTri.getValue();
-            sortedData.setComparator((r1, r2) -> {
-                if ("Plus récent".equals(critereTri)) {
-                    if (r1.getDaterec() == null || r2.getDaterec() == null) return 0;
-                    return r2.getDaterec().compareTo(r1.getDaterec());
-                } else if ("Plus ancien".equals(critereTri)) {
-                    if (r1.getDaterec() == null || r2.getDaterec() == null) return 0;
-                    return r1.getDaterec().compareTo(r2.getDaterec());
-                } else if ("Ordre Alphabétique (A-Z)".equals(critereTri)) {
-                    String t1 = r1.getTitre() != null ? r1.getTitre() : "";
-                    String t2 = r2.getTitre() != null ? r2.getTitre() : "";
-                    return t1.compareToIgnoreCase(t2);
-                }
-                return 0;
-            });
-        }
-        dessinerCartesUI();
     }
 
     private void dessinerCartesUI() {
@@ -382,22 +487,6 @@ public class AdminDashboardController implements Initializable {
         btn.setStyle(base);
         btn.setOnMouseEntered(e -> btn.setStyle(base + hover));
         btn.setOnMouseExited(e -> btn.setStyle(base));
-    }
-
-    @FXML
-    private void handleExporterRapportGlobal() {
-        if (sortedData == null || sortedData.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.showAndWait();
-            return;
-        }
-        String cheminFichier = PdfService.genererRapportComplet(sortedData);
-        if (cheminFichier != null) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setHeaderText("Archive Système générée !");
-            alert.setContentText("Le rapport a été sécurisé ici :\n" + cheminFichier);
-            alert.showAndWait();
-        }
     }
 
     public void afficherSidePanel(Parent node) {
