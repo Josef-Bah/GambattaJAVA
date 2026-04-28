@@ -13,7 +13,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -23,7 +26,8 @@ public class EquipeController {
 
     // ── Tableau ──
     @FXML private TableView<equipe>              tableEquipes;
-    @FXML private TableColumn<equipe, Long>      colId;
+
+    @FXML private TableColumn<equipe, String>    colLogo;
     @FXML private TableColumn<equipe, String>    colNom;
     @FXML private TableColumn<equipe, String>    colLeader;
     @FXML private TableColumn<equipe, String>    colStatus;
@@ -40,6 +44,8 @@ public class EquipeController {
     @FXML private TextField drawerLeader;
     @FXML private Label     errLeader;
     @FXML private TextField drawerCoach;
+    @FXML private TextField drawerLogo;
+    @FXML private Label     errLogo;
     @FXML private ComboBox<String> drawerStatut;
     @FXML private Label     errStatut;
     @FXML private Label     globalMsg;
@@ -58,7 +64,24 @@ public class EquipeController {
 
         drawerStatut.setItems(FXCollections.observableArrayList("EN_ATTENTE", "VALIDE", "REFUSEE"));
 
-        colId.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().getId()));
+
+        colLogo.setCellValueFactory(c -> c.getValue().logoProperty());
+        colLogo.setCellFactory(p -> new TableCell<>() {
+            private final ImageView img = new ImageView();
+            { 
+                img.setFitWidth(35); img.setFitHeight(35); img.setPreserveRatio(true);
+                Circle clip = new Circle(17.5, 17.5, 17.5); img.setClip(clip);
+            }
+            @Override protected void updateItem(String url, boolean empty) {
+                super.updateItem(url, empty);
+                if (empty || url == null || url.isEmpty()) setGraphic(null);
+                else {
+                    try { img.setImage(new Image(url, true)); setGraphic(img); }
+                    catch (Exception ex) { setGraphic(null); }
+                }
+            }
+        });
+
         colNom.setCellValueFactory(c -> c.getValue().nomProperty());
         colLeader.setCellValueFactory(c -> c.getValue().teamLeaderProperty());
         colStatus.setCellValueFactory(c -> c.getValue().statusProperty());
@@ -98,6 +121,7 @@ public class EquipeController {
         drawerNom.setText(e.getNom());
         drawerLeader.setText(e.getTeamLeader());
         drawerCoach.setText(e.getCoach() != null ? e.getCoach() : "");
+        drawerLogo.setText(e.getLogo() != null ? e.getLogo() : "");
         drawerStatut.setValue(e.getStatus());
         drawerTitres.setText(e.getTitres() != null ? e.getTitres() : "");
         drawerObjectifs.setText(e.getObjectifs() != null ? e.getObjectifs() : "");
@@ -134,6 +158,7 @@ public class EquipeController {
         String nom       = drawerNom.getText().trim();
         String leader    = drawerLeader.getText().trim();
         String coach     = drawerCoach.getText().trim();
+        String logo      = drawerLogo.getText().trim();
         String statut    = drawerStatut.getValue();
         String titres    = drawerTitres.getText().trim();
         String objectifs = drawerObjectifs.getText().trim();
@@ -142,6 +167,7 @@ public class EquipeController {
             // ── Création
             equipe e = new equipe();
             e.setNom(nom); e.setTeamLeader(leader); e.setCoach(coach);
+            e.setLogo(logo);
             e.setStatus(statut);
             e.setTitres(titres); e.setObjectifs(objectifs);
             if (equipeService.save(e)) {
@@ -154,7 +180,8 @@ public class EquipeController {
         } else {
             // ── Modification
             editingEquipe.setNom(nom); editingEquipe.setTeamLeader(leader);
-            editingEquipe.setCoach(coach); editingEquipe.setStatus(statut);
+            editingEquipe.setCoach(coach); editingEquipe.setLogo(logo);
+            editingEquipe.setStatus(statut);
             editingEquipe.setTitres(titres); editingEquipe.setObjectifs(objectifs);
             if (equipeService.save(editingEquipe)) {
                 tableEquipes.refresh();
@@ -188,11 +215,14 @@ public class EquipeController {
         if (drawerStatut.getValue() == null) {
             errStatut.setText("⚠ Veuillez sélectionner un statut."); ok = false;
         }
+        if (drawerLogo.getText().trim().isEmpty()) {
+            errLogo.setText("⚠ Le logo est obligatoire."); ok = false;
+        }
         return ok;
     }
 
     private void clearErrors() {
-        errNom.setText(""); errLeader.setText(""); errStatut.setText("");
+        errNom.setText(""); errLeader.setText(""); errStatut.setText(""); errLogo.setText("");
         if (globalMsg != null) {
             globalMsg.setText("");
             globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
@@ -213,7 +243,7 @@ public class EquipeController {
     }
 
     private void clearDrawerFields() {
-        drawerNom.clear(); drawerLeader.clear(); drawerCoach.clear();
+        drawerNom.clear(); drawerLeader.clear(); drawerCoach.clear(); drawerLogo.clear();
         drawerStatut.getSelectionModel().clearSelection();
         drawerTitres.clear(); drawerObjectifs.clear();
         clearErrors();

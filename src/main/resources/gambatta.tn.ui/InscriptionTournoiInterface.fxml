@@ -66,7 +66,7 @@
 
                 <TableView fx:id="tableInscriptions" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colId"     text="ID"       prefWidth="55"/>
+
                         <TableColumn fx:id="colEquipe" text="Équipe"   prefWidth="240"/>
                         <TableColumn fx:id="colTournoi" text="Tournoi" prefWidth="240"/>
                         <TableColumn fx:id="colStatus" text="Statut"   prefWidth="120"/>

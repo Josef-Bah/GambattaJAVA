@@ -42,7 +42,7 @@ public class TournoiController {
 
     // ── Table ──
     @FXML private TableView<tournoi>              table;
-    @FXML private TableColumn<tournoi, Long>      idCol;
+
     @FXML private TableColumn<tournoi, String>    nomCol;
     @FXML private TableColumn<tournoi, String>    dateDebutCol;
     @FXML private TableColumn<tournoi, String>    dateFinCol;
@@ -60,7 +60,7 @@ public class TournoiController {
         cmbStatut.setItems(FXCollections.observableArrayList("EN_ATTENTE", "VALIDE", "TERMINE"));
         btnPDF.setOnAction(e -> exportPDF());
 
-        idCol.setCellValueFactory(d -> new javafx.beans.property.SimpleLongProperty(d.getValue().getId()).asObject());
+
         nomCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getNomt()));
         dateDebutCol.setCellValueFactory(d -> {
             LocalDateTime dt = d.getValue().getDatedebutt();

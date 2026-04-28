@@ -39,7 +39,7 @@ public class InscritournoiController {
 
     // ── Table ──
     @FXML private TableView<inscriptiontournoi>              tableInscriptions;
-    @FXML private TableColumn<inscriptiontournoi, Long>      colId;
+
     @FXML private TableColumn<inscriptiontournoi, String>    colEquipe;
     @FXML private TableColumn<inscriptiontournoi, String>    colTournoi;
     @FXML private TableColumn<inscriptiontournoi, String>    colStatus;
@@ -62,7 +62,7 @@ public class InscritournoiController {
         comboTournoi.setItems(FXCollections.observableArrayList(tournoiService.findAll()));
 
         // Colonnes
-        colId.setCellValueFactory(d -> new SimpleLongProperty(d.getValue().getId()).asObject());
+
         colEquipe.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getEquipe().getNom()));
         colTournoi.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getTournoi().getNomt()));
         colStatus.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getStatus()));

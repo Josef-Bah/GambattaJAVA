@@ -18,7 +18,7 @@
 
         <TableView fx:id="table" VBox.vgrow="ALWAYS">
             <columns>
-                <TableColumn fx:id="idCol"          text="ID"           prefWidth="50"/>
+
                 <TableColumn fx:id="playerCol"      text="Joueur"       prefWidth="200"/>
                 <TableColumn fx:id="equipeCol"      text="Équipe cible" prefWidth="200"/>
                 <TableColumn fx:id="dateCol"        text="Date demande" prefWidth="150"/>

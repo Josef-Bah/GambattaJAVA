@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class AdminValidationTournoiController {
 
     @FXML private TableView<inscriptiontournoi> table;
-    @FXML private TableColumn<inscriptiontournoi, Long> idCol;
+
     @FXML private TableColumn<inscriptiontournoi, String> equipeCol;
     @FXML private TableColumn<inscriptiontournoi, String> tournoiCol;
     @FXML private TableColumn<inscriptiontournoi, String> statusCol;
@@ -26,7 +26,7 @@ public class AdminValidationTournoiController {
     private ObservableList<inscriptiontournoi> pendingInscriptions = FXCollections.observableArrayList();
 
     public void initialize() {
-        idCol.setCellValueFactory(data -> new SimpleLongProperty(data.getValue().getId()).asObject());
+
         equipeCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getEquipe().getNom()));
         tournoiCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getTournoi().getNomt()));
         statusCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus()));

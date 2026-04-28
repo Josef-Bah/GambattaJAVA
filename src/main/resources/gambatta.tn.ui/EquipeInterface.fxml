@@ -58,6 +58,12 @@
                         </VBox>
 
                         <VBox spacing="5">
+                            <Label text="Logo URL *" style="-fx-text-fill: white;"/>
+                            <TextField fx:id="drawerLogo" promptText="Ex: https://..." styleClass="text-field"/>
+                            <Label fx:id="errLogo" text="" style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px;"/>
+                        </VBox>
+
+                        <VBox spacing="5">
                             <Label text="Statut" style="-fx-text-fill: white;"/>
                             <ComboBox fx:id="drawerStatut" prefWidth="Infinity" maxWidth="Infinity" styleClass="text-field"/>
                             <Label fx:id="errStatut" text="" style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px;"/>
@@ -94,7 +100,8 @@
 
                 <TableView fx:id="tableEquipes" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colId"       text="ID"          prefWidth="55"/>
+
+                        <TableColumn fx:id="colLogo"     text="Logo"        prefWidth="60"  style="-fx-alignment: CENTER;"/>
                         <TableColumn fx:id="colNom"      text="Équipe"      prefWidth="220"/>
                         <TableColumn fx:id="colLeader"   text="Capitaine"   prefWidth="180"/>
                         <TableColumn fx:id="colStatus"   text="Statut"      prefWidth="110"/>

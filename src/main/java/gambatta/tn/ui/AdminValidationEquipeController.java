@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class AdminValidationEquipeController {
 
     @FXML private TableView<equipe> table;
-    @FXML private TableColumn<equipe, Long> idCol;
+
     @FXML private TableColumn<equipe, String> nomCol;
     @FXML private TableColumn<equipe, String> leaderCol;
     @FXML private TableColumn<equipe, String> objectifsCol;
@@ -27,7 +27,7 @@ public class AdminValidationEquipeController {
     private ObservableList<equipe> pendingEquipes = FXCollections.observableArrayList();
 
     public void initialize() {
-        idCol.setCellValueFactory(data -> new SimpleLongProperty(data.getValue().getId()).asObject());
+
         nomCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getNom()));
         leaderCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getTeamLeader()));
         objectifsCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getObjectifs()));

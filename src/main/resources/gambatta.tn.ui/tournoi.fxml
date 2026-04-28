@@ -83,7 +83,7 @@
 
                 <TableView fx:id="table" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="idCol"       text="ID"          prefWidth="55"/>
+
                         <TableColumn fx:id="nomCol"      text="Tournoi"     prefWidth="200"/>
                         <TableColumn fx:id="dateDebutCol" text="Début"      prefWidth="110"/>
                         <TableColumn fx:id="dateFinCol"   text="Fin"        prefWidth="110"/>

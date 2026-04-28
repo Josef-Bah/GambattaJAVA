@@ -16,7 +16,7 @@
 
         <TableView fx:id="table" VBox.vgrow="ALWAYS" styleClass="table-view">
             <columns>
-                <TableColumn fx:id="idCol" text="Ref" prefWidth="50" style="-fx-alignment: CENTER;"/>
+
                 <TableColumn fx:id="equipeACol" text="Équipe Domicile" prefWidth="180" style="-fx-alignment: CENTER-RIGHT; -fx-font-weight: bold;"/>
                 <TableColumn fx:id="scoreACol" text="Score" prefWidth="70" style="-fx-alignment: CENTER; -fx-font-weight: bold;"/>
                 <TableColumn fx:id="scoreBCol" text="Score" prefWidth="70" style="-fx-alignment: CENTER; -fx-font-weight: bold;"/>

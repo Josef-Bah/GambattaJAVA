@@ -57,11 +57,12 @@
 
                         <!-- Logo -->
                         <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <Label text="LOGO" style="-fx-font-weight: bold; -fx-text-fill: #C5B358;"/>
+                            <Label text="LOGO *" style="-fx-font-weight: bold; -fx-text-fill: #C5B358;"/>
                             <HBox spacing="10">
                                 <TextField fx:id="txtLogo" promptText="URL du logo" HBox.hgrow="ALWAYS" styleClass="text-field"/>
                                 <Button text="🎨 IA" onAction="#handleGenerateLogoIA" styleClass="btn-secondary"/>
                             </HBox>
+                            <Label fx:id="errLogo" text="" style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px;"/>
                         </VBox>
 
                         <!-- IA Panel -->

@@ -20,7 +20,7 @@ public class TeamLeaderController {
 
     @FXML private ComboBox<equipe> cmbEquipe;
     @FXML private TableView<playerjoinrequest> table;
-    @FXML private TableColumn<playerjoinrequest, Long>   idCol;
+
     @FXML private TableColumn<playerjoinrequest, String> playerCol;
     @FXML private TableColumn<playerjoinrequest, String> equipeCol;
     @FXML private TableColumn<playerjoinrequest, String> dateCol;
@@ -35,7 +35,7 @@ public class TeamLeaderController {
 
     public void initialize() {
         // Colonnes
-        idCol.setCellValueFactory(d -> new SimpleLongProperty(d.getValue().getId()).asObject());
+
         playerCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getPlayerName()));
         equipeCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getEquipe() != null ? d.getValue().getEquipe().getNom() : "-"));
         dateCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getCreatedAt() != null ? d.getValue().getCreatedAt().format(dtf) : "-"));

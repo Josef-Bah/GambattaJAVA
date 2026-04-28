@@ -27,6 +27,7 @@ public class CreationEquipeController {
     // Validation error labels
     @FXML private Label errNom;
     @FXML private Label errLeader;
+    @FXML private Label errLogo;
     @FXML private Label globalMsg;
 
     private EquipeService equipeService = new EquipeService();
@@ -106,11 +107,15 @@ public class CreationEquipeController {
         } else if (leader.length() < 2) {
             errLeader.setText("⚠ Le nom du capitaine doit avoir au moins 2 caractères."); ok = false;
         }
+
+        if (txtLogo.getText().trim().isEmpty()) {
+            errLogo.setText("⚠ Le logo de l'équipe est obligatoire."); ok = false;
+        }
         return ok;
     }
 
     private void clearErrors() {
-        errNom.setText(""); errLeader.setText("");
+        errNom.setText(""); errLeader.setText(""); errLogo.setText("");
         if (globalMsg != null) {
             globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
             globalMsg.setText("");

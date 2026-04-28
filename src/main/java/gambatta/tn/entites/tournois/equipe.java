@@ -60,14 +60,21 @@ public class equipe {
     public StringProperty statusProperty() { return status; }
 
     // --- titres, objectifs, coach, logo ---
-    public String getTitres() { return titres.get(); }
-    public void setTitres(String t) { this.titres.set(t); }
-    public String getObjectifs() { return objectifs.get(); }
-    public void setObjectifs(String o) { this.objectifs.set(o); }
-    public String getCoach() { return coach.get(); }
-    public void setCoach(String c) { this.coach.set(c); }
     public String getLogo() { return logo.get(); }
     public void setLogo(String l) { this.logo.set(l); }
+    public StringProperty logoProperty() { return logo; }
+
+    public String getTitres() { return titres.get(); }
+    public void setTitres(String t) { this.titres.set(t); }
+    public StringProperty titresProperty() { return titres; }
+
+    public String getObjectifs() { return objectifs.get(); }
+    public void setObjectifs(String o) { this.objectifs.set(o); }
+    public StringProperty objectifsProperty() { return objectifs; }
+
+    public String getCoach() { return coach.get(); }
+    public void setCoach(String c) { this.coach.set(c); }
+    public StringProperty coachProperty() { return coach; }
 
     public String getJoinApprovalMode() { return joinApprovalMode; }
     public void setJoinApprovalMode(String joinApprovalMode) { this.joinApprovalMode = joinApprovalMode; }

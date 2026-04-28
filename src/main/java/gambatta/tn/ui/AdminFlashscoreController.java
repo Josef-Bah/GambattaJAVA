@@ -28,7 +28,7 @@ public class AdminFlashscoreController {
 
     @FXML private ComboBox<tournoi> cmbTournoi;
     @FXML private TableView<rencontre> table;
-    @FXML private TableColumn<rencontre, Long> idCol;
+
     @FXML private TableColumn<rencontre, String> equipeACol;
     @FXML private TableColumn<rencontre, String> scoreACol;
     @FXML private TableColumn<rencontre, String> scoreBCol;
@@ -54,7 +54,7 @@ public class AdminFlashscoreController {
             if (newVal != null) loadRencontres(newVal.getId());
         });
 
-        idCol.setCellValueFactory(d -> new SimpleLongProperty(d.getValue().getId()).asObject());
+
         equipeACol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getEquipeA().getNom()));
         equipeBCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getEquipeB().getNom()));
         
