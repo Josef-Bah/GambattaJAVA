@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.geometry.Insets?>
 
 <!-- EquipeInterface : Layout "Drawer" Gold & Navy -->
@@ -58,9 +59,18 @@
                         </VBox>
 
                         <VBox spacing="5">
-                            <Label text="Logo URL *" style="-fx-text-fill: white;"/>
-                            <TextField fx:id="drawerLogo" promptText="Ex: https://..." styleClass="text-field"/>
+                            <Label text="Logo de l'équipe *" style="-fx-text-fill: white;"/>
+                            <HBox spacing="8">
+                                <TextField fx:id="drawerLogo" promptText="URL du logo..." styleClass="text-field" HBox.hgrow="ALWAYS"/>
+                                <Button text="☁ Upload" onAction="#handleUploadLogo"
+                                        style="-fx-background-color: #000133; -fx-text-fill: #C5B358; -fx-border-color: #C5B358; -fx-border-radius: 8; -fx-cursor: hand; -fx-font-weight: bold;"/>
+                            </HBox>
                             <Label fx:id="errLogo" text="" style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px;"/>
+                            
+                            <!-- Aperçu de l'image -->
+                            <StackPane prefHeight="120" maxWidth="120" style="-fx-background-color: #000133; -fx-border-color: #C5B358; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-width: 1;">
+                                <ImageView fx:id="logoPreview" fitWidth="110" fitHeight="110" preserveRatio="true"/>
+                            </StackPane>
                         </VBox>
 
                         <VBox spacing="5">

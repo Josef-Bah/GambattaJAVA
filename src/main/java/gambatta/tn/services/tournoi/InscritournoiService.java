@@ -21,11 +21,13 @@ public class InscritournoiService {
     }
 
     private void createTableIfNotExists() {
+        if (cnx == null) return;
         String sql = "CREATE TABLE IF NOT EXISTS inscritournoi (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
                 "equipe_id BIGINT, " +
                 "tournoi_id BIGINT, " +
                 "status VARCHAR(50) DEFAULT 'PENDING', " +
+                "date_inscrit DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                 "FOREIGN KEY (equipe_id) REFERENCES equipe(id) ON DELETE CASCADE, " +
                 "FOREIGN KEY (tournoi_id) REFERENCES tournoi(id) ON DELETE CASCADE" +
                 ")";
@@ -39,7 +41,8 @@ public class InscritournoiService {
     // READ ALL
     public List<inscriptiontournoi> findAll() {
         List<inscriptiontournoi> inscriptions = new ArrayList<>();
-        String sql = "SELECT i.id, i.status, e.id AS equipe_id, e.nom AS equipe_nom, t.id AS tournoi_id, t.nomt AS tournoi_nomt " +
+        if (cnx == null) return inscriptions;
+        String sql = "SELECT i.id, i.status, i.date_inscrit, e.id AS equipe_id, e.nom AS equipe_nom, t.id AS tournoi_id, t.nomt AS tournoi_nomt " +
                 "FROM inscritournoi i " +
                 "LEFT JOIN equipe e ON i.equipe_id = e.id " +
                 "LEFT JOIN tournoi t ON i.tournoi_id = t.id";
@@ -47,7 +50,9 @@ public class InscritournoiService {
             while (rs.next()) {
                 inscriptiontournoi i = new inscriptiontournoi();
                 i.setId(rs.getLong("id"));
-                i.setStatus(rs.getString("status"));
+                if (rs.getTimestamp("date_inscrit") != null) {
+                    i.setDateInscrit(rs.getTimestamp("date_inscrit").toLocalDateTime());
+                }
 
                 equipe eq = new equipe();
                 eq.setId(rs.getLong("equipe_id"));
@@ -69,7 +74,8 @@ public class InscritournoiService {
 
     // FIND BY ID
     public inscriptiontournoi findById(Long id) {
-        String sql = "SELECT i.id, i.status, e.id AS equipe_id, e.nom AS equipe_nom, t.id AS tournoi_id, t.nomt AS tournoi_nomt " +
+        if (cnx == null) return null;
+        String sql = "SELECT i.id, i.status, i.date_inscrit, e.id AS equipe_id, e.nom AS equipe_nom, t.id AS tournoi_id, t.nomt AS tournoi_nomt " +
                 "FROM inscritournoi i " +
                 "LEFT JOIN equipe e ON i.equipe_id = e.id " +
                 "LEFT JOIN tournoi t ON i.tournoi_id = t.id " +
@@ -81,6 +87,9 @@ public class InscritournoiService {
                 inscriptiontournoi i = new inscriptiontournoi();
                 i.setId(rs.getLong("id"));
                 i.setStatus(rs.getString("status"));
+                if (rs.getTimestamp("date_inscrit") != null) {
+                    i.setDateInscrit(rs.getTimestamp("date_inscrit").toLocalDateTime());
+                }
 
                 equipe eq = new equipe();
                 eq.setId(rs.getLong("equipe_id"));
@@ -102,13 +111,15 @@ public class InscritournoiService {
 
     // SAVE / UPDATE
     public boolean save(inscriptiontournoi inscription) {
+        if (cnx == null) return false;
         if (inscription.getId() == null || inscription.getId() == 0) {
             // INSERT
-            String sql = "INSERT INTO inscritournoi (equipe_id, tournoi_id, status) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO inscritournoi (equipe_id, tournoi_id, status, date_inscrit) VALUES (?, ?, ?, ?)";
             try (PreparedStatement pst = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 pst.setLong(1, inscription.getEquipe().getId());
                 pst.setLong(2, inscription.getTournoi().getId());
                 pst.setString(3, inscription.getStatus());
+                pst.setTimestamp(4, Timestamp.valueOf(inscription.getDateInscrit()));
                 pst.executeUpdate();
                 ResultSet rs = pst.getGeneratedKeys();
                 if (rs.next()) {
@@ -121,12 +132,13 @@ public class InscritournoiService {
             }
         } else {
             // UPDATE
-            String sql = "UPDATE inscritournoi SET equipe_id=?, tournoi_id=?, status=? WHERE id=?";
+            String sql = "UPDATE inscritournoi SET equipe_id=?, tournoi_id=?, status=?, date_inscrit=? WHERE id=?";
             try (PreparedStatement pst = cnx.prepareStatement(sql)) {
                 pst.setLong(1, inscription.getEquipe().getId());
                 pst.setLong(2, inscription.getTournoi().getId());
                 pst.setString(3, inscription.getStatus());
-                pst.setLong(4, inscription.getId());
+                pst.setTimestamp(4, Timestamp.valueOf(inscription.getDateInscrit()));
+                pst.setLong(5, inscription.getId());
                 pst.executeUpdate();
                 return true;
             } catch (SQLException e) {
@@ -138,6 +150,7 @@ public class InscritournoiService {
 
     // DELETE
     public boolean delete(Long id) {
+        if (cnx == null) return false;
         String sql = "DELETE FROM inscritournoi WHERE id=?";
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setLong(1, id);
@@ -170,6 +183,7 @@ public class InscritournoiService {
     // STATISTICS
     public Map<String, Object> stats() {
         Map<String, Object> stats = new HashMap<>();
+        if (cnx == null) return stats;
         String sqlTotal = "SELECT COUNT(*) as total FROM inscritournoi";
         try (Statement st = cnx.createStatement(); ResultSet rs = st.executeQuery(sqlTotal)) {
             if (rs.next()) {

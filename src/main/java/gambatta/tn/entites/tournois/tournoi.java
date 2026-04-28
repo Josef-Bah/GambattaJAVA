@@ -24,6 +24,17 @@ public class tournoi {
     // ----------- Statut -----------
     private String statutt;
 
+    // ----------- Logo -----------
+    private String logo;
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(String logo) {
+        this.logo = logo;
+    }
+
     // ----------- Relation Inscritournoi -----------
     private List<inscriptiontournoi> inscritournois = new ArrayList<>();
 

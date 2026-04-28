@@ -23,6 +23,7 @@ public class EquipeService {
 
     public List<equipe> findAll() {
         List<equipe> list = new ArrayList<>();
+        if (cnx == null) return list;
         String sql = "SELECT id, nom, team_leader, titres, objectifs, coach, logo, join_approval_mode, status FROM equipe";
         try (Statement st = cnx.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
@@ -36,6 +37,7 @@ public class EquipeService {
     }
 
     public equipe findById(Long id) {
+        if (cnx == null) return null;
         String sql = "SELECT * FROM equipe WHERE id=?";
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setLong(1, id);
@@ -51,6 +53,7 @@ public class EquipeService {
 
     // ✅ Nouvelle méthode pour findByName (appelée depuis InscriptionController)
     public equipe findByName(String nom) {
+        if (cnx == null) return null;
         String sql = "SELECT * FROM equipe WHERE nom=?";
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setString(1, nom);
@@ -73,6 +76,7 @@ public class EquipeService {
     }
 
     private boolean add(equipe e) {
+        if (cnx == null) return false;
         if (findByName(e.getNom()) != null) return false;
         String sql = "INSERT INTO equipe (nom, team_leader, titres, objectifs, coach, logo, join_approval_mode, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pst = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -95,6 +99,7 @@ public class EquipeService {
     }
 
     private boolean update(equipe e) {
+        if (cnx == null) return false;
         String sql = "UPDATE equipe SET nom=?, team_leader=?, titres=?, objectifs=?, coach=?, logo=?, join_approval_mode=?, status=? WHERE id=?";
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setString(1, e.getNom());
@@ -114,6 +119,7 @@ public class EquipeService {
     }
 
     public boolean delete(Long id) {
+        if (cnx == null) return false;
         String sql = "DELETE FROM equipe WHERE id=?";
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setLong(1, id);

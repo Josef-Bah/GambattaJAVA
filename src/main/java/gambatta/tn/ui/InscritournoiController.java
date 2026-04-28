@@ -30,28 +30,42 @@ import java.util.List;
 public class InscritournoiController {
 
     // ── Drawer fields ──
-    @FXML private VBox drawerPanel;
-    @FXML private ComboBox<equipe>   comboEquipe;
-    @FXML private ComboBox<tournoi>  comboTournoi;
-    @FXML private Label errEquipe;
-    @FXML private Label errTournoi;
-    @FXML private Label globalMsg;
+    @FXML
+    private VBox drawerPanel;
+    @FXML
+    private ComboBox<equipe> comboEquipe;
+    @FXML
+    private ComboBox<tournoi> comboTournoi;
+    @FXML
+    private Label errEquipe;
+    @FXML
+    private Label errTournoi;
+    @FXML
+    private Label globalMsg;
 
     // ── Table ──
-    @FXML private TableView<inscriptiontournoi>              tableInscriptions;
+    @FXML
+    private TableView<inscriptiontournoi> tableInscriptions;
 
-    @FXML private TableColumn<inscriptiontournoi, String>    colEquipe;
-    @FXML private TableColumn<inscriptiontournoi, String>    colTournoi;
-    @FXML private TableColumn<inscriptiontournoi, String>    colStatus;
-    @FXML private TableColumn<inscriptiontournoi, Void>      colSupprimer;
+    @FXML
+    private TableColumn<inscriptiontournoi, String> colEquipe;
+    @FXML
+    private TableColumn<inscriptiontournoi, String> colTournoi;
+    @FXML
+    private TableColumn<inscriptiontournoi, String> colStatus;
+    @FXML
+    private TableColumn<inscriptiontournoi, Void> colSupprimer;
 
-    @FXML private TextField txtSearch;
-    @FXML private Button    btnPDF;
-    @FXML private Button    btnStats;
+    @FXML
+    private TextField txtSearch;
+    @FXML
+    private Button btnPDF;
+    @FXML
+    private Button btnStats;
 
-    private InscritournoiService service          = new InscritournoiService();
-    private EquipeService        equipeService     = new EquipeService();
-    private TournoiService       tournoiService    = new TournoiService();
+    private InscritournoiService service = new InscritournoiService();
+    private EquipeService equipeService = new EquipeService();
+    private TournoiService tournoiService = new TournoiService();
     private ObservableList<inscriptiontournoi> inscriptions = FXCollections.observableArrayList();
     private static final double DRAWER_WIDTH = 340;
 
@@ -70,9 +84,17 @@ public class InscritournoiController {
         // Bouton Supprimer dans la table
         colSupprimer.setCellFactory(p -> new TableCell<>() {
             private final Button btn = new Button("🗑 Retirer");
-            { btn.setStyle("-fx-background-color: #3B0A0A; -fx-text-fill: #ff6b6b; -fx-cursor: hand; -fx-border-color: #8B1E2D; -fx-border-width:1; -fx-border-radius:6; -fx-background-radius:6;");
-              btn.setOnAction(e -> deleteInscription(getTableView().getItems().get(getIndex()))); }
-            @Override protected void updateItem(Void i, boolean empty) { super.updateItem(i, empty); setGraphic(empty ? null : btn); }
+            {
+                btn.setStyle(
+                        "-fx-background-color: #3B0A0A; -fx-text-fill: #ff6b6b; -fx-cursor: hand; -fx-border-color: #8B1E2D; -fx-border-width:1; -fx-border-radius:6; -fx-background-radius:6;");
+                btn.setOnAction(e -> deleteInscription(getTableView().getItems().get(getIndex())));
+            }
+
+            @Override
+            protected void updateItem(Void i, boolean empty) {
+                super.updateItem(i, empty);
+                setGraphic(empty ? null : btn);
+            }
         });
 
         // Boutons header
@@ -87,44 +109,60 @@ public class InscritournoiController {
 
     // ── DRAWER ──────────────────────────────────────────────
 
-    @FXML public void openDrawer() {
+    @FXML
+    public void openDrawer() {
         comboEquipe.getSelectionModel().clearSelection();
         comboTournoi.getSelectionModel().clearSelection();
         clearErrors();
         showDrawer();
     }
 
-    @FXML public void closeDrawer() { hideDrawer(); }
+    @FXML
+    public void closeDrawer() {
+        hideDrawer();
+    }
 
     private void showDrawer() {
-        drawerPanel.setVisible(true); drawerPanel.setManaged(true);
+        drawerPanel.setVisible(true);
+        drawerPanel.setManaged(true);
         new Timeline(
-            new KeyFrame(Duration.ZERO,       new KeyValue(drawerPanel.prefWidthProperty(), 0)),
-            new KeyFrame(Duration.millis(250), new KeyValue(drawerPanel.prefWidthProperty(), DRAWER_WIDTH))
-        ).play();
+                new KeyFrame(Duration.ZERO, new KeyValue(drawerPanel.prefWidthProperty(), 0)),
+                new KeyFrame(Duration.millis(250), new KeyValue(drawerPanel.prefWidthProperty(), DRAWER_WIDTH))).play();
     }
 
     private void hideDrawer() {
         Timeline tl = new Timeline(
-            new KeyFrame(Duration.ZERO,       new KeyValue(drawerPanel.prefWidthProperty(), DRAWER_WIDTH)),
-            new KeyFrame(Duration.millis(200), new KeyValue(drawerPanel.prefWidthProperty(), 0))
-        );
-        tl.setOnFinished(e -> { drawerPanel.setVisible(false); drawerPanel.setManaged(false); });
+                new KeyFrame(Duration.ZERO, new KeyValue(drawerPanel.prefWidthProperty(), DRAWER_WIDTH)),
+                new KeyFrame(Duration.millis(200), new KeyValue(drawerPanel.prefWidthProperty(), 0)));
+        tl.setOnFinished(e -> {
+            drawerPanel.setVisible(false);
+            drawerPanel.setManaged(false);
+        });
         tl.play();
     }
 
     // ── SAVE ────────────────────────────────────────────────
 
-    @FXML public void addInscription() {
-        clearErrors(); boolean ok = true;
+    @FXML
+    public void addInscription() {
+        clearErrors();
+        boolean ok = true;
         equipe eq = comboEquipe.getSelectionModel().getSelectedItem();
-        tournoi t  = comboTournoi.getSelectionModel().getSelectedItem();
-        if (eq == null) { errEquipe.setText("⚠ Veuillez choisir une équipe.");  ok = false; }
-        if (t == null)  { errTournoi.setText("⚠ Veuillez choisir un tournoi."); ok = false; }
-        if (!ok) return;
+        tournoi t = comboTournoi.getSelectionModel().getSelectedItem();
+        if (eq == null) {
+            errEquipe.setText("⚠ Veuillez choisir une équipe.");
+            ok = false;
+        }
+        if (t == null) {
+            errTournoi.setText("⚠ Veuillez choisir un tournoi.");
+            ok = false;
+        }
+        if (!ok)
+            return;
 
         inscriptiontournoi i = new inscriptiontournoi();
-        i.setEquipe(eq); i.setTournoi(t);
+        i.setEquipe(eq);
+        i.setTournoi(t);
         i.setStatus(inscriptiontournoi.STATUS_PENDING);
 
         if (service.save(i)) {
@@ -139,12 +177,13 @@ public class InscritournoiController {
     // ── DELETE ──────────────────────────────────────────────
 
     private void deleteInscription(inscriptiontournoi i) {
-        if (service.delete(i.getId())) inscriptions.remove(i);
+        if (service.delete(i.getId()))
+            inscriptions.remove(i);
     }
 
-    private void clearErrors() { 
-        errEquipe.setText(""); 
-        errTournoi.setText(""); 
+    private void clearErrors() {
+        errEquipe.setText("");
+        errTournoi.setText("");
         if (globalMsg != null) {
             globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
             globalMsg.setText("");
@@ -157,7 +196,8 @@ public class InscritournoiController {
             globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
             globalMsg.getStyleClass().add(isError ? "msg-error" : "msg-success");
             if (!isError) {
-                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(
+                        javafx.util.Duration.seconds(3));
                 pause.setOnFinished(e -> globalMsg.setText(""));
                 pause.play();
             }
@@ -172,11 +212,15 @@ public class InscritournoiController {
     }
 
     private void filterInscriptions(String q) {
-        if (q == null || q.isEmpty()) { tableInscriptions.setItems(inscriptions); return; }
+        if (q == null || q.isEmpty()) {
+            tableInscriptions.setItems(inscriptions);
+            return;
+        }
         ObservableList<inscriptiontournoi> f = FXCollections.observableArrayList();
         for (inscriptiontournoi i : inscriptions) {
             if (i.getEquipe().getNom().toLowerCase().contains(q.toLowerCase())
-             || i.getTournoi().getNomt().toLowerCase().contains(q.toLowerCase())) f.add(i);
+                    || i.getTournoi().getNomt().toLowerCase().contains(q.toLowerCase()))
+                f.add(i);
         }
         tableInscriptions.setItems(f);
     }
@@ -185,12 +229,16 @@ public class InscritournoiController {
         FileChooser fc = new FileChooser();
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Texte", "*.txt"));
         File file = fc.showSaveDialog(tableInscriptions.getScene().getWindow());
-        if (file != null) System.out.println(service.generatePdf());
+        if (file != null)
+            System.out.println(service.generatePdf());
     }
 
     // ── NAVIGATION ──────────────────────────────────────────
 
-    @FXML public void goBack() { ((Stage) tableInscriptions.getScene().getWindow()).close(); }
+    @FXML
+    public void goBack() {
+        ((Stage) tableInscriptions.getScene().getWindow()).close();
+    }
 
     private void showStats() {
         try {
@@ -198,25 +246,39 @@ public class InscritournoiController {
             AnchorPane root = loader.load();
             StatsController ctrl = loader.getController();
             java.util.Map<String, Long> stats = new java.util.HashMap<>();
-            stats.put(inscriptiontournoi.STATUS_ACCEPTED, inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_ACCEPTED)).count());
-            stats.put(inscriptiontournoi.STATUS_PENDING,  inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_PENDING)).count());
-            ctrl.setData("Stats Inscriptions", stats, inscriptiontournoi.STATUS_PENDING, inscriptiontournoi.STATUS_ACCEPTED);
-            Stage s = new Stage(); s.setTitle("Statistiques Inscriptions");
-            Scene sc = new Scene(root); sc.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
-            s.setScene(sc); s.setMaximized(true); s.show();
-        } catch (Exception ex) { ex.printStackTrace(); }
+            stats.put(inscriptiontournoi.STATUS_ACCEPTED, inscriptions.stream()
+                    .filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_ACCEPTED)).count());
+            stats.put(inscriptiontournoi.STATUS_PENDING,
+                    inscriptions.stream().filter(i -> i.getStatus().equals(inscriptiontournoi.STATUS_PENDING)).count());
+            ctrl.setData("Stats Inscriptions", stats, inscriptiontournoi.STATUS_PENDING,
+                    inscriptiontournoi.STATUS_ACCEPTED);
+            Stage s = new Stage();
+            s.setTitle("Statistiques Inscriptions");
+            Scene sc = new Scene(root);
+            sc.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
+            s.setScene(sc);
+            s.setMaximized(true);
+            s.show();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
-    @FXML private void handleOpenChatbot() {
+    @FXML
+    private void handleOpenChatbot() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/ChatbotInterface.fxml"));
             VBox root = loader.load();
-            Stage s = new Stage(); s.setTitle("Assistant IA"); s.setScene(new Scene(root)); s.show();
-        } catch (Exception ex) { ex.printStackTrace(); }
+            Stage s = new Stage();
+            s.setTitle("Assistant IA");
+            s.setScene(new Scene(root));
+            s.show();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private void showAlert(String title, String msg) {
         // Obsolete pop-up - removed for inline messages.
     }
 }
-

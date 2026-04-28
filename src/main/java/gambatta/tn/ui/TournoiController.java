@@ -2,9 +2,12 @@ package gambatta.tn.ui;
 
 import gambatta.tn.entites.tournois.tournoi;
 import gambatta.tn.services.tournoi.TournoiService;
+import gambatta.tn.tools.CloudinaryService;
+import gambatta.tn.tools.PdfService;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -14,6 +17,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -39,6 +44,8 @@ public class TournoiController {
     @FXML private Label errDateFin;
     @FXML private Label globalMsg;
     @FXML private Button btnPDF;
+    @FXML private TextField logoField;
+    @FXML private ImageView logoPreview;
 
     // ── Table ──
     @FXML private TableView<tournoi>              table;
@@ -59,6 +66,15 @@ public class TournoiController {
     public void initialize() {
         cmbStatut.setItems(FXCollections.observableArrayList("EN_ATTENTE", "VALIDE", "TERMINE"));
         btnPDF.setOnAction(e -> exportPDF());
+
+        // Listener pour l'aperçu du logo
+        logoField.textProperty().addListener((obs, o, n) -> {
+            if (n == null || n.isEmpty()) logoPreview.setImage(null);
+            else {
+                try { logoPreview.setImage(new Image(n, true)); }
+                catch (Exception ex) { logoPreview.setImage(null); }
+            }
+        });
 
 
         nomCol.setCellValueFactory(d -> new javafx.beans.property.SimpleStringProperty(d.getValue().getNomt()));
@@ -106,6 +122,14 @@ public class TournoiController {
         cmbStatut.setValue(t.getStatutt());
         dateDebutPicker.setValue(t.getDatedebutt() != null ? t.getDatedebutt().toLocalDate() : null);
         dateFinPicker.setValue(t.getDatefint() != null ? t.getDatefint().toLocalDate() : null);
+        logoField.setText(t.getLogo());
+        
+        if (t.getLogo() != null && !t.getLogo().isEmpty()) {
+            logoPreview.setImage(new Image(t.getLogo(), true));
+        } else {
+            logoPreview.setImage(null);
+        }
+
         clearErrors();
         showDrawer();
     }
@@ -129,6 +153,29 @@ public class TournoiController {
         tl.play();
     }
 
+    @FXML
+    private void handleUploadLogo() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Sélectionner l'Affiche");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
+        File file = fileChooser.showOpenDialog(drawerPanel.getScene().getWindow());
+
+        if (file != null) {
+            showInlineMsg("⏳ Téléchargement...", false);
+            new Thread(() -> {
+                try {
+                    String url = new CloudinaryService().uploadImage(file);
+                    Platform.runLater(() -> {
+                        logoField.setText(url);
+                        showInlineMsg("✅ Image hébergée !", false);
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> showInlineMsg("❌ Erreur Upload", true));
+                }
+            }).start();
+        }
+    }
+
     // ── SAVE ────────────────────────────────────────────────
 
     @FXML public void addTournoi(ActionEvent ev) {
@@ -143,6 +190,7 @@ public class TournoiController {
             tournoi t = new tournoi();
             t.setNomt(nom); t.setDescrit(desc); t.setStatutt(statut);
             t.setDatedebutt(debut); t.setDatefint(fin);
+            t.setLogo(logoField.getText().trim());
             if (service.add(t)) { 
                 tournois.add(t); 
                 showInlineMsg("✅ Succès: Tournoi créé !", false); 
@@ -152,6 +200,7 @@ public class TournoiController {
         } else {
             editingTournoi.setNomt(nom); editingTournoi.setDescrit(desc); editingTournoi.setStatutt(statut);
             editingTournoi.setDatedebutt(debut); editingTournoi.setDatefint(fin);
+            editingTournoi.setLogo(logoField.getText().trim());
             if (service.update(editingTournoi)) { 
                 table.refresh(); 
                 showInlineMsg("✅ Succès: Tournoi modifié !", false); 
@@ -203,7 +252,9 @@ public class TournoiController {
 
     private void clearDrawer() {
         nomField.clear(); descField.clear(); cmbStatut.getSelectionModel().clearSelection();
-        dateDebutPicker.setValue(null); dateFinPicker.setValue(null); clearErrors();
+        dateDebutPicker.setValue(null); dateFinPicker.setValue(null); 
+        logoField.clear(); logoPreview.setImage(null);
+        clearErrors();
     }
 
     // ── DATA ────────────────────────────────────────────────
@@ -211,10 +262,28 @@ public class TournoiController {
     private void loadData() { tournois.setAll(service.findAll()); table.setItems(tournois); }
 
     private void exportPDF() {
-        FileChooser fc = new FileChooser(); fc.setTitle("Exporter PDF");
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Exporter Liste des Tournois");
+        fc.setInitialFileName("Liste_Tournois.pdf");
         fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF", "*.pdf"));
         File file = fc.showSaveDialog(table.getScene().getWindow());
-        if (file != null) System.out.println(service.generatePdf());
+        if (file != null) {
+            try {
+                // On va créer une nouvelle méthode spécifique dans PdfService pour la liste
+                generateTournamentListPdf(file.getAbsolutePath());
+                showInlineMsg("✅ Liste exportée avec succès !", false);
+            } catch (Exception e) {
+                e.printStackTrace();
+                showInlineMsg("❌ Erreur lors de l'export PDF.", true);
+            }
+        }
+    }
+
+    private void generateTournamentListPdf(String path) throws Exception {
+        // Optionnel : Je peux aussi ajouter une méthode directe dans PdfService
+        // Pour gagner du temps, j'utilise la logique iText ici ou j'appelle une version étendue de PdfService
+        // Mais pour rester propre, je vais ajouter 'generateTournamentList' dans PdfService.java
+        new PdfService().generateTournamentList(tournois, path);
     }
 
     // ── NAVIGATION ──────────────────────────────────────────

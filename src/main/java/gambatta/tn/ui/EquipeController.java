@@ -2,6 +2,7 @@ package gambatta.tn.ui;
 
 import gambatta.tn.entites.tournois.equipe;
 import gambatta.tn.services.tournoi.EquipeService;
+import gambatta.tn.tools.CloudinaryService;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -45,6 +46,7 @@ public class EquipeController {
     @FXML private Label     errLeader;
     @FXML private TextField drawerCoach;
     @FXML private TextField drawerLogo;
+    @FXML private ImageView logoPreview;
     @FXML private Label     errLogo;
     @FXML private ComboBox<String> drawerStatut;
     @FXML private Label     errStatut;
@@ -79,6 +81,15 @@ public class EquipeController {
                     try { img.setImage(new Image(url, true)); setGraphic(img); }
                     catch (Exception ex) { setGraphic(null); }
                 }
+            }
+        });
+
+        // Mise à jour de l'aperçu si l'URL change (clavier ou upload)
+        drawerLogo.textProperty().addListener((obs, o, n) -> {
+            if (n == null || n.isEmpty()) logoPreview.setImage(null);
+            else {
+                try { logoPreview.setImage(new Image(n, true)); }
+                catch (Exception ex) { logoPreview.setImage(null); }
             }
         });
 
@@ -125,6 +136,13 @@ public class EquipeController {
         drawerStatut.setValue(e.getStatus());
         drawerTitres.setText(e.getTitres() != null ? e.getTitres() : "");
         drawerObjectifs.setText(e.getObjectifs() != null ? e.getObjectifs() : "");
+        
+        if (e.getLogo() != null && !e.getLogo().isEmpty()) {
+            logoPreview.setImage(new Image(e.getLogo(), true));
+        } else {
+            logoPreview.setImage(null);
+        }
+
         clearErrors();
         showDrawer();
     }
@@ -148,6 +166,30 @@ public class EquipeController {
         );
         tl.setOnFinished(e -> { drawerPanel.setVisible(false); drawerPanel.setManaged(false); });
         tl.play();
+    }
+
+    @FXML
+    private void handleUploadLogo() {
+        javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+        fileChooser.setTitle("Sélectionner le Logo");
+        fileChooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
+        java.io.File file = fileChooser.showOpenDialog(drawerPanel.getScene().getWindow());
+
+        if (file != null) {
+            showInlineMsg("⏳ Téléchargement...", false);
+            new Thread(() -> {
+                try {
+                    String url = new CloudinaryService().uploadImage(file);
+                    javafx.application.Platform.runLater(() -> {
+                        drawerLogo.setText(url);
+                        showInlineMsg("✅ Logo hébergé !", false);
+                    });
+                } catch (Exception e) {
+                    javafx.application.Platform.runLater(() -> showInlineMsg("❌ Erreur Upload", true));
+                    e.printStackTrace();
+                }
+            }).start();
+        }
     }
 
     // ── SAVE (Ajout & Modification) ──────────────────────────
@@ -246,6 +288,7 @@ public class EquipeController {
         drawerNom.clear(); drawerLeader.clear(); drawerCoach.clear(); drawerLogo.clear();
         drawerStatut.getSelectionModel().clearSelection();
         drawerTitres.clear(); drawerObjectifs.clear();
+        logoPreview.setImage(null);
         clearErrors();
     }
 

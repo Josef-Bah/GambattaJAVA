@@ -16,6 +16,8 @@ public class inscriptiontournoi {
 
     private String status = STATUS_PENDING;
 
+    private java.time.LocalDateTime dateInscrit = java.time.LocalDateTime.now();
+
     public Long getId() {
         return id;
     }
@@ -46,5 +48,13 @@ public class inscriptiontournoi {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public java.time.LocalDateTime getDateInscrit() {
+        return dateInscrit;
+    }
+
+    public void setDateInscrit(java.time.LocalDateTime dateInscrit) {
+        this.dateInscrit = dateInscrit;
     }
 }

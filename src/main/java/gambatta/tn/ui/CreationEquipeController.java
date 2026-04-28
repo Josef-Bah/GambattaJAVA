@@ -14,21 +14,34 @@ import javafx.util.Duration;
 
 public class CreationEquipeController {
 
-    @FXML private TextField txtNom;
-    @FXML private TextField txtLeader;
-    @FXML private TextField txtCoach;
-    @FXML private TextField txtLogo;
-    @FXML private TextField txtTitres;
-    @FXML private TextArea  txtObjectifs;
-    @FXML private VBox      vboxGenIA;
-    @FXML private TextField txtPromptLogo;
-    @FXML private Button    btnGenLogo;
+    @FXML
+    private TextField txtNom;
+    @FXML
+    private TextField txtLeader;
+    @FXML
+    private TextField txtCoach;
+    @FXML
+    private TextField txtLogo;
+    @FXML
+    private TextField txtTitres;
+    @FXML
+    private TextArea txtObjectifs;
+    @FXML
+    private VBox vboxGenIA;
+    @FXML
+    private TextField txtPromptLogo;
+    @FXML
+    private Button btnGenLogo;
 
     // Validation error labels
-    @FXML private Label errNom;
-    @FXML private Label errLeader;
-    @FXML private Label errLogo;
-    @FXML private Label globalMsg;
+    @FXML
+    private Label errNom;
+    @FXML
+    private Label errLeader;
+    @FXML
+    private Label errLogo;
+    @FXML
+    private Label globalMsg;
 
     private EquipeService equipeService = new EquipeService();
 
@@ -62,7 +75,8 @@ public class CreationEquipeController {
 
     @FXML
     private void handleSave() {
-        if (!validate()) return;
+        if (!validate())
+            return;
 
         equipe e = new equipe();
         e.setNom(txtNom.getText().trim());
@@ -91,31 +105,39 @@ public class CreationEquipeController {
     private boolean validate() {
         clearErrors();
         boolean ok = true;
-        String nom    = txtNom.getText().trim();
+        String nom = txtNom.getText().trim();
         String leader = txtLeader.getText().trim();
 
         if (nom.isEmpty()) {
-            errNom.setText("⚠ Le nom de l'équipe est obligatoire."); ok = false;
+            errNom.setText("⚠ Le nom de l'équipe est obligatoire.");
+            ok = false;
         } else if (nom.length() < 3) {
-            errNom.setText("⚠ Le nom doit contenir au moins 3 caractères."); ok = false;
+            errNom.setText("⚠ Le nom doit contenir au moins 3 caractères.");
+            ok = false;
         } else if (nom.length() > 50) {
-            errNom.setText("⚠ Le nom ne peut pas dépasser 50 caractères."); ok = false;
+            errNom.setText("⚠ Le nom ne peut pas dépasser 50 caractères.");
+            ok = false;
         }
 
         if (leader.isEmpty()) {
-            errLeader.setText("⚠ Le nom du capitaine est obligatoire."); ok = false;
+            errLeader.setText("⚠ Le nom du capitaine est obligatoire.");
+            ok = false;
         } else if (leader.length() < 2) {
-            errLeader.setText("⚠ Le nom du capitaine doit avoir au moins 2 caractères."); ok = false;
+            errLeader.setText("⚠ Le nom du capitaine doit avoir au moins 2 caractères.");
+            ok = false;
         }
 
         if (txtLogo.getText().trim().isEmpty()) {
-            errLogo.setText("⚠ Le logo de l'équipe est obligatoire."); ok = false;
+            errLogo.setText("⚠ Le logo de l'équipe est obligatoire.");
+            ok = false;
         }
         return ok;
     }
 
     private void clearErrors() {
-        errNom.setText(""); errLeader.setText(""); errLogo.setText("");
+        errNom.setText("");
+        errLeader.setText("");
+        errLogo.setText("");
         if (globalMsg != null) {
             globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
             globalMsg.setText("");
@@ -128,7 +150,8 @@ public class CreationEquipeController {
             globalMsg.getStyleClass().removeAll("msg-success", "msg-error");
             globalMsg.getStyleClass().add(isError ? "msg-error" : "msg-success");
             if (!isError) {
-                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(3));
+                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(
+                        javafx.util.Duration.seconds(3));
                 pause.setOnFinished(e -> globalMsg.setText(""));
                 pause.play();
             }
@@ -139,7 +162,8 @@ public class CreationEquipeController {
 
     private void goBack() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gambatta.tn.ui/InscriptionEquipeInterface.fxml"));
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/gambatta.tn.ui/InscriptionEquipeInterface.fxml"));
             Scene scene = new Scene(loader.load());
             scene.getStylesheets().add(getClass().getResource("/gambatta.tn.ui/style.css").toExternalForm());
             Stage stage = (Stage) txtNom.getScene().getWindow();

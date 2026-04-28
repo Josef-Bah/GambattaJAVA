@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="gambatta.tn.ui.TournoiController"
@@ -62,6 +63,19 @@
                             <Label text="Date de fin *" style="-fx-text-fill: white;"/>
                             <DatePicker fx:id="dateFinPicker" prefWidth="Infinity" maxWidth="Infinity" styleClass="text-field"/>
                             <Label fx:id="errDateFin" text="" style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px;"/>
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Logo du Tournoi" style="-fx-text-fill: white;"/>
+                            <HBox spacing="10">
+                                <TextField fx:id="logoField" promptText="URL de l'affiche/logo" HBox.hgrow="ALWAYS" styleClass="text-field"/>
+                                <Button text="☁ Upload" onAction="#handleUploadLogo" styleClass="btn-secondary"/>
+                            </HBox>
+                            
+                            <!-- Aperçu de l'image -->
+                            <StackPane prefHeight="130" maxWidth="200" style="-fx-background-color: #000133; -fx-border-color: #C5B358; -fx-border-radius: 10; -fx-background-radius: 10; -fx-border-width: 1;">
+                                <ImageView fx:id="logoPreview" fitWidth="190" fitHeight="120" preserveRatio="true"/>
+                            </StackPane>
                         </VBox>
 
                         <Label fx:id="globalMsg" text="" wrapText="true" maxWidth="Infinity" style="-fx-padding: 0 0 10 0;"/>

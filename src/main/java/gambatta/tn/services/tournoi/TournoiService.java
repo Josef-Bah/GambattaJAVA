@@ -14,11 +14,28 @@ public class TournoiService {
 
     public TournoiService() {
         this.cnx = MyDataBase.getInstance();
+        createTableIfNotExists();
+    }
+
+    private void createTableIfNotExists() {
+        if (cnx == null) {
+            System.err.println("ERREUR : Connexion à la base de données impossible.");
+            return;
+        }
+        try (Statement st = cnx.createStatement()) {
+            st.execute("ALTER TABLE tournoi ADD COLUMN IF NOT EXISTS logo VARCHAR(255) NULL");
+        } catch (SQLException e) {
+            // Ignorer si la colonne existe déjà (certaines versions de MySQL ne supportent pas IF NOT EXISTS sur ADD COLUMN)
+            if (e.getErrorCode() != 1060) {
+                System.err.println("Erreur migration tournoi (logo) : " + e.getMessage());
+            }
+        }
     }
 
     // CREATE
     public boolean add(tournoi tournoi) {
-        String sql = "INSERT INTO tournoi (nomt, datedebutt, datefint, descrit, statutt) VALUES (?, ?, ?, ?, ?)";
+        if (cnx == null) return false;
+        String sql = "INSERT INTO tournoi (nomt, datedebutt, datefint, descrit, statutt, logo) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pst = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, tournoi.getNomt());
@@ -26,6 +43,7 @@ public class TournoiService {
             pst.setTimestamp(3, Timestamp.valueOf(tournoi.getDatefint()));
             pst.setString(4, tournoi.getDescrit());
             pst.setString(5, tournoi.getStatutt());
+            pst.setString(6, tournoi.getLogo());
 
             int rows = pst.executeUpdate();
 
@@ -47,7 +65,8 @@ public class TournoiService {
     // READ ALL
     public List<tournoi> findAll() {
         List<tournoi> tournois = new ArrayList<>();
-        String sql = "SELECT id, nomt, datedebutt, datefint, descrit, statutt FROM tournoi";
+        if (cnx == null) return tournois;
+        String sql = "SELECT id, nomt, datedebutt, datefint, descrit, statutt, logo FROM tournoi";
 
         try (Statement st = cnx.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -60,6 +79,7 @@ public class TournoiService {
                 t.setDatefint(rs.getTimestamp("datefint").toLocalDateTime());
                 t.setDescrit(rs.getString("descrit"));
                 t.setStatutt(rs.getString("statutt"));
+                t.setLogo(rs.getString("logo"));
                 tournois.add(t);
             }
 
@@ -72,7 +92,8 @@ public class TournoiService {
 
     // READ BY ID
     public tournoi findById(Long id) {
-        String sql = "SELECT id, nomt, datedebutt, datefint, descrit, statutt FROM tournoi WHERE id = ?";
+        if (cnx == null) return null;
+        String sql = "SELECT id, nomt, datedebutt, datefint, descrit, statutt, logo FROM tournoi WHERE id = ?";
 
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setLong(1, id);
@@ -86,6 +107,7 @@ public class TournoiService {
                 t.setDatefint(rs.getTimestamp("datefint").toLocalDateTime());
                 t.setDescrit(rs.getString("descrit"));
                 t.setStatutt(rs.getString("statutt"));
+                t.setLogo(rs.getString("logo"));
                 return t;
             }
 
@@ -98,7 +120,8 @@ public class TournoiService {
 
     // UPDATE
     public boolean update(tournoi tournoi) {
-        String sql = "UPDATE tournoi SET nomt=?, datedebutt=?, datefint=?, descrit=?, statutt=? WHERE id=?";
+        if (cnx == null) return false;
+        String sql = "UPDATE tournoi SET nomt=?, datedebutt=?, datefint=?, descrit=?, statutt=?, logo=? WHERE id=?";
 
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {
             pst.setString(1, tournoi.getNomt());
@@ -106,7 +129,8 @@ public class TournoiService {
             pst.setTimestamp(3, Timestamp.valueOf(tournoi.getDatefint()));
             pst.setString(4, tournoi.getDescrit());
             pst.setString(5, tournoi.getStatutt());
-            pst.setLong(6, tournoi.getId());
+            pst.setString(6, tournoi.getLogo());
+            pst.setLong(7, tournoi.getId());
 
             return pst.executeUpdate() > 0;
 
@@ -119,6 +143,7 @@ public class TournoiService {
 
     // DELETE
     public boolean delete(Long id) {
+        if (cnx == null) return false;
         String sql = "DELETE FROM tournoi WHERE id = ?";
 
         try (PreparedStatement pst = cnx.prepareStatement(sql)) {

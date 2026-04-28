@@ -21,7 +21,8 @@ public class MyDataBase {
             }
             return cnx;
         } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException("Erreur connexion base de données : " + e.getMessage(), e);
+            System.err.println("❌ Erreur connexion base de données : " + e.getMessage());
+            return null;
         }
     }
 }
