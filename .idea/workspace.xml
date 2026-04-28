@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03a0b707-64b1-4160-9b99-fb160fc0c882" name="Changes" comment="Analyseur nutri. + Smart receipt">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/services/buvette/CloudinaryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/services/buvette/CloudinaryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/ShopController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/ShopController.java" afterDir="false" />
-    </list>
+    <list default="true" id="03a0b707-64b1-4160-9b99-fb160fc0c882" name="Changes" comment="Secured API keys" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -159,6 +154,7 @@
       <workItem from="1777336648331" duration="824000" />
       <workItem from="1777337514392" duration="118000" />
       <workItem from="1777337645793" duration="3398000" />
+      <workItem from="1777341208860" duration="394000" />
     </task>
     <task id="LOCAL-00001" summary="commit">
       <option name="closed" value="true" />
@@ -248,7 +244,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777340913959</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Secured API keys">
+      <option name="closed" value="true" />
+      <created>1777341411610</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1777341411610</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -277,7 +281,8 @@
     <MESSAGE value="UI fix" />
     <MESSAGE value="Stats &amp; UI fix" />
     <MESSAGE value="Analyseur nutri. + Smart receipt" />
-    <option name="LAST_COMMIT_MESSAGE" value="Analyseur nutri. + Smart receipt" />
+    <MESSAGE value="Secured API keys" />
+    <option name="LAST_COMMIT_MESSAGE" value="Secured API keys" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
