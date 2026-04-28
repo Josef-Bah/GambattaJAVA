@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03a0b707-64b1-4160-9b99-fb160fc0c882" name="Changes" comment="Nutri score+Recu smart+ui fix+api fix">
+    <list default="true" id="03a0b707-64b1-4160-9b99-fb160fc0c882" name="Changes" comment="Stat fix + ui">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/BuvetteMainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/BuvetteMainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/services/buvette/CloudinaryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/services/buvette/CloudinaryService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/CrudProduitController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/CrudProduitController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/CrudVenteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/CrudVenteController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/ShopController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/ShopController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/StatsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/StatsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/buvette/BuvetteMainView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/buvette/BuvetteMainView.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/buvette/StatsView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/buvette/StatsView.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +46,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Josef-Bah/GambattaJAVA.git&quot;,
-    &quot;accountId&quot;: &quot;580c8e66-1718-4e02-9332-566f54724cdb&quot;
+    &quot;accountId&quot;: &quot;d8f6a3f8-d879-4462-a4bc-739cb27ca289&quot;
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
@@ -70,36 +66,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Application.ProduitFX.executor": "Debug",
-    "Application.main.executor": "Run",
-    "Maven.Gambatta [--module-path...].executor": "Run",
-    "Maven.Gambatta [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
-    "Maven.Gambatta.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "buvette",
-    "junie.onboarding.icon.badge.shown": "true",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "settings.sync",
-    "to.speed.mode.migration.done": "true",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Application.ProduitFX.executor&quot;: &quot;Debug&quot;,
+    &quot;Application.main.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Gambatta [--module-path...].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Gambatta [org.openjfx:javafx-maven-plugin:0.0.8:run].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Gambatta.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;buvette&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;settings.sync&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\youss\OneDrive\Documents\GitHub\GambattaJAVA\src\main\java\gambatta\tn\ui\buvette" />
@@ -171,7 +167,8 @@
       <workItem from="1777337645793" duration="3398000" />
       <workItem from="1777341208860" duration="2290000" />
       <workItem from="1777383196933" duration="8158000" />
-      <workItem from="1777392865529" duration="3011000" />
+      <workItem from="1777392865529" duration="4674000" />
+      <workItem from="1777398105353" duration="1200000" />
     </task>
     <task id="LOCAL-00001" summary="commit">
       <option name="closed" value="true" />
@@ -277,7 +274,15 @@
       <option name="project" value="LOCAL" />
       <updated>1777341770106</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Stat fix + ui">
+      <option name="closed" value="true" />
+      <created>1777397034629</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1777397034629</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -308,7 +313,8 @@
     <MESSAGE value="Analyseur nutri. + Smart receipt" />
     <MESSAGE value="Secured API keys" />
     <MESSAGE value="Nutri score+Recu smart+ui fix+api fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="Nutri score+Recu smart+ui fix+api fix" />
+    <MESSAGE value="Stat fix + ui" />
+    <option name="LAST_COMMIT_MESSAGE" value="Stat fix + ui" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

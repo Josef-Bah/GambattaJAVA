@@ -2,8 +2,17 @@ package gambatta.tn.ui.buvette;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.Font;
+import java.awt.Desktop;
+import java.net.URI;
 import gambatta.tn.entites.buvette.produit;
 import gambatta.tn.services.buvette.ProduitService;
 import javafx.collections.FXCollections;
@@ -134,36 +143,83 @@ public class CrudProduitController {
 
     @FXML
     public void exportPDF() {
+        String fileName = "Rapport_Produits_Gambatta.pdf";
         try {
-            Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream("Produits_Report.pdf"));
+            Document document = new Document(PageSize.A4, 50, 50, 50, 50);
+            PdfWriter.getInstance(document, new FileOutputStream(fileName));
             document.open();
-            document.add(new Paragraph("Rapport des Produits\n\n"));
-            
-            PdfPTable pdfTable = new PdfPTable(6);
-            pdfTable.addCell("ID");
-            pdfTable.addCell("Nom");
-            pdfTable.addCell("Description");
-            pdfTable.addCell("Prix");
-            pdfTable.addCell("Stock");
-            pdfTable.addCell("Référence");
 
+            // HEADER
+            Font titleFont = new Font(Font.FontFamily.HELVETICA, 24, Font.BOLD, new BaseColor(15, 23, 42));
+            Paragraph title = new Paragraph("GAMBATTA BUVETTE\n", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+
+            Font subtitleFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.GRAY);
+            Paragraph subtitle = new Paragraph("Rapport Officiel de l'Inventaire des Produits\n Généré le " + LocalDateTime.now() + "\n\n", subtitleFont);
+            subtitle.setAlignment(Element.ALIGN_CENTER);
+            document.add(subtitle);
+
+            document.add(new Chunk(new com.itextpdf.text.pdf.draw.LineSeparator(2f, 100, new BaseColor(255, 215, 0), Element.ALIGN_CENTER, -2)));
+            document.add(new Paragraph("\n"));
+
+            // TABLE
+            PdfPTable pdfTable = new PdfPTable(5); // Adjusted column count
+            pdfTable.setWidthPercentage(100);
+            pdfTable.setSpacingBefore(10f);
+            pdfTable.setSpacingAfter(10f);
+
+            // Define Table Header Styling
+            Font headFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.WHITE);
+            BaseColor headerBg = new BaseColor(15, 23, 42);
+
+            String[] headers = {"Nom", "Description", "Prix (DT)", "Stock", "Référence"};
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(header, headFont));
+                cell.setBackgroundColor(headerBg);
+                cell.setPadding(10);
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                pdfTable.addCell(cell);
+            }
+
+            // Define Table Content Styling
+            com.itextpdf.text.Font contentFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 10, com.itextpdf.text.Font.NORMAL);
             for (produit p : produitTable.getItems()) {
-                pdfTable.addCell(String.valueOf(p.getId()));
-                pdfTable.addCell(p.getNomp());
-                pdfTable.addCell(p.getDescrip());
-                pdfTable.addCell(String.valueOf(p.getPrixp()));
-                pdfTable.addCell(String.valueOf(p.getStockp()));
-                pdfTable.addCell(String.valueOf(p.getReferencep()));
+                pdfTable.addCell(createStyledCell(p.getNomp(), contentFont));
+                pdfTable.addCell(createStyledCell(p.getDescrip(), contentFont));
+                pdfTable.addCell(createStyledCell(String.valueOf(p.getPrixp()), contentFont));
+                pdfTable.addCell(createStyledCell(String.valueOf(p.getStockp()), contentFont));
+                pdfTable.addCell(createStyledCell(String.valueOf(p.getReferencep()), contentFont));
             }
 
             document.add(pdfTable);
             document.close();
-            statusLabel.setText("✅ Exporté en Produits_Report.pdf");
+
+            // UPLOAD TO CLOUDINARY & OPEN
+            statusLabel.setText("⏳ Finalisation du rapport...");
+            String url = CloudinaryService.uploadFile(new java.io.File(fileName), "image");
+            
+            if (url != null) {
+                statusLabel.setText("✅ Rapport en ligne !");
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().browse(new URI(url));
+                }
+            } else {
+                statusLabel.setText("⚠️ PDF local créé, mais échec de l'upload.");
+            }
+
         } catch (Exception e) {
             statusLabel.setText("❌ Erreur PDF: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private PdfPCell createStyledCell(String text, com.itextpdf.text.Font font) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, font));
+        cell.setPadding(8);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        return cell;
     }
 
     @FXML

@@ -19,13 +19,18 @@ public class CloudinaryService {
                 "api_secret", dotenv.get("CLOUDINARY_API_SECRET")));
     }
 
-    public static String uploadImage(File file) {
+    public static String uploadFile(File file, String resourceType) {
         try {
-            Map uploadResult = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+            // Use "image" for PDFs to allow browser viewing, or "auto" for general files
+            Map uploadResult = cloudinary.uploader().upload(file, ObjectUtils.asMap("resource_type", resourceType));
             return (String) uploadResult.get("secure_url");
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static String uploadImage(File file) {
+        return uploadFile(file, "image");
     }
 }
