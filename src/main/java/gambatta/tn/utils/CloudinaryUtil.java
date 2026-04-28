@@ -10,7 +10,7 @@ import java.util.Map;
 public class CloudinaryUtil {
 
     // IMPORTANT : Remplacez ces valeurs par vos vrais identifiants Cloudinary !
-    private static final String CLOUD_NAME = "votre_cloud_name";
+    private static final String CLOUD_NAME = "dchqj3gsg";
     private static final String API_KEY = "675283748754298";
     private static final String API_SECRET = "LZ46A6rmY33J6_dWA";
 

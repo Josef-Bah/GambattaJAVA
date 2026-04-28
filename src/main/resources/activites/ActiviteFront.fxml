@@ -46,10 +46,13 @@
     </center>
 
     <right>
-        <VBox fx:id="rightPanel" prefWidth="350" spacing="20" managed="false" visible="false"
-              style="-fx-background-color: #0f172a; -fx-padding: 30; -fx-border-color: #FFD700; -fx-border-width: 0 0 0 2;">
-              <!-- Dynamic content will be injected here by the controller -->
-        </VBox>
+        <ScrollPane fx:id="rightScroll" fitToWidth="true" prefWidth="360" minWidth="360" maxWidth="360" 
+                    managed="false" visible="false"
+                    style="-fx-background: transparent; -fx-background-color: #0f172a; -fx-border-color: #FFD700; -fx-border-width: 0 0 0 2; -fx-padding: 0;">
+            <VBox fx:id="rightPanel" spacing="20" style="-fx-padding: 25; -fx-background-color: transparent;">
+                  <!-- Dynamic content will be injected here by the controller -->
+            </VBox>
+        </ScrollPane>
     </right>
 
 </BorderPane>

@@ -140,5 +140,29 @@ public class ReservationActiviteService {
         }
         return list;
     }
+    // ✅ CHECK EXISTENCE
+    public boolean exists(int userId, int activiteId, java.util.Date date, String heure) {
+        String sql = "SELECT COUNT(*) FROM reservationactivite WHERE idu_id = ? AND ida_id = ? AND datedebut = ? AND heurer = ?";
+        try {
+            PreparedStatement ps = cnx.prepareStatement(sql);
+            ps.setInt(1, userId);
+            ps.setInt(2, activiteId);
+            java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+            ps.setDate(3, sqlDate);
+            ps.setString(4, heure);
+            
+            System.out.println("🔍 Checking duplicate: User=" + userId + ", Act=" + activiteId + ", Date=" + sqlDate + ", Time=" + heure);
+            
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                System.out.println("📊 Count found: " + count);
+                return count > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("Existence check error: " + e.getMessage());
+        }
+        return false;
+    }
 }
 

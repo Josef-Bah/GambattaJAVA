@@ -11,9 +11,12 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.image.*;
 import javafx.stage.FileChooser;
 import java.io.File;
@@ -388,10 +391,7 @@ public class ActiviteBackController {
         activite a = new activite(tfActNom.getText(), tfActType.getText(), tfActDispo.getText(), taActDesc.getText(), imgPath, tfActAdresse.getText(), false);
         activiteService.add(a);
         refreshAll();
-        
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setContentText("Activité ajoutée avec succès !");
-        alert.show();
+        alert("SUCCÈS", "Opération réussie", "Activité ajoutée avec succès !");
     }
     
     @FXML void updateActivite() {
@@ -406,123 +406,204 @@ public class ActiviteBackController {
             selected.setImagea(tfActImage.getText());
             activiteService.update(selected);
             refreshAll();
-            
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setContentText("Activité modifiée avec succès !");
-            alert.show();
+            alert("SUCCÈS", "Modification terminée", "Activité modifiée avec succès !");
         }
     }
     @FXML void deleteActivite() {
         activite selected = tableActivites.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            try {
-                // Supression en cascade : on supprime d'abord les enfants
-                masterRules.stream()
-                    .filter(r -> r.getActiviteId() == selected.getId())
-                    .forEach(r -> rulesService.delete(r.getId()));
+            showPurgeConfirm("l'activité : \"" + selected.getNoma() + "\"", () -> {
+                try {
+                    // Supression en cascade : on supprime d'abord les enfants
+                    masterRules.stream()
+                        .filter(r -> r.getActiviteId() == selected.getId())
+                        .forEach(r -> rulesService.delete(r.getId()));
+                        
+                    masterReservations.stream()
+                        .filter(r -> r.getActiviteId() == selected.getId())
+                        .forEach(r -> reservationService.delete(r.getId()));
+                        
+                    // Ensuite on supprime le parent
+                    activiteService.delete(selected.getId());
+                    refreshAll();
+                    alert("SUCCÈS", "Suppression terminée", "L'activité et ses données liées ont été supprimées.");
                     
-                masterReservations.stream()
-                    .filter(r -> r.getActiviteId() == selected.getId())
-                    .forEach(r -> reservationService.delete(r.getId()));
-                    
-                // Ensuite on supprime le parent
-                activiteService.delete(selected.getId());
-                refreshAll();
-                
-                tfActNom.clear();
-                tfActType.clear();
-                tfActDispo.clear();
-                tfActAdresse.clear();
-                taActDesc.clear();
-                tfActImage.clear();
-                resetValidation();
-            } catch (Exception ex) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setContentText("Erreur lors de la suppression en cascade.");
-                alert.show();
-            }
+                    tfActNom.clear();
+                    tfActType.clear();
+                    tfActDispo.clear();
+                    tfActAdresse.clear();
+                    taActDesc.clear();
+                    tfActImage.clear();
+                    resetValidation();
+                } catch (Exception ex) {
+                    alert("ERREUR", "Échec de suppression", "Erreur lors de la suppression en cascade.");
+                }
+            });
         }
     }
 
     @FXML void suggestActivitiesAI() {
-        Alert info = new Alert(Alert.AlertType.INFORMATION);
-        info.setTitle("Génération IA");
-        info.setHeaderText("Gemini est en train de réfléchir...");
-        info.setContentText("Veuillez patienter quelques secondes.");
-        info.show();
+        javafx.stage.Stage loadingStage = new javafx.stage.Stage();
+        loadingStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        loadingStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        
+        VBox lRoot = new VBox(15);
+        lRoot.setAlignment(Pos.CENTER);
+        lRoot.setPrefSize(350, 180);
+        lRoot.setStyle("-fx-background-color: #0f172a; -fx-background-radius: 18; -fx-border-color: #FFD700; -fx-border-width: 2;");
+        
+        ProgressIndicator pi = new ProgressIndicator();
+        pi.setStyle("-fx-progress-color: #FFD700;");
+        Label lTitle = new Label("🤖 ANALYSE IA EN COURS...");
+        lTitle.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 16px; -fx-font-weight: bold;");
+        Label lSub = new Label("Gemini parcourt vos " + masterActivites.size() + " activités...");
+        lSub.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
+        
+        lRoot.getChildren().addAll(pi, lTitle, lSub);
+        loadingStage.setScene(new Scene(lRoot, Color.TRANSPARENT));
+        loadingStage.show();
+
+        java.util.List<activite> snapshot = new java.util.ArrayList<>(masterActivites);
 
         new Thread(() -> {
             try {
-                String jsonResult = gambatta.tn.utils.GeminiUtil.generateActivitySuggestion();
+                // REAL AI CALL: Passing DB snapshot to Gemini 1.5 Flash
+                String jsonResult = gambatta.tn.utils.GeminiUtil.generateActivitySuggestion(snapshot);
                 org.json.JSONObject suggestion = new org.json.JSONObject(jsonResult);
 
                 javafx.application.Platform.runLater(() -> {
-                    info.close();
-                    tfActNom.setText(suggestion.optString("nom", "Tournoi Inconnu"));
-                    tfActType.setText(suggestion.optString("type", "Esports"));
-                    tfActDispo.setText(suggestion.optString("dispo", "Weekends"));
-                    tfActAdresse.setText(suggestion.optString("adresse", "Main Stage"));
-                    taActDesc.setText(suggestion.optString("desc", "Description générée.") + " [Généré par IA]");
+                    loadingStage.close();
+                    
+                    // Fill fields
+                    tfActNom.setText(suggestion.optString("nom", "Nouvelle Activité"));
+                    tfActType.setText(suggestion.optString("type", "Esport"));
+                    tfActDispo.setText(suggestion.optString("dispo", "OUI"));
+                    tfActAdresse.setText(suggestion.optString("adresse", "Salle 1"));
+                    taActDesc.setText(suggestion.optString("desc", "") + " [Généré par Gemini]");
 
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Suggestion IA");
-                    alert.setHeaderText("L'IA a généré une suggestion d'activité !");
-                    alert.setContentText("Les champs ont été remplis automatiquement via Gemini API.");
-                    alert.show();
+                    // Show Modern Success Dialog
+                    alert("SUCCÈS IA", 
+                        "Analyse terminée avec succès !", 
+                        "Gemini a analysé vos " + snapshot.size() + " activités et a généré une nouvelle proposition unique.");
                 });
             } catch (Exception e) {
                 javafx.application.Platform.runLater(() -> {
-                    info.close();
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Erreur IA");
-                    alert.setHeaderText("Impossible de joindre Gemini");
-                    alert.setContentText(e.getMessage() + "\n(Vérifiez votre clé API dans GeminiUtil.java)");
-                    alert.show();
+                    loadingStage.close();
+                    alert("ERREUR IA", "Échec de la génération", e.getMessage());
                 });
             }
         }).start();
     }
 
+    private void alert(String title, String header, String body) {
+        javafx.stage.Stage st = new javafx.stage.Stage();
+        st.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        st.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+
+        VBox root = new VBox(15);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new javafx.geometry.Insets(25));
+        root.setPrefWidth(380);
+        root.setStyle("-fx-background-color: #0f172a; -fx-background-radius: 20; -fx-border-color: #FFD700; -fx-border-width: 2; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 20, 0, 0, 10);");
+
+        Label tLbl = new Label(title);
+        tLbl.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 11px; -fx-font-weight: bold; -fx-letter-spacing: 1px;");
+        
+        Label hLbl = new Label(header);
+        hLbl.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
+        
+        Label bLbl = new Label(body);
+        bLbl.setStyle("-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 13px;");
+        bLbl.setWrapText(true);
+        bLbl.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+
+        Button btn = new Button("D'ACCORD");
+        btn.setStyle("-fx-background-color: linear-gradient(to right, #FFD700, #ff9f43); -fx-text-fill: #020617; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 30; -fx-cursor: hand;");
+        btn.setOnAction(e -> st.close());
+
+        root.getChildren().addAll(tLbl, hLbl, bLbl, btn);
+        Scene sc = new Scene(root);
+        sc.setFill(Color.TRANSPARENT);
+        st.setScene(sc);
+        st.show();
+    }
+
     @FXML
     void handleVoiceSearch() {
         try {
-            tfSearchActivites.setPromptText("🎙 Écoute en cours (5s)...");
+            java.util.Set<String> keywords = new java.util.HashSet<>();
+            if (masterActivites != null) {
+                for (activite a : masterActivites) {
+                    if (a.getNoma() != null) {
+                        keywords.add(a.getNoma());
+                        for (String word : a.getNoma().split("\\s+")) {
+                            if (word.length() > 2) keywords.add(word);
+                        }
+                    }
+                    if (a.getTypea() != null) keywords.add(a.getTypea());
+                }
+            }
+
+            if (keywords.isEmpty()) {
+                keywords.add("Activité");
+                keywords.add("Admin");
+            }
+
+            String choicesStr = keywords.stream()
+                .map(s -> s.replace("'", "''"))
+                .collect(Collectors.joining("','", "'", "'"));
+
+            tfSearchActivites.setPromptText("🎙 Écoute active (6s)...");
             tfSearchActivites.setText("");
+
             new Thread(() -> {
                 try {
-                    String psCommand = "Add-Type -AssemblyName System.Speech; " +
-                        "$recognizer = New-Object System.Speech.Recognition.SpeechRecognitionEngine; " +
-                        "$recognizer.LoadGrammar((New-Object System.Speech.Recognition.DictationGrammar)); " +
-                        "$recognizer.SetInputToDefaultAudioDevice(); " +
-                        "$result = $recognizer.Recognize((New-TimeSpan -Seconds 5)); " +
-                        "if ($result -ne $null) { Write-Output $result.Text }";
+                    String psCommand = "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; " +
+                        "$ErrorActionPreference = 'Stop'; " +
+                        "try { " +
+                        "  Add-Type -AssemblyName System.Speech; " +
+                        "  $engine = New-Object System.Speech.Recognition.SpeechRecognitionEngine; " + // Default engine
+                        "  $engine.SetInputToDefaultAudioDevice(); " +
+                        "  $choices = New-Object System.Speech.Recognition.Choices; " +
+                        "  $choices.Add(@(" + choicesStr + ")); " +
+                        "  $gb = New-Object System.Speech.Recognition.GrammarBuilder($choices); " +
+                        "  $g = New-Object System.Speech.Recognition.Grammar($gb); " +
+                        "  $engine.LoadGrammar($g); " +
+                        "  $dict = New-Object System.Speech.Recognition.DictationGrammar; " +
+                        "  $engine.LoadGrammar($dict); " +
+                        "  $res = $engine.Recognize((New-TimeSpan -Seconds 6)); " +
+                        "  if ($res) { Write-Output $res.Text } " +
+                        "} catch { Write-Output ('ERROR: ' + $_.Exception.Message) }";
                     
-                    ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-Command", psCommand);
+                    ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", psCommand);
                     pb.redirectErrorStream(true);
                     Process process = pb.start();
                     
-                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()));
-                    StringBuilder out = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        out.append(line).append(" ");
-                    }
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream(), "UTF-8"));
+                    String line = reader.readLine();
                     process.waitFor();
-                    String recognizedText = out.toString().trim();
+                    
+                    final String result = (line != null) ? line.trim() : "";
                     
                     javafx.application.Platform.runLater(() -> {
                         tfSearchActivites.setPromptText("Rechercher par nom, type...");
-                        if (!recognizedText.isEmpty()) {
-                            tfSearchActivites.setText(recognizedText);
+                        if (result.startsWith("ERROR:")) {
+                            tfSearchActivites.setPromptText("Erreur micro");
+                            System.err.println("VOICE ERROR: " + result);
+                        } else if (!result.isEmpty()) {
+                            tfSearchActivites.setText(result);
                         } else {
-                            tfSearchActivites.setPromptText("Bruit non reconnu...");
+                            tfSearchActivites.setPromptText("Aucun mot reconnu...");
                         }
                     });
                 } catch (Exception e) {
                     javafx.application.Platform.runLater(() -> tfSearchActivites.setPromptText("Erreur micro"));
+                    e.printStackTrace();
                 }
             }).start();
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // --- RULES HANDLERS ---
@@ -555,9 +636,7 @@ public class ActiviteBackController {
         r.setRuleDescription(taRuleDesc.getText());
         rulesService.add(r);
         refreshAll();
-        Alert a = new Alert(Alert.AlertType.INFORMATION);
-        a.setContentText("Règle ajoutée avec succès !");
-        a.show();
+        alert("SUCCÈS", "Règle enregistrée", "Règle ajoutée avec succès !");
     }
     
     @FXML void updateRule() {
@@ -568,16 +647,17 @@ public class ActiviteBackController {
             selected.setRuleDescription(taRuleDesc.getText());
             rulesService.update(selected);
             refreshAll();
-            Alert a = new Alert(Alert.AlertType.INFORMATION);
-            a.setContentText("Règle modifiée avec succès !");
-            a.show();
+            alert("SUCCÈS", "Règle mise à jour", "La règle a été modifiée avec succès.");
         }
     }
     @FXML void deleteRule() {
         rules selected = tableRules.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            rulesService.delete(selected.getId());
-            refreshAll();
+            showPurgeConfirm("la règle n°" + selected.getId(), () -> {
+                rulesService.delete(selected.getId());
+                refreshAll();
+                alert("SUCCÈS", "Règle supprimée", "La règle a été retirée de la base de données.");
+            });
         }
     }
 
@@ -588,18 +668,25 @@ public class ActiviteBackController {
             return;
         }
 
-        String activityName = cbRuleActivite.getValue().getNoma();
-        taRuleDesc.setText("Génération en cours...");
+        activite selectedActivite = cbRuleActivite.getValue();
+        String activityName = selectedActivite.getNoma();
+        int activityId = selectedActivite.getId();
+        taRuleDesc.setText("🤖 Gemini analyse les règles existantes...");
+
+        // Collect existing rules for this specific activity from DB
+        java.util.List<gambatta.tn.entites.activites.rules> existingRules = masterRules.stream()
+                .filter(r -> r.getActiviteId() == activityId)
+                .collect(java.util.stream.Collectors.toList());
 
         new Thread(() -> {
             try {
-                String ruleText = gambatta.tn.utils.GeminiUtil.generateRuleSuggestion(activityName);
+                // Pass existing rules so Gemini generates a complementary, non-duplicate rule
+                String ruleText = gambatta.tn.utils.GeminiUtil.generateRuleSuggestion(activityName, existingRules);
                 javafx.application.Platform.runLater(() -> {
                     taRuleDesc.setText(ruleText);
                 });
             } catch (Exception e) {
                 javafx.application.Platform.runLater(() -> {
-                    // Fallback local si l'API échoue ou clé absente (SILENT)
                     String[] fallbackRules = {
                         "Le respect des autres joueurs et arbitres est obligatoire sous peine de disqualification.",
                         "Le matériel doit être manipulé avec soin. Toute dégradation sera facturée.",
@@ -623,30 +710,101 @@ public class ActiviteBackController {
 
             activite act = getActiviteById(selected.getActiviteId());
             String actName = act != null ? act.getNoma() : "Activité";
-            String userEmail = selected.getEmail();
-            String userPhone = selected.getTelephone();
-
-            new Thread(() -> {
-                gambatta.tn.utils.MailerUtil.sendConfirmationEmail(userEmail, actName, selected.getDatedebut().toString(), selected.getHeurer(), "ACCEPTEE");
-                
-                try {
-                    gambatta.tn.utils.WhatsAppUtil.sendReservationMessage(userPhone, actName, "ACCEPTEE");
-                    javafx.application.Platform.runLater(() -> {
-                        Alert a = new Alert(Alert.AlertType.INFORMATION);
-                        a.setContentText("✅ Réservation acceptée ! Le client a été notifié par E-mail et WhatsApp.");
-                        a.show();
-                    });
-                } catch (Exception e) {
-                    javafx.application.Platform.runLater(() -> {
-                        Alert a = new Alert(Alert.AlertType.WARNING);
-                        a.setTitle("Attention - Erreur WhatsApp");
-                        a.setHeaderText("Email envoyé, mais échec de WhatsApp !");
-                        a.setContentText(e.getMessage());
-                        a.show();
-                    });
-                }
-            }).start();
+            
+            showNotificationChoice(selected, actName);
         }
+    }
+
+    private void showNotificationChoice(ReservationActivite res, String actName) {
+        javafx.stage.Stage st = new javafx.stage.Stage();
+        st.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        st.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+
+        VBox root = new VBox(20);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new javafx.geometry.Insets(25));
+        root.setPrefWidth(450);
+        root.setStyle("-fx-background-color: #0f172a; -fx-background-radius: 20; -fx-border-color: #FFD700; -fx-border-width: 2; -fx-effect: dropshadow(gaussian, rgba(255,215,0,0.2), 20, 0, 0, 0);");
+
+        Label title = new Label("CHOIX DE NOTIFICATION");
+        title.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 20px; -fx-font-weight: bold; -fx-letter-spacing: 1px;");
+
+        Label desc = new Label("Comment souhaitez-vous confirmer la réservation ?");
+        desc.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+
+        HBox options = new HBox(15);
+        options.setAlignment(Pos.CENTER);
+
+        Button btnEmail = new Button("📧 EMAIL");
+        btnEmail.setStyle("-fx-background-color: #1e293b; -fx-text-fill: #3b82f6; -fx-border-color: #3b82f6; -fx-border-radius: 10; -fx-padding: 12 25; -fx-font-weight: bold; -fx-cursor: hand;");
+        btnEmail.setOnAction(e -> { st.close(); notifyClient(res, actName, true, false); });
+
+        Button btnWhatsApp = new Button("💬 WHATSAPP");
+        btnWhatsApp.setStyle("-fx-background-color: #1e293b; -fx-text-fill: #2ed573; -fx-border-color: #2ed573; -fx-border-radius: 10; -fx-padding: 12 25; -fx-font-weight: bold; -fx-cursor: hand;");
+        btnWhatsApp.setOnAction(e -> { st.close(); notifyClient(res, actName, false, true); });
+
+        Button btnBoth = new Button("🔄 LES DEUX");
+        btnBoth.setStyle("-fx-background-color: #FFD700; -fx-text-fill: #020617; -fx-background-radius: 10; -fx-padding: 12 25; -fx-font-weight: bold; -fx-cursor: hand;");
+        btnBoth.setOnAction(e -> { st.close(); notifyClient(res, actName, true, true); });
+
+        options.getChildren().addAll(btnEmail, btnWhatsApp, btnBoth);
+        
+        Button btnCancel = new Button("PLUS TARD");
+        btnCancel.setStyle("-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-cursor: hand;");
+        btnCancel.setOnAction(e -> st.close());
+
+        root.getChildren().addAll(title, desc, options, btnCancel);
+        Scene sc = new Scene(root); sc.setFill(Color.TRANSPARENT); st.setScene(sc); st.showAndWait();
+    }
+
+    private void notifyClient(ReservationActivite res, String actName, boolean useEmail, boolean useWhatsApp) {
+        new Thread(() -> {
+            boolean emailOk = false;
+            boolean waOk = false;
+            String errorMsg = "";
+
+            if (useEmail) {
+                try {
+                    gambatta.tn.utils.MailerUtil.sendConfirmationEmail(res.getEmail(), actName, res.getDatedebut().toString(), res.getHeurer(), "ACCEPTEE");
+                    emailOk = true;
+                } catch (Exception e) { errorMsg += "Email: " + e.getMessage() + "\n"; }
+            }
+
+            if (useWhatsApp) {
+                try {
+                    String dateStr = res.getDatedebut() != null ? res.getDatedebut().toString() : "";
+                    String link = gambatta.tn.utils.WhatsAppUtil.buildWhatsAppLink(
+                        res.getTelephone(), 
+                        actName, 
+                        res.getId(), 
+                        dateStr, 
+                        res.getHeurer()
+                    );
+                    
+                    if (link != null) {
+                        // On ouvre le navigateur (Platform.runLater car c'est une action UI)
+                        javafx.application.Platform.runLater(() -> gambatta.tn.utils.WhatsAppUtil.openInBrowser(link));
+                        waOk = true;
+                    } else {
+                        errorMsg += "WhatsApp: Numéro client manquant ou invalide\n";
+                    }
+                } catch (Exception e) { 
+                    errorMsg += "WhatsApp: " + e.getMessage() + "\n"; 
+                }
+            }
+
+            final boolean finalEmailOk = emailOk;
+            final boolean finalWaOk = waOk;
+            final String finalError = errorMsg;
+
+            javafx.application.Platform.runLater(() -> {
+                if ((useEmail == finalEmailOk) && (useWhatsApp == finalWaOk)) {
+                    alert("SUCCÈS", "Notifications envoyées", "Le client a été notifié avec succès.");
+                } else {
+                    alert("ATTENTION", "Échec partiel/total", "Détails :\n" + finalError);
+                }
+            });
+        }).start();
     }
 
     @FXML void refuserReservation() {
@@ -690,87 +848,121 @@ public class ActiviteBackController {
             document.addPage(page);
 
             try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-                // Title
-                contentStream.setNonStrokingColor(15, 23, 42); // Dark slate
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 22);
+                // BACKGROUND TOP ACCENT
+                contentStream.setNonStrokingColor(15, 23, 42); // Dark Blue #0f172a
+                contentStream.addRect(0, 780, 612, 50);
+                contentStream.fill();
+
+                // LOGO / BRANDING
+                contentStream.setNonStrokingColor(255, 215, 0); // Gold
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 24);
                 contentStream.beginText();
-                contentStream.newLineAtOffset(50, 750);
-                contentStream.showText(title);
+                contentStream.newLineAtOffset(50, 795);
+                contentStream.showText("GAMBATTA");
+                contentStream.endText();
+                
+                contentStream.setNonStrokingColor(255, 255, 255);
+                contentStream.setFont(PDType1Font.HELVETICA, 12);
+                contentStream.beginText();
+                contentStream.newLineAtOffset(190, 795);
+                contentStream.showText("COMPLEX MANAGEMENT");
                 contentStream.endText();
 
-                // Separator line
-                contentStream.setStrokingColor(255, 215, 0); // Gold
-                contentStream.setLineWidth(2f);
-                contentStream.moveTo(50, 740);
-                contentStream.lineTo(550, 740);
+                // TITLE & DATE
+                contentStream.setNonStrokingColor(15, 23, 42);
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18);
+                contentStream.beginText();
+                contentStream.newLineAtOffset(50, 740);
+                contentStream.showText(title.toUpperCase());
+                contentStream.endText();
+
+                contentStream.setFont(PDType1Font.HELVETICA, 9);
+                contentStream.beginText();
+                contentStream.newLineAtOffset(420, 740);
+                contentStream.showText("Exporté le: " + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+                contentStream.endText();
+
+                // Separator
+                contentStream.setStrokingColor(255, 215, 0);
+                contentStream.setLineWidth(1.5f);
+                contentStream.moveTo(50, 730);
+                contentStream.lineTo(560, 730);
                 contentStream.stroke();
 
                 float margin = 50;
-                float tableWidth = 500;
-                float yPosition = 710;
+                float tableWidth = 510;
+                float yPosition = 700;
                 int cols = table.getColumns().size();
-                float rowHeight = 25f;
+                float rowHeight = 28f;
                 float colWidth = tableWidth / (float) cols;
 
-                // Draw Header Background
+                // TABLE HEADER
                 contentStream.setNonStrokingColor(30, 41, 59); // Slate header
                 contentStream.addRect(margin, yPosition - rowHeight, tableWidth, rowHeight);
                 contentStream.fill();
 
-                // Draw Header Text
-                contentStream.setNonStrokingColor(255, 255, 255); // White text
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 11);
-                float textx = margin + 5;
-                float texty = yPosition - 17;
+                contentStream.setNonStrokingColor(255, 215, 0); // Gold text for header
+                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
+                float textx = margin + 8;
+                float texty = yPosition - 18;
                 
                 for (TableColumn<?, ?> col : table.getColumns()) {
                     contentStream.beginText();
                     contentStream.newLineAtOffset(textx, texty);
-                    contentStream.showText(col.getText().toUpperCase());
+                    String headerTxt = col.getText().toUpperCase();
+                    contentStream.showText(headerTxt);
                     contentStream.endText();
                     textx += colWidth;
                 }
                 
                 yPosition -= rowHeight;
 
-                // Draw Rows
-                contentStream.setFont(PDType1Font.HELVETICA, 10);
+                // ROWS
+                contentStream.setFont(PDType1Font.HELVETICA, 9);
                 boolean alternate = false;
                 
+                int rowIndex = 0;
                 for (Object item : table.getItems()) {
-                    if (yPosition - rowHeight < 50) break; // Simplistic paging
+                    if (yPosition - rowHeight < 60) break; // Simple paging check
                     
                     if (alternate) {
-                        contentStream.setNonStrokingColor(241, 245, 249); // Light gray
+                        contentStream.setNonStrokingColor(248, 250, 252); // Very light gray
                         contentStream.addRect(margin, yPosition - rowHeight, tableWidth, rowHeight);
                         contentStream.fill();
                     }
-                    alternate = !alternate;
+                    
+                    // Border line below row
+                    contentStream.setStrokingColor(226, 232, 240);
+                    contentStream.setLineWidth(0.5f);
+                    contentStream.moveTo(margin, yPosition - rowHeight);
+                    contentStream.lineTo(margin + tableWidth, yPosition - rowHeight);
+                    contentStream.stroke();
 
-                    contentStream.setNonStrokingColor(15, 23, 42); // Dark text
-                    textx = margin + 5;
-                    texty = yPosition - 17;
+                    contentStream.setNonStrokingColor(15, 23, 42);
+                    textx = margin + 8;
+                    texty = yPosition - 18;
                     
                     for (TableColumn<?, ?> col : table.getColumns()) {
-                        Object cellData = ((TableColumn<Object, Object>) col).getCellData(item);
-                        String text = cellData != null ? cellData.toString() : "-";
+                        Object cellData = col.getCellData(rowIndex);
+                        String txt = cellData == null ? "" : cellData.toString();
                         
-                        // Sanitize to avoid PDFBox exceptions with unprintable chars
-                        text = text.replace("\n", " ").replace("\r", " ").replace("’", "'").replace("é", "e").replace("è", "e").replace("à", "a");
-                        if (text.length() > 20) text = text.substring(0, 18) + "..";
+                        // Simple wrap check
+                        if (txt.length() > 25) txt = txt.substring(0, 22) + "...";
                         
                         contentStream.beginText();
                         contentStream.newLineAtOffset(textx, texty);
-                        contentStream.showText(text);
+                        contentStream.showText(txt);
                         contentStream.endText();
                         textx += colWidth;
                     }
+                    
                     yPosition -= rowHeight;
+                    alternate = !alternate;
+                    rowIndex++;
                 }
                 
-                // Footer
+                // FOOTER
                 contentStream.setNonStrokingColor(100, 116, 139);
-                contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, 9);
                 contentStream.beginText();
                 contentStream.newLineAtOffset(50, 30);
                 contentStream.showText("Généré par Gambatta Esports System");
@@ -785,5 +977,48 @@ public class ActiviteBackController {
             a.setContentText("Erreur PDF: " + e.getMessage());
             a.show();
         }
+    }
+
+    private void showPurgeConfirm(String itemName, Runnable onConfirm) {
+        javafx.stage.Stage st = new javafx.stage.Stage();
+        st.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        st.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+
+        VBox root = new VBox(25);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new javafx.geometry.Insets(30));
+        root.setPrefWidth(420);
+        root.setStyle("-fx-background-color: #0f172a; -fx-background-radius: 15; -fx-border-color: #ff4757; -fx-border-width: 2; -fx-effect: dropshadow(gaussian, rgba(255,71,87,0.3), 20, 0, 0, 0);");
+
+        Label titleLbl = new Label("PURGE SYSTÈME");
+        titleLbl.setStyle("-fx-text-fill: #ff4757; -fx-font-size: 32px; -fx-font-weight: 900; -fx-letter-spacing: 2px;");
+        
+        Label msgLbl = new Label("Supprimer définitivement " + itemName + " ?");
+        msgLbl.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-text-alignment: center;");
+        msgLbl.setWrapText(true);
+
+        HBox btnBox = new HBox(20);
+        btnBox.setAlignment(Pos.CENTER);
+
+        Button btnAbort = new Button("ABORT");
+        btnAbort.setPrefWidth(120);
+        btnAbort.setStyle("-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-border-color: #475569; -fx-border-radius: 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10;");
+        btnAbort.setOnAction(e -> st.close());
+
+        Button btnTerminate = new Button("TERMINATE");
+        btnTerminate.setPrefWidth(140);
+        btnTerminate.setStyle("-fx-background-color: transparent; -fx-text-fill: #ff4757; -fx-border-color: #ff4757; -fx-border-radius: 20; -fx-background-radius: 20; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10;");
+        btnTerminate.setOnAction(e -> {
+            st.close();
+            onConfirm.run();
+        });
+
+        btnBox.getChildren().addAll(btnAbort, btnTerminate);
+        root.getChildren().addAll(titleLbl, msgLbl, btnBox);
+
+        Scene sc = new Scene(root);
+        sc.setFill(Color.TRANSPARENT);
+        st.setScene(sc);
+        st.showAndWait();
     }
 }
