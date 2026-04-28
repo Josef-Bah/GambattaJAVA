@@ -210,3 +210,121 @@
     -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
+
+/* COMBO BOX DARK MODE FIX */
+.combo-box {
+    -fx-background-color: #1e293b;
+    -fx-background-radius: 25;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 25;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: white;
+    -fx-background-radius: 25;
+}
+
+/* Specifically target the popup list */
+.combo-box-popup .list-view {
+    -fx-background-color: #1e293b;
+    -fx-background-radius: 15;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 1;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: #1e293b;
+    -fx-text-fill: white;
+    -fx-padding: 8 12;
+}
+
+.combo-box-popup .list-cell:filled:hover {
+    -fx-background-color: #FFD700;
+    -fx-text-fill: #020617;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box .arrow {
+    -fx-background-color: #FFD700;
+}
+
+/* CHARTS DARK MODE */
+.chart-title {
+    -fx-text-fill: white;
+}
+.chart-content {
+    -fx-padding: 10;
+}
+.chart-legend {
+   -fx-background-color: transparent;
+}
+.chart-legend-item {
+    -fx-text-fill: white;
+}
+.chart-legend-item-symbol {
+   -fx-background-radius: 5;
+}
+.chart-pie-label {
+    -fx-fill: white;
+    -fx-font-size: 11px;
+}
+.axis {
+    -fx-tick-label-fill: white;
+}
+.axis-label {
+    -fx-text-fill: #FFD700;
+}
+.chart-plot-background {
+    -fx-background-color: transparent;
+}
+.chart-vertical-grid-lines {
+    -fx-stroke: rgba(255, 255, 255, 0.1);
+}
+.chart-horizontal-grid-lines {
+    -fx-stroke: rgba(255, 255, 255, 0.1);
+}
+.chart-alternative-column-fill {
+    -fx-fill: transparent;
+}
+.chart-alternative-row-fill {
+    -fx-fill: transparent;
+}
+.chart-pie-label-line {
+    -fx-stroke: white;
+}
+
+/* FANCY FORM FIELDS */
+.form-card {
+    -fx-background-color: rgba(30, 41, 59, 0.4);
+    -fx-background-radius: 20;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 1px;
+    -fx-padding: 25;
+}
+
+.fancy-field {
+    -fx-background-color: #0f172a;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #64748b;
+    -fx-background-radius: 10;
+    -fx-border-color: #334155;
+    -fx-border-radius: 10;
+    -fx-padding: 12 15;
+    -fx-font-size: 14px;
+}
+
+.fancy-field:focused {
+    -fx-border-color: #FFD700;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.2), 10, 0, 0, 0);
+    -fx-background-color: #1e293b;
+}
+
+.form-label {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 5 2;
+}

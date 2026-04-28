@@ -1,65 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<VBox spacing="15" style="-fx-padding:30; -fx-background-color:#0f172a;"
-      xmlns="http://javafx.com/javafx/21"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="gambatta.tn.ui.buvette.CrudProduitController">
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="gambatta.tn.ui.buvette.CrudProduitController"
+           stylesheets="@style.css"
+           style="-fx-background-color:#0f172a;">
 
-    <!-- STATS HEADER -->
-    <HBox spacing="20">
-        <VBox style="-fx-background-color:#1e293b; -fx-padding:15; -fx-background-radius:10;" prefWidth="180">
-            <Label text=" Total Produits" style="-fx-text-fill:#94a3b8;"/>
-            <Label fx:id="statTotal" text="..." style="-fx-font-size:18px; -fx-text-fill:#FFD700; -fx-font-weight:bold;"/>
+    <!-- MAIN CONTENT (Table & Headers) -->
+    <VBox spacing="15" style="-fx-padding:25;">
+        <!-- STATS HEADER -->
+        <HBox spacing="20">
+            <VBox style="-fx-background-color:#1e293b; -fx-padding:12; -fx-background-radius:10;" prefWidth="160">
+                <Label text=" Total Produits" style="-fx-text-fill:#94a3b8; -fx-font-size:11px;"/>
+                <Label fx:id="statTotal" text="..." style="-fx-font-size:16px; -fx-text-fill:#FFD700; -fx-font-weight:bold;"/>
+            </VBox>
+            <VBox style="-fx-background-color:#1e293b; -fx-padding:12; -fx-background-radius:10;" prefWidth="160">
+                <Label text=" Stock Total" style="-fx-text-fill:#94a3b8; -fx-font-size:11px;"/>
+                <Label fx:id="statStock" text="..." style="-fx-font-size:16px; -fx-text-fill:#22c55e; -fx-font-weight:bold;"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="➕ Nouveau Produit" onAction="#openAddForm" styleClass="btn-primary"/>
+        </HBox>
+
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <Label text=" Gestion des Produits" style="-fx-font-size:18px; -fx-font-weight:bold; -fx-text-fill:white;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <TextField fx:id="searchField" promptText="Rechercher..." prefWidth="180" styleClass="search-field"/>
+            <ComboBox fx:id="sortCombo" prefWidth="140" style="-fx-background-color:#1e293b;"/>
+            <Button text="📊" onAction="#showStats" styleClass="btn-secondary"/>
+            <Button text="☁️" onAction="#migrateToCloud" style="-fx-background-color:#0284c7; -fx-text-fill:white; -fx-background-radius:8;"/>
+            <Button text="📄" onAction="#exportPDF" styleClass="btn-secondary"/>
+        </HBox>
+        
+        <TableView fx:id="produitTable" VBox.vgrow="ALWAYS" styleClass="table-view">
+            <columns>
+                <TableColumn fx:id="colNom"   text="Nom"       prefWidth="180"/>
+                <TableColumn fx:id="colDesc"  text="Description" prefWidth="250"/>
+                <TableColumn fx:id="colPrix"  text="Prix"      prefWidth="100"/>
+                <TableColumn fx:id="colStock" text="Stock"     prefWidth="100"/>
+                <TableColumn fx:id="colRef"   text="Référence"   prefWidth="120"/>
+            </columns>
+        </TableView>
+
+        <Label fx:id="statusLabel" text="" style="-fx-text-fill:#22c55e; -fx-font-weight:bold;"/>
+    </VBox>
+
+    <!-- RIGHT SIDEBAR FORM (Initially Hidden) -->
+    <HBox alignment="CENTER_RIGHT" mouseTransparent="true" fx:id="formOverlay">
+        <VBox fx:id="sideForm" prefWidth="400" spacing="20" styleClass="form-card" 
+              style="-fx-background-color:#1e293b; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0, -10, 0); -fx-background-radius: 20 0 0 20;"
+              translateX="420" mouseTransparent="false">
+            
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label fx:id="formTitle" text="Ajouter un Produit" style="-fx-font-size:20px; -fx-font-weight:bold; -fx-text-fill:#FFD700;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="✕" onAction="#closeForm" style="-fx-background-color:transparent; -fx-text-fill:#94a3b8; -fx-font-size:18px; -fx-cursor:hand;"/>
+            </HBox>
+
+            <Separator style="-fx-opacity:0.1;"/>
+
+            <ScrollPane fitToWidth="true" style="-fx-background-color:transparent;" vbarPolicy="NEVER">
+                <VBox spacing="15">
+                    <VBox spacing="5">
+                        <Label text="Nom du Produit" styleClass="form-label"/>
+                        <TextField fx:id="fieldNom" promptText="Ex: Espresso" styleClass="fancy-field"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="Prix (DT)" styleClass="form-label"/>
+                        <TextField fx:id="fieldPrix" promptText="0.00" styleClass="fancy-field"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="Référence" styleClass="form-label"/>
+                        <TextField fx:id="fieldRef" promptText="Ex: 1001" styleClass="fancy-field"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="Stock" styleClass="form-label"/>
+                        <TextField fx:id="fieldStock" promptText="0" styleClass="fancy-field"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="Description" styleClass="form-label"/>
+                        <TextField fx:id="fieldDesc" promptText="Détails..." styleClass="fancy-field"/>
+                    </VBox>
+                    <VBox spacing="5">
+                        <Label text="Image" styleClass="form-label"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Button text="🖼️ Choisir" onAction="#chooseImage" styleClass="btn-secondary" style="-fx-padding: 8 15;"/>
+                            <Label fx:id="imageNameLabel" text="Aucune image" style="-fx-text-fill:#94a3b8; -fx-font-size:12px;"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </ScrollPane>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <HBox spacing="10">
+                <Button fx:id="btnDelete" text="🗑️" onAction="#deleteProduit" style="-fx-background-color:#ef4444; -fx-text-fill:white; -fx-background-radius:10; -fx-padding:10 15;"/>
+                <Button text="🔄" onAction="#refresh" styleClass="btn-secondary" style="-fx-padding:10 15;"/>
+                <Button fx:id="btnSubmit" text="Enregistrer" onAction="#addProduit" styleClass="btn-primary" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            </HBox>
         </VBox>
-        <VBox style="-fx-background-color:#1e293b; -fx-padding:15; -fx-background-radius:10;" prefWidth="180">
-            <Label text=" Stock Total" style="-fx-text-fill:#94a3b8;"/>
-            <Label fx:id="statStock" text="..." style="-fx-font-size:18px; -fx-text-fill:#22c55e; -fx-font-weight:bold;"/>
-        </VBox>
     </HBox>
 
-    <HBox spacing="15" alignment="CENTER_LEFT">
-        <Label text=" Produit Management" style="-fx-font-size:20px; -fx-font-weight:bold; -fx-text-fill:white;"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <TextField fx:id="searchField" promptText="Search..." prefWidth="200" styleClass="search-field"/>
-        <ComboBox fx:id="sortCombo" promptText="Trier par..." style="-fx-background-color:rgba(30, 41, 59, 0.8); -fx-text-fill:white;"/>
-        <Button text="📄 Export PDF" onAction="#exportPDF" styleClass="btn-secondary"/>
-    </HBox>
-    
-    <Separator/>
-
-    <!-- TABLE -->
-    <TableView fx:id="produitTable" prefHeight="300" styleClass="table-view">
-        <columns>
-            <TableColumn fx:id="colId"    text="ID"        prefWidth="60"/>
-            <TableColumn fx:id="colNom"   text="Nom"       prefWidth="160"/>
-            <TableColumn fx:id="colDesc"  text="Desc"      prefWidth="200"/>
-            <TableColumn fx:id="colPrix"  text="Prix"      prefWidth="100"/>
-            <TableColumn fx:id="colStock" text="Stock"     prefWidth="80"/>
-            <TableColumn fx:id="colRef"   text="Ref"       prefWidth="80"/>
-        </columns>
-    </TableView>
-
-    <!-- FORM -->
-    <HBox spacing="10">
-        <TextField fx:id="fieldNom"   promptText="Nom"         prefWidth="130"/>
-        <TextField fx:id="fieldDesc"  promptText="Description" prefWidth="160"/>
-        <TextField fx:id="fieldPrix"  promptText="Prix"        prefWidth="80"/>
-        <TextField fx:id="fieldStock" promptText="Stock"       prefWidth="70"/>
-        <TextField fx:id="fieldRef"   promptText="Référence"   prefWidth="90"/>
-    </HBox>
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Button text="🖼️ Choisir une Image" onAction="#chooseImage" styleClass="btn-secondary"/>
-        <Label fx:id="imageNameLabel" text="Aucune image sélectionnée" style="-fx-text-fill:#94a3b8;"/>
-    </HBox>
-
-    <HBox spacing="10">
-        <Button text="➕ Add"    onAction="#addProduit" styleClass="btn-primary"/>
-        <Button text="✏️ Update" onAction="#updateProduit" styleClass="btn-secondary"/>
-        <Button text="🗑️ Delete" onAction="#deleteProduit" style="-fx-background-color:#ef4444; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:10;"/>
-        <Button text="🔄 Refresh" onAction="#refresh" styleClass="btn-secondary"/>
-    </HBox>
-
-    <Label fx:id="statusLabel" text="" style="-fx-text-fill:#22c55e;"/>
-</VBox>
+</StackPane>

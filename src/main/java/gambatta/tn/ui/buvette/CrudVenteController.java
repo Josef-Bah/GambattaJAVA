@@ -11,6 +11,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.FileOutputStream;
 import java.time.LocalDateTime;
@@ -30,7 +35,7 @@ public class CrudVenteController {
     @FXML private TableColumn<vente, Integer> colQuantv;
     @FXML private TableColumn<vente, LocalDateTime> colDatev;
     @FXML private TableColumn<vente, Double>  colMontantv;
-    @FXML private TableColumn<vente, Integer> colUserId;
+    @FXML private TableColumn<vente, String>  colUserName;
 
     @FXML private Label statusLabel;
 
@@ -43,7 +48,7 @@ public class CrudVenteController {
         colQuantv.setCellValueFactory(new PropertyValueFactory<>("quantv"));
         colDatev.setCellValueFactory(new PropertyValueFactory<>("datev"));
         colMontantv.setCellValueFactory(new PropertyValueFactory<>("montantv"));
-        colUserId.setCellValueFactory(new PropertyValueFactory<>("userId"));
+        colUserName.setCellValueFactory(new PropertyValueFactory<>("userName"));
 
         sortCombo.getItems().addAll("Aucun", "Date (Récent)", "Date (Ancien)", "Montant (Croissant)", "Montant (Décroissant)");
         sortCombo.getSelectionModel().selectFirst();
@@ -134,5 +139,25 @@ public class CrudVenteController {
         sortCombo.getSelectionModel().selectFirst();
         loadTable();
         statusLabel.setText(" Refreshed.");
+    }
+
+    @FXML
+    public void showStats() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/buvette/StatsView.fxml"));
+            Parent root = loader.load();
+            
+            StatsController controller = loader.getController();
+            controller.initVenteData(masterData);
+            
+            Stage stage = new Stage();
+            stage.setTitle("Statistiques Ventes");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            statusLabel.setText("Error opening stats: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

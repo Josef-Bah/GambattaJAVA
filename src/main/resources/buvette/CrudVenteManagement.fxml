@@ -24,7 +24,8 @@
         <Region HBox.hgrow="ALWAYS"/>
         <TextField fx:id="searchField" promptText="Search Amount/Date..." prefWidth="200" styleClass="search-field"/>
         <ComboBox fx:id="sortCombo" promptText="Trier par..." style="-fx-background-color:rgba(30, 41, 59, 0.8); -fx-text-fill:white;"/>
-        <Button text="📄 Export PDF" onAction="#exportPDF" styleClass="btn-secondary"/>
+        <Button text="Stats" onAction="#showStats" styleClass="btn-secondary"/>
+        <Button text="Export PDF" onAction="#exportPDF" styleClass="btn-secondary"/>
     </HBox>
     
     <Separator/>
@@ -32,17 +33,17 @@
     <!-- TABLE -->
     <TableView fx:id="venteTable" prefHeight="350" styleClass="table-view">
         <columns>
-            <TableColumn fx:id="colId"      text="ID"        prefWidth="60"/>
+            <TableColumn fx:id="colId"      text="Vente n°"  prefWidth="80"/>
             <TableColumn fx:id="colQuantv"  text="Quantité"  prefWidth="100"/>
             <TableColumn fx:id="colDatev"   text="Date"      prefWidth="200"/>
             <TableColumn fx:id="colMontantv" text="Montant (DT)" prefWidth="120"/>
-            <TableColumn fx:id="colUserId"  text="User ID"   prefWidth="80"/>
+            <TableColumn fx:id="colUserName" text="Nom Client"   prefWidth="120"/>
         </columns>
     </TableView>
 
     <HBox spacing="10">
-        <Button text="🗑️ Delete" onAction="#deleteVente" style="-fx-background-color:#ef4444; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:10; -fx-padding:10 20;"/>
-        <Button text="🔄 Refresh" onAction="#refresh" styleClass="btn-secondary"/>
+        <Button text="🗑️" onAction="#deleteVente" style="-fx-background-color:#ef4444; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:10; -fx-padding:10 20;"/>
+        <Button text="🔄" onAction="#refresh" styleClass="btn-secondary"/>
     </HBox>
 
     <Label fx:id="statusLabel" text="" style="-fx-text-fill:#22c55e;"/>

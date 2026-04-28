@@ -47,7 +47,8 @@ public class VenteService {
 
     public List<gambatta.tn.entites.buvette.vente> getAll() {
         List<gambatta.tn.entites.buvette.vente> list = new java.util.ArrayList<>();
-        String sql = "SELECT * FROM vente";
+        // Joining with 'user' table using correct columns from user.sql
+        String sql = "SELECT v.*, u.first_name, u.last_name FROM vente v LEFT JOIN user u ON v.user_id = u.id"; 
         try {
             Statement st = cnx.createStatement();
             ResultSet rs = st.executeQuery(sql);
@@ -58,6 +59,16 @@ public class VenteService {
                 v.setDatev(rs.getObject("datev", LocalDateTime.class));
                 v.setMontantv(rs.getDouble("montantv"));
                 v.setUserId(rs.getInt("user_id"));
+                
+                String fName = rs.getString("first_name");
+                String lName = rs.getString("last_name");
+                
+                if (fName != null && lName != null) {
+                    v.setUserName(fName + " " + lName);
+                } else {
+                    v.setUserName("Client #" + v.getUserId());
+                }
+                
                 list.add(v);
             }
         } catch (SQLException e) {

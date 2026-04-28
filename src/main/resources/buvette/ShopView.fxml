@@ -4,54 +4,54 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
+<?import javafx.scene.image.*?>
 
 <StackPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gambatta.tn.ui.buvette.ShopController">
    
     <!-- MAIN CONTENT -->
-    <VBox spacing="0" style="-fx-background-color:#f1f5f9;">
+    <VBox spacing="0" style="-fx-background-color:#0f172a;">
         
         <!-- HEADER BANNER -->
-        <HBox alignment="CENTER_LEFT" prefHeight="150" style="-fx-background-color:#021b61; -fx-padding: 30; -fx-background-radius: 0 0 20 20;">
+        <HBox alignment="CENTER_LEFT" prefHeight="150" style="-fx-background-color:#020617; -fx-padding: 30; -fx-background-radius: 0 0 20 20; -fx-border-color: rgba(255,255,255,0.05); -fx-border-width: 0 0 1 0;">
             <VBox spacing="10">
                 <HBox alignment="BOTTOM_LEFT" spacing="5">
                     <Label text="La Buvette" style="-fx-text-fill:white; -fx-font-size:36px; -fx-font-weight:900; -fx-font-family:'Segoe UI';"/>
                     <Circle fill="#FFD700" radius="4" translateY="-8"/>
                 </HBox>
-                <Label text="Équipez-vous et reprenez des forces avec nos produits sélectionnés." style="-fx-text-fill:#cbd5e1; -fx-font-size:14px;"/>
+                <Label text="Équipez-vous et reprenez des forces avec nos produits sélectionnés." style="-fx-text-fill:#94a3b8; -fx-font-size:14px;"/>
             </VBox>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button fx:id="btnToggleCart" onAction="#toggleCart" style="-fx-background-color:white; -fx-background-radius:20; -fx-padding: 10 20; -fx-font-weight:bold; -fx-text-fill:#021b61;" text="🛒 Panier">
+            <Button fx:id="btnToggleCart" onAction="#toggleCart" style="-fx-background-color:#FFD700; -fx-background-radius:20; -fx-padding: 10 20; -fx-font-weight:bold; -fx-text-fill:#020617;" text="🛒 Panier">
                <graphic>
-                   <Label fx:id="cartBadge" style="-fx-background-color:#FFD700; -fx-text-fill:#021b61; -fx-font-size:10px; -fx-padding: 2 6; -fx-background-radius:10;" text="0" translateY="-10" translateX="5"/>
+                   <Label fx:id="cartBadge" style="-fx-background-color:#020617; -fx-text-fill:white; -fx-font-size:10px; -fx-padding: 2 6; -fx-background-radius:10;" text="0" translateY="-10" translateX="5"/>
                </graphic>
             </Button>
         </HBox>
 
         <!-- FILTERS -->
-        <HBox alignment="CENTER" spacing="15" style="-fx-padding: 30 0 20 0;">
-            <HBox alignment="CENTER_LEFT" style="-fx-background-color:white; -fx-background-radius:10; -fx-padding:5 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 5);" prefWidth="300">
-                <Label text="🔍" style="-fx-text-fill:#94a3b8;"/>
-                <TextField fx:id="searchField" promptText="Rechercher un produit..." style="-fx-background-color:transparent; -fx-border-color:transparent;" prefWidth="250"/>
+        <HBox alignment="CENTER" spacing="20" style="-fx-padding: 30 0 20 0;">
+            <HBox alignment="CENTER_LEFT" prefHeight="45" minHeight="45" style="-fx-background-color:#1e293b; -fx-background-radius:25; -fx-padding:0 20; -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 25;" prefWidth="350">
+                <Label text="🔍" style="-fx-text-fill:#94a3b8; -fx-font-size: 16px;"/>
+                <TextField fx:id="searchField" promptText="Rechercher un produit..." style="-fx-background-color:transparent; -fx-text-fill:white; -fx-prompt-text-fill:#64748b;" HBox.hgrow="ALWAYS"/>
             </HBox>
-            <ComboBox fx:id="sortCombo" promptText="Trier par..." style="-fx-background-color:white; -fx-background-radius:10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 5);" prefWidth="200"/>
-            <VBox>
-                <ComboBox fx:id="deviseCombo" promptText="Devise: TND" style="-fx-background-color:white; -fx-background-radius:10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 5);" prefWidth="200"/>
-                <Label text="Prix affichés en devise locale." style="-fx-text-fill:#94a3b8; -fx-font-size:10px; -fx-padding: 2 0 0 5;"/>
-            </VBox>
+            
+            <ComboBox fx:id="sortCombo" promptText="Trier par..." prefWidth="200" prefHeight="45" minHeight="45" style="-fx-background-radius: 25; -fx-border-radius: 25;"/>
+            
+            <ComboBox fx:id="deviseCombo" promptText="Devise: TND" prefWidth="180" prefHeight="45" minHeight="45" style="-fx-background-radius: 25; -fx-border-radius: 25;"/>
         </HBox>
 
         <!-- AI SUGGESTIONS SECTION -->
         <VBox fx:id="aiSuggestionsContainer" spacing="15" style="-fx-padding: 10 50 20 50;" visible="false" managed="false">
             <HBox alignment="CENTER_LEFT" spacing="10">
-                <Label text="Nos recommandations IA pour vous ✨" style="-fx-text-fill:#021b61; -fx-font-size:20px; -fx-font-weight:bold;"/>
-                <Label text="Basé sur votre panier" style="-fx-text-fill:#64748b; -fx-font-size:13px; -fx-font-style:italic;"/>
+                <Label text="Nos recommandations IA pour vous ✨" style="-fx-text-fill:white; -fx-font-size:20px; -fx-font-weight:bold;"/>
+                <Label text="Basé sur votre panier" style="-fx-text-fill:#94a3b8; -fx-font-size:13px; -fx-font-style:italic;"/>
             </HBox>
             <ScrollPane minHeight="240" prefHeight="240" fitToHeight="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" style="-fx-background-color:transparent; -fx-border-color:transparent; -fx-padding: 5 0;">
                 <content>
                     <HBox fx:id="aiSuggestionsHBox" spacing="25" alignment="CENTER_LEFT" style="-fx-padding: 10 5;" minHeight="200"/>
                 </content>
             </ScrollPane>
-            <Separator prefWidth="200" style="-fx-opacity: 0.2;"/>
+            <Separator prefWidth="200" style="-fx-opacity: 0.1;"/>
         </VBox>
 
         <!-- PRODUCTS GRID -->
@@ -63,24 +63,67 @@
     </VBox>
 
     <!-- DIM OVERLAY (Invisible by default) -->
-    <Region fx:id="dimOverlay" style="-fx-background-color:rgba(0,0,0,0.5);" visible="false" onMouseClicked="#toggleCart"/>
+    <Region fx:id="dimOverlay" style="-fx-background-color:rgba(0,0,0,0.7);" visible="false" onMouseClicked="#closeAllModals"/>
+
+    <!-- NUTRI-SCORE MODAL (Invisible by default) -->
+    <VBox fx:id="nutriModal" alignment="CENTER" maxWidth="400" maxHeight="450" visible="false" translateY="50" opacity="0"
+          style="-fx-background-color:#1e293b; -fx-background-radius:25; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 30, 0, 0, 10); -fx-border-color: rgba(255,255,255,0.1); -fx-border-radius: 25;" StackPane.alignment="CENTER">
+        
+        <HBox alignment="CENTER_RIGHT" style="-fx-padding: 10 20 0 0;">
+            <Button text="✕" onAction="#closeNutriModal" style="-fx-background-color:transparent; -fx-text-fill:#94a3b8; -fx-font-size:20px; -fx-cursor:hand;"/>
+        </HBox>
+
+        <VBox alignment="CENTER" spacing="15" style="-fx-padding: 0 40 40 40;">
+            <Label fx:id="nutriTitle" text="Analyse en cours..." style="-fx-text-fill:white; -fx-font-size:22px; -fx-font-weight:bold; -fx-text-alignment:center;" wrapText="true"/>
+            
+            <Label fx:id="nutriScoreLabel" text="?" style="-fx-background-color:#334155; -fx-text-fill:white; -fx-font-size:50px; -fx-font-weight:900; -fx-padding:5 35; -fx-background-radius:25;"/>
+            
+            <VBox spacing="12" alignment="CENTER_LEFT" style="-fx-background-color:rgba(15,23,42,0.6); -fx-padding:25; -fx-background-radius:15; -fx-min-width:320; -fx-border-color:rgba(255,255,255,0.05); -fx-border-radius:15;">
+                <HBox spacing="10" alignment="CENTER_LEFT"><Label text="🔥 Énergie:" style="-fx-text-fill:#94a3b8; -fx-font-size:14px; -fx-font-weight:bold; -fx-min-width:80;"/><Label fx:id="nutriCal" text="..." style="-fx-text-fill:white; -fx-font-size:14px;"/></HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT"><Label text="🍬 Sucres:" style="-fx-text-fill:#94a3b8; -fx-font-size:14px; -fx-font-weight:bold; -fx-min-width:80;"/><Label fx:id="nutriSugar" text="..." style="-fx-text-fill:white; -fx-font-size:14px;"/></HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT"><Label text="🧂 Sel:" style="-fx-text-fill:#94a3b8; -fx-font-size:14px; -fx-font-weight:bold; -fx-min-width:80;"/><Label fx:id="nutriSalt" text="..." style="-fx-text-fill:white; -fx-font-size:14px;"/></HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT"><Label text="🏷️ Marque:" style="-fx-text-fill:#94a3b8; -fx-font-size:14px; -fx-font-weight:bold; -fx-min-width:80;"/><Label fx:id="nutriBrand" text="..." style="-fx-text-fill:white; -fx-font-size:14px;"/></HBox>
+            </VBox>
+        </VBox>
+    </VBox>
+
+    <!-- SMART RECEIPT MODAL (Invisible by default) -->
+    <VBox fx:id="receiptModal" alignment="CENTER" maxWidth="350" maxHeight="500" visible="false" translateY="50" opacity="0"
+          style="-fx-background-color:#1e293b; -fx-background-radius:20; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 30, 0, 0, 10); -fx-border-color: #FFD700; -fx-border-width: 2px; -fx-border-radius: 20;" StackPane.alignment="CENTER">
+        
+        <VBox alignment="CENTER" spacing="15" style="-fx-padding: 30;">
+            <Label text="Commande Validée !" style="-fx-text-fill:#22c55e; -fx-font-size:24px; -fx-font-weight:bold;"/>
+            <Label text="Scannez ce code QR pour votre reçu numérique." style="-fx-text-fill:#94a3b8; -fx-font-size:13px; -fx-text-alignment:center;" wrapText="true"/>
+            
+            <StackPane style="-fx-background-color:white; -fx-padding:15; -fx-background-radius:15;">
+                <ImageView fx:id="qrCodeImage" fitWidth="180" fitHeight="180" preserveRatio="true"/>
+            </StackPane>
+
+            <VBox style="-fx-background-color:rgba(15,23,42,0.5); -fx-padding:15; -fx-background-radius:10; -fx-min-width:250;" alignment="CENTER">
+                <Label text="Total Payé" style="-fx-text-fill:#94a3b8; -fx-font-size:12px;"/>
+                <Label fx:id="receiptTotalLabel" text="..." style="-fx-text-fill:#FFD700; -fx-font-size:24px; -fx-font-weight:bold;"/>
+            </VBox>
+
+            <Button text="Terminer" onAction="#closeReceiptModal" style="-fx-background-color:#334155; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:15; -fx-padding:12 40; -fx-cursor:hand;"/>
+        </VBox>
+    </VBox>
 
     <!-- PANIER SIDEBAR -->
-    <VBox fx:id="cartSidebar" alignment="TOP_CENTER" maxWidth="350" minWidth="350" style="-fx-background-color:white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0, -5, 0);" translateX="400" StackPane.alignment="CENTER_RIGHT">
+    <VBox fx:id="cartSidebar" alignment="TOP_CENTER" maxWidth="350" minWidth="350" style="-fx-background-color:#0f172a; -fx-border-color: rgba(255,255,255,0.1); -fx-border-width: 0 0 0 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 20, 0, -5, 0);" translateX="400" StackPane.alignment="CENTER_RIGHT">
         
-        <Label text="Votre panier est vide." fx:id="emptyCartLabel" style="-fx-text-fill:#94a3b8; -fx-font-size:16px; -fx-padding:30;"/>
+        <Label text="Votre panier est vide." fx:id="emptyCartLabel" style="-fx-text-fill:#64748b; -fx-font-size:16px; -fx-padding:30;"/>
         
         <ScrollPane fitToWidth="true" style="-fx-background-color:transparent;" VBox.vgrow="ALWAYS">
             <VBox fx:id="cartItemsContainer" spacing="15" style="-fx-padding:20;"/>
         </ScrollPane>
 
-        <VBox spacing="15" style="-fx-background-color:#f8fafc; -fx-padding:20; -fx-border-color:#e2e8f0; -fx-border-width:1 0 0 0;">
+        <VBox spacing="15" style="-fx-background-color:#1e293b; -fx-padding:20; -fx-border-color: rgba(255,255,255,0.1); -fx-border-width: 1 0 0 0;">
             <HBox alignment="CENTER_LEFT">
-                <Label text="Total estimé" style="-fx-text-fill:#64748b;"/>
+                <Label text="Total estimé" style="-fx-text-fill:#94a3b8;"/>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="totalLabel" text="0.00 TND" style="-fx-font-size:20px; -fx-font-weight:bold; -fx-text-fill:#0284c7;"/>
+                <Label fx:id="totalLabel" text="0.00 TND" style="-fx-font-size:20px; -fx-font-weight:bold; -fx-text-fill:#FFD700;"/>
             </HBox>
-            <Button text="Commander maintenant" onAction="#checkout" maxWidth="Infinity" style="-fx-background-color:#1e293b; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:20; -fx-padding:15; -fx-font-size:14px;"/>
+            <Button text="Commander maintenant" onAction="#checkout" maxWidth="Infinity" style="-fx-background-color:#FFD700; -fx-text-fill:#020617; -fx-font-weight:bold; -fx-background-radius:20; -fx-padding:15; -fx-font-size:14px;"/>
         </VBox>
 
     </VBox>

@@ -11,6 +11,18 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
+import javafx.animation.TranslateTransition;
+import javafx.util.Duration;
+import gambatta.tn.services.buvette.CloudinaryService;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.scene.layout.*;
 
 import java.io.FileOutputStream;
 import java.time.LocalDateTime;
@@ -26,7 +38,6 @@ public class CrudProduitController {
     @FXML private ComboBox<String> sortCombo;
 
     @FXML private TableView<produit> produitTable;
-    @FXML private TableColumn<produit, Integer> colId;
     @FXML private TableColumn<produit, String>  colNom;
     @FXML private TableColumn<produit, String>  colDesc;
     @FXML private TableColumn<produit, Double>  colPrix;
@@ -42,6 +53,13 @@ public class CrudProduitController {
 
     @FXML private Label statusLabel;
     
+    // Sidebar Form Controls
+    @FXML private VBox sideForm;
+    @FXML private HBox formOverlay;
+    @FXML private Label formTitle;
+    @FXML private Button btnSubmit;
+    @FXML private Button btnDelete;
+    
     private java.io.File selectedImageFile = null;
 
     private final ProduitService ps = new ProduitService();
@@ -49,7 +67,6 @@ public class CrudProduitController {
 
     @FXML
     public void initialize() {
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNom.setCellValueFactory(new PropertyValueFactory<>("nomp"));
         colDesc.setCellValueFactory(new PropertyValueFactory<>("descrip"));
         colPrix.setCellValueFactory(new PropertyValueFactory<>("prixp"));
@@ -67,6 +84,8 @@ public class CrudProduitController {
                 selectedImageFile = null;
                 String iName = selected.getImagep();
                 imageNameLabel.setText((iName != null && !iName.isEmpty()) ? iName : "Aucune image sélectionnée");
+                
+                openEditForm();
             }
         });
 
@@ -161,14 +180,56 @@ public class CrudProduitController {
         }
     }
 
+    @FXML
+    public void openAddForm() {
+        clearForm();
+        formTitle.setText("Ajouter un Produit");
+        btnSubmit.setText("Ajouter Produit");
+        btnSubmit.setOnAction(e -> addProduit());
+        btnDelete.setVisible(false);
+        animateForm(true);
+    }
+
+    private void openEditForm() {
+        formTitle.setText("Modifier le Produit");
+        btnSubmit.setText("Enregistrer Modifications");
+        btnSubmit.setOnAction(e -> updateProduit());
+        btnDelete.setVisible(true);
+        animateForm(true);
+    }
+
+    @FXML
+    public void closeForm() {
+        animateForm(false);
+        produitTable.getSelectionModel().clearSelection();
+    }
+
+    private void animateForm(boolean show) {
+        TranslateTransition tt = new TranslateTransition(Duration.millis(300), sideForm);
+        if (show) {
+            formOverlay.setMouseTransparent(false);
+            tt.setToX(0);
+        } else {
+            formOverlay.setMouseTransparent(true);
+            tt.setToX(420);
+        }
+        tt.play();
+    }
+
     private String processImageUpload() throws Exception {
         if (selectedImageFile == null) {
-            return imageNameLabel.getText().equals("Aucune image sélectionnée") ? "" : imageNameLabel.getText();
+            String existing = imageNameLabel.getText();
+            return (existing == null || existing.equals("Aucune image sélectionnée") || existing.isEmpty()) ? "" : existing;
         }
-        String fileName = System.currentTimeMillis() + "_" + selectedImageFile.getName();
-        java.nio.file.Path dest = java.nio.file.Paths.get("uploads/produits/", fileName);
-        java.nio.file.Files.copy(selectedImageFile.toPath(), dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-        return fileName;
+        
+        // Notification d'upload
+        javafx.application.Platform.runLater(() -> statusLabel.setText("⏳ Uploading image to Cloud..."));
+        
+        String url = CloudinaryService.uploadImage(selectedImageFile);
+        if (url == null) {
+            throw new Exception("Le téléchargement vers Cloudinary a échoué. Vérifiez vos identifiants dans CloudinaryService.java");
+        }
+        return url;
     }
 
     @FXML
@@ -180,6 +241,7 @@ public class CrudProduitController {
             statusLabel.setText("✅ Product added!");
             clearForm();
             loadTable();
+            closeForm();
         } catch (Exception e) {
             statusLabel.setText("❌ Error: " + e.getMessage());
         }
@@ -199,6 +261,7 @@ public class CrudProduitController {
             statusLabel.setText("✅ Product updated!");
             clearForm();
             loadTable();
+            closeForm();
         } catch (Exception e) {
             statusLabel.setText("❌ Error: " + e.getMessage());
         }
@@ -212,6 +275,7 @@ public class CrudProduitController {
         statusLabel.setText("✅ Product deleted!");
         clearForm();
         loadTable();
+        closeForm();
     }
 
     @FXML
@@ -239,5 +303,50 @@ public class CrudProduitController {
         fieldStock.clear(); fieldRef.clear();
         selectedImageFile = null;
         imageNameLabel.setText("Aucune image sélectionnée");
+    }
+
+    @FXML
+    public void migrateToCloud() {
+        int count = 0;
+        statusLabel.setText("🚀 Migration started...");
+        
+        for (produit p : masterData) {
+            String img = p.getImagep();
+            // Si l'image est locale (pas d'URL http) et qu'elle n'est pas vide
+            if (img != null && !img.isEmpty() && !img.startsWith("http")) {
+                java.io.File file = new java.io.File("uploads/produits/" + img);
+                if (file.exists()) {
+                    String url = CloudinaryService.uploadImage(file);
+                    if (url != null) {
+                        p.setImagep(url);
+                        ps.update(p);
+                        count++;
+                    }
+                }
+            }
+        }
+        
+        statusLabel.setText("✅ Migration terminée : " + count + " images transférées !");
+        loadTable();
+    }
+
+    @FXML
+    public void showStats() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/buvette/StatsView.fxml"));
+            Parent root = loader.load();
+            
+            StatsController controller = loader.getController();
+            controller.initProduitData(masterData);
+            
+            Stage stage = new Stage();
+            stage.setTitle("Statistiques Produits");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            statusLabel.setText("Error opening stats: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

@@ -4,14 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="03a0b707-64b1-4160-9b99-fb160fc0c882" name="Changes" comment="Image fix v1">
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="03a0b707-64b1-4160-9b99-fb160fc0c882" name="Changes" comment="Analyseur nutri. + Smart receipt">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/services/buvette/CloudinaryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/services/buvette/CloudinaryService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/ShopController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/gambatta/tn/ui/buvette/ShopController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/buvette/ShopView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/buvette/ShopView.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,7 +120,6 @@
     <attachedChunks>
       <set>
         <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.27397.103" />
-        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-IU-252.27397.103" />
       </set>
     </attachedChunks>
   </component>
@@ -158,7 +154,11 @@
       <workItem from="1777010310928" duration="62000" />
       <workItem from="1777010388641" duration="1405000" />
       <workItem from="1777011863292" duration="1097000" />
-      <workItem from="1777012985615" duration="705000" />
+      <workItem from="1777012985615" duration="7985000" />
+      <workItem from="1777062214930" duration="4184000" />
+      <workItem from="1777336648331" duration="824000" />
+      <workItem from="1777337514392" duration="118000" />
+      <workItem from="1777337645793" duration="3398000" />
     </task>
     <task id="LOCAL-00001" summary="commit">
       <option name="closed" value="true" />
@@ -208,7 +208,47 @@
       <option name="project" value="LOCAL" />
       <updated>1776420411978</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="API Hugging Face">
+      <option name="closed" value="true" />
+      <created>1777013940486</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1777013940486</updated>
+    </task>
+    <task id="LOCAL-00008" summary="API Currency Conversion fix + HF fix">
+      <option name="closed" value="true" />
+      <created>1777014529720</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1777014529720</updated>
+    </task>
+    <task id="LOCAL-00009" summary="UI fix">
+      <option name="closed" value="true" />
+      <created>1777015795235</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1777015795235</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Stats &amp; UI fix">
+      <option name="closed" value="true" />
+      <created>1777017775755</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1777017775755</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Analyseur nutri. + Smart receipt">
+      <option name="closed" value="true" />
+      <created>1777340913959</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1777340913959</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -232,7 +272,12 @@
     <MESSAGE value="Interface v1" />
     <MESSAGE value="Interface v2.0" />
     <MESSAGE value="Image fix v1" />
-    <option name="LAST_COMMIT_MESSAGE" value="Image fix v1" />
+    <MESSAGE value="API Hugging Face" />
+    <MESSAGE value="API Currency Conversion fix + HF fix" />
+    <MESSAGE value="UI fix" />
+    <MESSAGE value="Stats &amp; UI fix" />
+    <MESSAGE value="Analyseur nutri. + Smart receipt" />
+    <option name="LAST_COMMIT_MESSAGE" value="Analyseur nutri. + Smart receipt" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

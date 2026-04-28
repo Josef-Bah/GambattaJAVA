@@ -1,5 +1,7 @@
 package gambatta.tn.ui.buvette;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 import gambatta.tn.entites.buvette.CartItem;
 import gambatta.tn.entites.buvette.produit;
 import gambatta.tn.services.buvette.ProduitService;
@@ -30,6 +32,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import javafx.application.Platform;
+import javafx.animation.FadeTransition;
+import javafx.animation.TranslateTransition;
+import javafx.util.Duration;
 
 public class ShopController {
 
@@ -49,9 +54,26 @@ public class ShopController {
     @FXML private VBox aiSuggestionsContainer;
     @FXML private HBox aiSuggestionsHBox;
 
+    // Nutri-Score Modal
+    @FXML private VBox nutriModal;
+    @FXML private Label nutriTitle;
+    @FXML private Label nutriScoreLabel;
+    @FXML private Label nutriCal;
+    @FXML private Label nutriSugar;
+    @FXML private Label nutriSalt;
+    @FXML private Label nutriBrand;
+
+    // Smart Receipt Modal
+    @FXML private VBox receiptModal;
+    @FXML private ImageView qrCodeImage;
+    @FXML private Label receiptTotalLabel;
+
     // Using the NEW Router URL format as the standard one is returning 404
     private final String HF_API_URL = "https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2";
-    private final String HF_TOKEN = "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"; // User's token
+    
+    // Load from .env securely
+    private static final Dotenv dotenv = Dotenv.load();
+    private final String HF_TOKEN = dotenv.get("HF_TOKEN");
 
     private boolean isCartOpen = false;
 
@@ -63,6 +85,9 @@ public class ShopController {
     
     private double currentRate = 1.0;
     private String currentCurrency = "TND";
+    private JSONObject exchangeRates = null;
+
+    private final String EXCHANGE_API_URL = "https://open.er-api.com/v6/latest/TND";
 
     @FXML
     public void initialize() {
@@ -78,17 +103,55 @@ public class ShopController {
         
         masterProducts = ps.getAll();
         renderProducts(masterProducts);
+        
+        // Fetch exchange rates asynchronously
+        fetchExchangeRates();
+    }
+
+    private void fetchExchangeRates() {
+        new Thread(() -> {
+            try {
+                URL url = new URL(EXCHANGE_API_URL);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                
+                if (conn.getResponseCode() == 200) {
+                    StringBuilder response = new StringBuilder();
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                        String line;
+                        while ((line = br.readLine()) != null) response.append(line.trim());
+                    }
+                    JSONObject result = new JSONObject(response.toString());
+                    if ("success".equals(result.getString("result"))) {
+                        this.exchangeRates = result.getJSONObject("rates");
+                        System.out.println("Currency: Exchange rates updated from API.");
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Currency API Error: " + e.getMessage());
+            }
+        }).start();
     }
 
     private void handleDeviseChange() {
         String val = deviseCombo.getValue();
-        if (val.contains("EUR")) { currentRate = 0.30; currentCurrency = "EUR"; }
-        else if (val.contains("USD")) { currentRate = 0.32; currentCurrency = "USD"; }
-        else if (val.contains("GBP")) { currentRate = 0.25; currentCurrency = "GBP"; }
-        else { currentRate = 1.0; currentCurrency = "TND"; }
+        currentCurrency = "TND";
+        currentRate = 1.0;
+
+        if (exchangeRates != null) {
+            if (val.contains("EUR")) { currentCurrency = "EUR"; currentRate = exchangeRates.optDouble("EUR", 0.30); }
+            else if (val.contains("USD")) { currentCurrency = "USD"; currentRate = exchangeRates.optDouble("USD", 0.32); }
+            else if (val.contains("GBP")) { currentCurrency = "GBP"; currentRate = exchangeRates.optDouble("GBP", 0.25); }
+        } else {
+            // Fallback to hardcoded if API failed
+            if (val.contains("EUR")) { currentRate = 0.30; currentCurrency = "EUR"; }
+            else if (val.contains("USD")) { currentRate = 0.32; currentCurrency = "USD"; }
+            else if (val.contains("GBP")) { currentRate = 0.25; currentCurrency = "GBP"; }
+        }
         
         applyFilters(); 
         renderCartUI();
+        updateAISuggestions(); // Update suggestions too as they show prices
     }
 
     private void applyFilters() {
@@ -127,14 +190,14 @@ public class ShopController {
     private VBox createProductCard(produit p) {
         VBox card = new VBox(10);
         card.setPadding(new Insets(15));
-        card.setStyle("-fx-background-color:white; -fx-background-radius:15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 5);");
+        card.setStyle("-fx-background-color:#1e293b; -fx-background-radius:15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 15, 0, 0, 8); -fx-border-color: rgba(255,255,255,0.05); -fx-border-radius:15;");
         card.setPrefWidth(220);
         card.setAlignment(Pos.CENTER_LEFT);
 
         // Image display logic pointing strictly to our new local path
         StackPane imgWrapper = new StackPane();
         imgWrapper.setPrefSize(180, 150);
-        imgWrapper.setStyle("-fx-background-color:#f8fafc; -fx-background-radius:10;");
+        imgWrapper.setStyle("-fx-background-color:#0f172a; -fx-background-radius:10;");
         
         ImageView imgView = new ImageView();
         imgView.setFitWidth(180);
@@ -146,49 +209,169 @@ public class ShopController {
         String imgName = p.getImagep();
         if (imgName != null && !imgName.isEmpty()) {
             try {
-                // Priority 1: Local project folder (New uploads)
-                java.io.File localFile = new java.io.File("uploads/produits/" + imgName);
-                if (localFile.exists()) {
-                    imgView.setImage(new javafx.scene.image.Image(localFile.toURI().toString(), true));
+                if (imgName.startsWith("http")) {
+                    // Cloudinary URL
+                    imgView.setImage(new javafx.scene.image.Image(imgName, true));
                 } else {
-                    // Priority 2: Symfony Dev Server
-                    String symfonyUrl = "http://127.0.0.1:8000/uploads/produits/" + imgName;
-                    javafx.scene.image.Image symfonyImg = new javafx.scene.image.Image(symfonyUrl, true);
-                    
-                    // Priority 3: XAMPP / Apache Fallback
-                    symfonyImg.errorProperty().addListener((obs, oldV, isError) -> {
-                        if (java.lang.Boolean.TRUE.equals(isError)) {
-                            String xamppUrl = "http://127.0.0.1/Gambatta/public/uploads/produits/" + imgName;
-                            imgView.setImage(new javafx.scene.image.Image(xamppUrl, true));
-                        }
-                    });
-                    imgView.setImage(symfonyImg);
+                    // Legacy Local file
+                    java.io.File localFile = new java.io.File("uploads/produits/" + imgName);
+                    if (localFile.exists()) {
+                        imgView.setImage(new javafx.scene.image.Image(localFile.toURI().toString(), true));
+                    }
                 }
             } catch (Exception ex) {
-                // Silently fail and keep empty/gray if no source works
+                // Fail gracefully
             }
         }
 
         String pName = p.getNomp() == null ? "Produit sans nom" : p.getNomp();
         Label name = new Label(pName);
         name.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
-        name.setStyle("-fx-text-fill:#1e293b;");
+        name.setStyle("-fx-text-fill:#f8fafc;");
 
         double convertedPrice = p.getPrixp() * currentRate;
         Label price = new Label(String.format("%.2f %s", convertedPrice, currentCurrency));
         price.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
-        price.setStyle("-fx-text-fill:#021b61;");
+        price.setStyle("-fx-text-fill:#FFD700;");
 
-        Label kcal = new Label("Ref: " + p.getReferencep()); // mimicking the kcal label
-        kcal.setStyle("-fx-background-color:#f1f5f9; -fx-text-fill:#64748b; -fx-font-size:10px; -fx-padding: 2 6; -fx-background-radius:10;");
+        Label kcal = new Label("Ref: " + p.getReferencep()); 
+        kcal.setStyle("-fx-background-color:#334155; -fx-text-fill:#94a3b8; -fx-font-size:10px; -fx-padding: 2 6; -fx-background-radius:10;");
         
+        Button btnInfo = new Button("🍏");
+        btnInfo.setStyle("-fx-background-color:#334155; -fx-text-fill:white; -fx-font-size:14px; -fx-background-radius:10; -fx-padding:10 15; -fx-cursor:hand;");
+        btnInfo.setOnAction(e -> fetchNutriScore(p.getNomp()));
+
         Button btnAdd = new Button("🛒 Ajouter");
         btnAdd.setMaxWidth(Double.MAX_VALUE);
-        btnAdd.setStyle("-fx-background-color:#021b61; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:10; -fx-padding:10;");
+        btnAdd.setStyle("-fx-background-color:#FFD700; -fx-text-fill:#020617; -fx-font-weight:bold; -fx-background-radius:10; -fx-padding:10; -fx-cursor:hand;");
         btnAdd.setOnAction(e -> addToCart(p));
+        HBox.setHgrow(btnAdd, Priority.ALWAYS);
 
-        card.getChildren().addAll(imgWrapper, name, price, kcal, btnAdd);
+        HBox actionsBox = new HBox(8, btnInfo, btnAdd);
+
+        card.getChildren().addAll(imgWrapper, name, price, kcal, actionsBox);
         return card;
+    }
+
+    private void fetchNutriScore(String productName) {
+        if (productName == null || productName.isEmpty()) return;
+
+        // Setup loading state
+        nutriTitle.setText("Analyse pour : " + productName + "...");
+        nutriScoreLabel.setText("⏳");
+        nutriScoreLabel.setStyle("-fx-background-color:#334155; -fx-text-fill:white; -fx-font-size:40px; -fx-padding:5 35; -fx-background-radius:25;");
+        nutriCal.setText("Recherche...");
+        nutriSugar.setText("Recherche...");
+        nutriSalt.setText("Recherche...");
+        nutriBrand.setText("Recherche...");
+        
+        showNutriModal();
+
+        new Thread(() -> {
+            try {
+                // Ensure correct encoding for the API
+                String encodedName = java.net.URLEncoder.encode(productName, "UTF-8");
+                String urlStr = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=" + encodedName + "&search_simple=1&action=process&json=1&page_size=1";
+                
+                java.net.URL url = new java.net.URL(urlStr);
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("User-Agent", "GambattaBuvette/1.0");
+
+                java.io.BufferedReader reader = new java.io.BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+                StringBuilder response = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) response.append(line);
+                reader.close();
+
+                org.json.JSONObject jsonResponse = new org.json.JSONObject(response.toString());
+                org.json.JSONArray products = jsonResponse.optJSONArray("products");
+
+                Platform.runLater(() -> {
+                    if (products != null && products.length() > 0) {
+                        org.json.JSONObject prod = products.getJSONObject(0);
+                        String grade = prod.optString("nutriscore_grade", "inconnu").toUpperCase();
+                        String brand = prod.optString("brands", "Non spécifiée");
+                        
+                        org.json.JSONObject nutriments = prod.optJSONObject("nutriments");
+                        String energy = "N/A", sugar = "N/A", salt = "N/A";
+                        if (nutriments != null) {
+                            energy = nutriments.optString("energy-kcal_100g", "N/A") + " kcal / 100g";
+                            sugar = nutriments.optString("sugars_100g", "N/A") + " g / 100g";
+                            salt = nutriments.optString("salt_100g", "N/A") + " g / 100g";
+                        }
+
+                        nutriTitle.setText(prod.optString("product_name", productName));
+                        nutriScoreLabel.setText(grade.equals("INCONNU") ? "?" : grade);
+                        
+                        String color = "#94a3b8"; // Default
+                        switch (grade) {
+                            case "A": color = "#15803d"; break;
+                            case "B": color = "#84cc16"; break;
+                            case "C": color = "#eab308"; break;
+                            case "D": color = "#f97316"; break;
+                            case "E": color = "#ef4444"; break;
+                        }
+                        nutriScoreLabel.setStyle("-fx-background-color:" + color + "; -fx-text-fill:white; -fx-font-size:50px; -fx-font-weight:900; -fx-padding:5 35; -fx-background-radius:25;");
+                        
+                        nutriBrand.setText(brand);
+                        nutriCal.setText(energy);
+                        nutriSugar.setText(sugar);
+                        nutriSalt.setText(salt);
+                    } else {
+                        nutriTitle.setText("Produit non trouvé :(");
+                        nutriScoreLabel.setText("?");
+                        nutriScoreLabel.setStyle("-fx-background-color:#ef4444; -fx-text-fill:white; -fx-font-size:50px; -fx-padding:5 35; -fx-background-radius:25;");
+                        nutriBrand.setText("Données indisponibles");
+                        nutriCal.setText("-");
+                        nutriSugar.setText("-");
+                        nutriSalt.setText("-");
+                    }
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    nutriTitle.setText("Erreur réseau");
+                    nutriScoreLabel.setText("!");
+                    nutriScoreLabel.setStyle("-fx-background-color:#ef4444; -fx-text-fill:white; -fx-font-size:50px; -fx-padding:5 35; -fx-background-radius:25;");
+                });
+            }
+        }).start();
+    }
+
+    private void showNutriModal() {
+        dimOverlay.setVisible(true);
+        nutriModal.setVisible(true);
+        nutriModal.setManaged(true);
+        
+        FadeTransition ft = new FadeTransition(Duration.millis(300), nutriModal);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+        
+        TranslateTransition tt = new TranslateTransition(Duration.millis(300), nutriModal);
+        tt.setFromY(50);
+        tt.setToY(0);
+        
+        ft.play();
+        tt.play();
+    }
+
+    @FXML
+    public void closeNutriModal() {
+        FadeTransition ft = new FadeTransition(Duration.millis(200), nutriModal);
+        ft.setToValue(0);
+        ft.setOnFinished(e -> {
+            nutriModal.setVisible(false);
+            nutriModal.setManaged(false);
+            if (!isCartOpen) dimOverlay.setVisible(false);
+        });
+        ft.play();
+    }
+
+    @FXML
+    public void closeAllModals() {
+        if (isCartOpen) toggleCart();
+        if (nutriModal.isVisible()) closeNutriModal();
+        if (receiptModal != null && receiptModal.isVisible()) closeReceiptModal();
     }
 
     private void addToCart(produit p) {
@@ -312,13 +495,13 @@ public class ShopController {
     private VBox createMiniProductCard(produit p) {
         VBox card = new VBox(10);
         card.setPadding(new Insets(12));
-        card.setStyle("-fx-background-color:white; -fx-background-radius:12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 4); -fx-border-color:#f1f5f9; -fx-border-radius:12;");
+        card.setStyle("-fx-background-color:#1e293b; -fx-background-radius:12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 4); -fx-border-color: rgba(255,255,255,0.05); -fx-border-radius:12;");
         card.setPrefWidth(180);
         card.setAlignment(Pos.CENTER);
 
         StackPane imgContainer = new StackPane();
         imgContainer.setPrefSize(140, 90);
-        imgContainer.setStyle("-fx-background-color:#f8fafc; -fx-background-radius:8;");
+        imgContainer.setStyle("-fx-background-color:#0f172a; -fx-background-radius:8;");
 
         ImageView iv = new ImageView();
         iv.setFitHeight(80);
@@ -328,9 +511,13 @@ public class ShopController {
         String imgName = p.getImagep();
         if (imgName != null && !imgName.isEmpty()) {
             try {
-                java.io.File localFile = new java.io.File("uploads/produits/" + imgName);
-                if (localFile.exists()) {
-                    iv.setImage(new Image(localFile.toURI().toString(), true));
+                if (imgName.startsWith("http")) {
+                    iv.setImage(new Image(imgName, true));
+                } else {
+                    java.io.File localFile = new java.io.File("uploads/produits/" + imgName);
+                    if (localFile.exists()) {
+                        iv.setImage(new Image(localFile.toURI().toString(), true));
+                    }
                 }
             } catch (Exception e) {}
         }
@@ -338,21 +525,21 @@ public class ShopController {
 
         Label name = new Label(p.getNomp());
         name.setFont(Font.font("Segoe UI", FontWeight.BOLD, 13));
-        name.setStyle("-fx-text-fill:#1e293b;");
+        name.setStyle("-fx-text-fill:#f1f5f9;");
         name.setWrapText(false);
 
         Label price = new Label(String.format("%.2f %s", p.getPrixp() * currentRate, currentCurrency));
-        price.setStyle("-fx-text-fill:#0284c7; -fx-font-weight:bold; -fx-font-size:12px;");
+        price.setStyle("-fx-text-fill:#FFD700; -fx-font-weight:bold; -fx-font-size:12px;");
         
         Button btn = new Button("🛒 +");
-        btn.setStyle("-fx-background-color:#021b61; -fx-text-fill:white; -fx-background-radius:8; -fx-font-size:11px; -fx-font-weight:bold; -fx-padding: 5 15;");
+        btn.setStyle("-fx-background-color:#FFD700; -fx-text-fill:#020617; -fx-background-radius:8; -fx-font-size:11px; -fx-font-weight:bold; -fx-padding: 5 15;");
         btn.setOnAction(e -> addToCart(p));
 
         card.getChildren().addAll(imgContainer, name, price, btn);
         
         // Add hover effect
-        card.setOnMouseEntered(e -> card.setStyle("-fx-background-color:white; -fx-background-radius:12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 12, 0, 0, 6); -fx-border-color:#cbd5e1; -fx-border-radius:12; -fx-cursor:hand;"));
-        card.setOnMouseExited(e -> card.setStyle("-fx-background-color:white; -fx-background-radius:12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 4); -fx-border-color:#f1f5f9; -fx-border-radius:12;"));
+        card.setOnMouseEntered(e -> card.setStyle("-fx-background-color:#1e293b; -fx-background-radius:12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 12, 0, 0, 6); -fx-border-color:#FFD700; -fx-border-radius:12; -fx-cursor:hand;"));
+        card.setOnMouseExited(e -> card.setStyle("-fx-background-color:#1e293b; -fx-background-radius:12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 4); -fx-border-color: rgba(255,255,255,0.05); -fx-border-radius:12;"));
 
         return card;
     }
@@ -387,11 +574,11 @@ public class ShopController {
             VBox info = new VBox(2);
             String pName = item.getProduct().getNomp() == null ? "Produit" : item.getProduct().getNomp();
             Label name = new Label(pName);
-            name.setStyle("-fx-font-weight:bold; -fx-text-fill:#1e293b;");
+            name.setStyle("-fx-font-weight:bold; -fx-text-fill:#f1f5f9;");
             
             double linePrice = item.getProduct().getPrixp() * item.getQuantity() * currentRate;
             Label price = new Label(String.format("%.2f %s", linePrice, currentCurrency));
-            price.setStyle("-fx-text-fill:#0284c7; -fx-font-size:12px;");
+            price.setStyle("-fx-text-fill:#FFD700; -fx-font-size:12px;");
             info.getChildren().addAll(name, price);
             
             Region spacer = new Region();
@@ -400,7 +587,7 @@ public class ShopController {
             HBox controls = new HBox(5);
             controls.setAlignment(Pos.CENTER);
             Button btnMinus = new Button("-");
-            btnMinus.setStyle("-fx-background-color:#e2e8f0; -fx-background-radius:5;");
+            btnMinus.setStyle("-fx-background-color:#334155; -fx-text-fill:white; -fx-background-radius:5;");
             btnMinus.setOnAction(e -> {
                 item.decrement();
                 if (item.getQuantity() == 0) cart.remove(item);
@@ -411,9 +598,10 @@ public class ShopController {
             Label qty = new Label(String.valueOf(item.getQuantity()));
             qty.setPrefWidth(20);
             qty.setAlignment(Pos.CENTER);
+            qty.setStyle("-fx-text-fill:white;");
             
             Button btnPlus = new Button("+");
-            btnPlus.setStyle("-fx-background-color:#e2e8f0; -fx-background-radius:5;");
+            btnPlus.setStyle("-fx-background-color:#334155; -fx-text-fill:white; -fx-background-radius:5;");
             btnPlus.setOnAction(e -> {
                 item.increment();
                 renderCartUI();
@@ -437,21 +625,72 @@ public class ShopController {
         if (cart.isEmpty()) return;
         
         try {
+            // Calculate total before clearing cart for the receipt
+            double totalCost = 0;
+            StringBuilder orderSummary = new StringBuilder("Gambatta Buvette - Facture\n------------------------\n");
+            for (CartItem item : cart) {
+                double linePrice = item.getProduct().getPrixp() * item.getQuantity();
+                totalCost += linePrice;
+                orderSummary.append(item.getQuantity()).append("x ").append(item.getProduct().getNomp()).append("\n");
+            }
+            double convertedTotal = totalCost * currentRate;
+            String totalText = String.format("%.2f %s", convertedTotal, currentCurrency);
+            orderSummary.append("------------------------\nTotal: ").append(totalText).append("\n\nMerci de votre visite!");
+
+            // Save to DB
             vs.createVente(cart);
+            
+            // Clear cart UI
             cart.clear();
             renderCartUI();
-            toggleCart();
+            toggleCart(); // Close sidebar
             
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Succès");
-            alert.setHeaderText("Commande Validée");
-            alert.setContentText("Votre vente a été correctement enregistrée!");
-            alert.showAndWait();
+            // Show Smart Receipt
+            showReceiptModal(totalText, orderSummary.toString());
             
         } catch (Exception e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setContentText("Error: " + e.getMessage());
             alert.showAndWait();
         }
+    }
+
+    private void showReceiptModal(String totalText, String orderData) {
+        receiptTotalLabel.setText(totalText);
+        
+        try {
+            String encodedData = java.net.URLEncoder.encode(orderData, "UTF-8");
+            String qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + encodedData;
+            qrCodeImage.setImage(new Image(qrUrl, true));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        dimOverlay.setVisible(true);
+        receiptModal.setVisible(true);
+        receiptModal.setManaged(true);
+        
+        FadeTransition ft = new FadeTransition(Duration.millis(300), receiptModal);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+        
+        TranslateTransition tt = new TranslateTransition(Duration.millis(300), receiptModal);
+        tt.setFromY(50);
+        tt.setToY(0);
+        
+        ft.play();
+        tt.play();
+    }
+
+    @FXML
+    public void closeReceiptModal() {
+        FadeTransition ft = new FadeTransition(Duration.millis(200), receiptModal);
+        ft.setToValue(0);
+        ft.setOnFinished(e -> {
+            receiptModal.setVisible(false);
+            receiptModal.setManaged(false);
+            if (!isCartOpen) dimOverlay.setVisible(false);
+        });
+        ft.play();
     }
 }

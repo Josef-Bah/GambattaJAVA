@@ -3,6 +3,9 @@ package gambatta.tn.ui.buvette;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import javafx.scene.layout.StackPane;
 
 public class BuvetteMainController {
@@ -11,12 +14,7 @@ public class BuvetteMainController {
 
     @FXML
     public void initialize() {
-        showDashboard(); // default page on open
-    }
-
-    @FXML
-    public void showDashboard() {
-        loadPage("/buvette/DashboardBP.fxml");
+        showCrud(); // default page for admin is now Products CRUD
     }
 
     @FXML
@@ -30,8 +28,20 @@ public class BuvetteMainController {
     }
 
     @FXML
-    public void showShop() {
-        loadPage("/buvette/ShopView.fxml");
+    public void logout() {
+        loadPageToRoot("/buvette/SelectionView.fxml", "Bienvenue sur Gambatta");
+    }
+
+    private void loadPageToRoot(String fxmlPath, String title) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage stage = (Stage) contentArea.getScene().getWindow();
+            stage.setTitle(title);
+            stage.setScene(new Scene(root, 1280, 720));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadPage(String fxmlPath) {
