@@ -33,7 +33,6 @@
                 <ComboBox fx:id="sortCombo" promptText="Trier par..." styleClass="search-field" onAction="#handleSort"/>
                 
                 <Button text="📄 PDF" onAction="#handleExportPDF" styleClass="btn-secondary" />
-                <Button text="📊 Stats" onAction="#handleShowStats" styleClass="btn-secondary" />
                 <Button text="🔊 Lire (TTS)" onAction="#handleTTS" styleClass="btn-icon" />
             </HBox>
             

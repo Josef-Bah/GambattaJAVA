@@ -55,7 +55,6 @@
                                 <!-- TABLE VIEW -->
                                 <TableView fx:id="tableActivites" styleClass="search-field" style="-fx-background-color: transparent; -fx-border-width: 0; -fx-fixed-cell-size: 65px; -fx-control-inner-background: transparent; -fx-table-cell-border-color: rgba(255,255,255,0.05);" prefHeight="600" HBox.hgrow="ALWAYS">
                                     <columns>
-                                        <TableColumn fx:id="colActId" text="ID" prefWidth="60" style="-fx-alignment: CENTER; -fx-font-weight: bold; -fx-text-fill: #3b82f6;" />
                                         <TableColumn fx:id="colActImage" text="IMAGE" prefWidth="120" style="-fx-alignment: CENTER;" />
                                         <TableColumn fx:id="colActNom" text="NOM" prefWidth="200" />
                                         <TableColumn fx:id="colActType" text="TYPE" prefWidth="200" />
@@ -118,7 +117,6 @@
                     <HBox spacing="20" style="-fx-padding: 10 20 20 20;" VBox.vgrow="ALWAYS">
                         <TableView fx:id="tableRules" HBox.hgrow="ALWAYS" styleClass="search-field">
                             <columns>
-                                <TableColumn fx:id="colRuleId" text="ID" prefWidth="50" />
                                 <TableColumn fx:id="colRuleAct" text="Activité" prefWidth="150" />
                                 <TableColumn fx:id="colRuleDesc" text="Description" prefWidth="250" />
                             </columns>
@@ -156,6 +154,7 @@
                         <TableView fx:id="tableReservations" HBox.hgrow="ALWAYS" styleClass="search-field">
                             <columns>
                                 <TableColumn fx:id="colResAct" text="Activité" prefWidth="150" />
+                                <TableColumn fx:id="colResClient" text="CLIENT" prefWidth="150" style="-fx-font-weight: bold; -fx-text-fill: #3b82f6;" />
                                 <TableColumn fx:id="colResDate" text="Date" prefWidth="100" />
                                 <TableColumn fx:id="colResHeure" text="Heure" prefWidth="100" />
                                 <TableColumn fx:id="colResStatut" text="Statut" prefWidth="150" />
@@ -171,24 +170,50 @@
             </Tab>
 
             <!-- TAB 4: STATISTIQUES -->
-            <Tab text="📊 Statistiques &amp; Dashboards" closable="false">
-                <HBox spacing="30" style="-fx-padding: 30;" alignment="CENTER">
-                    <VBox spacing="10" alignment="CENTER" HBox.hgrow="ALWAYS">
-                        <Label text="Répartition des Activités (Par Type)" styleClass="card-title" style="-fx-text-fill: #FFD700;"/>
-                        <javafx.scene.chart.PieChart fx:id="pieChartActivites" prefHeight="400" prefWidth="400" />
+            <Tab text="📊 Dashboard &amp; KPIs" closable="false">
+                <ScrollPane fitToWidth="true" style="-fx-background-color: #050b14; -fx-background: #050b14;">
+                    <VBox spacing="30" style="-fx-padding: 40; -fx-background-color: #050b14;">
+                        
+                        <!-- KPI CARDS ROW -->
+                        <HBox spacing="25" alignment="CENTER">
+                            <VBox style="-fx-background-color: linear-gradient(to bottom right, #1e293b, #0f172a); -fx-padding: 25; -fx-background-radius: 15; -fx-min-width: 280; -fx-border-color: #3b82f6; -fx-border-width: 0 0 4 0; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);">
+                                <Label text="TOTAL ACTIVITÉS" style="-fx-text-fill: #94a3b8; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                <Label fx:id="lblTotalActs" text="0" style="-fx-text-fill: white; -fx-font-size: 42px; -fx-font-weight: bold;"/>
+                                <Label text="Inscrites en base" style="-fx-text-fill: #3b82f6; -fx-font-size: 12px;"/>
+                            </VBox>
+                            
+                            <VBox style="-fx-background-color: linear-gradient(to bottom right, #1e293b, #0f172a); -fx-padding: 25; -fx-background-radius: 15; -fx-min-width: 280; -fx-border-color: #f59e0b; -fx-border-width: 0 0 4 0; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);">
+                                <Label text="TOTAL RÉSERVATIONS" style="-fx-text-fill: #94a3b8; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                <Label fx:id="lblTotalRes" text="0" style="-fx-text-fill: white; -fx-font-size: 42px; -fx-font-weight: bold;"/>
+                                <Label text="Toutes périodes confondues" style="-fx-text-fill: #f59e0b; -fx-font-size: 12px;"/>
+                            </VBox>
+                            
+                            <VBox style="-fx-background-color: linear-gradient(to bottom right, #1e293b, #0f172a); -fx-padding: 25; -fx-background-radius: 15; -fx-min-width: 280; -fx-border-color: #10b981; -fx-border-width: 0 0 4 0; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);">
+                                <Label text="TOP ACTIVITÉ" style="-fx-text-fill: #94a3b8; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                <Label fx:id="lblTopAct" text="N/A" style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold; -fx-wrap-text: true;" prefHeight="60"/>
+                                <Label text="La plus populaire" style="-fx-text-fill: #10b981; -fx-font-size: 12px;"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- CHARTS ROW -->
+                        <HBox spacing="30" alignment="CENTER" VBox.vgrow="ALWAYS">
+                            <VBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" style="-fx-background-color: #1e293b; -fx-padding: 25; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);">
+                                <Label text="RÉPARTITION PAR CATÉGORIE" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                                <javafx.scene.chart.PieChart fx:id="pieChartActivites" prefHeight="350" prefWidth="350" legendVisible="true" />
+                            </VBox>
+                            
+                            <VBox spacing="15" alignment="CENTER" HBox.hgrow="ALWAYS" style="-fx-background-color: #1e293b; -fx-padding: 25; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);">
+                                <Label text="POPULARITÉ DES ACTIVITÉS" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                                <javafx.scene.chart.BarChart fx:id="barChartReservations" prefHeight="350" prefWidth="550" legendVisible="false">
+                                    <xAxis><javafx.scene.chart.CategoryAxis tickLabelFill="white" fx:id="xAxisAct"/></xAxis>
+                                    <yAxis><javafx.scene.chart.NumberAxis tickLabelFill="white" fx:id="yAxisRes"/></yAxis>
+                                </javafx.scene.chart.BarChart>
+                            </VBox>
+                        </HBox>
+                        
+                        <Button text="🔄 ACTUALISER LE DASHBOARD" onAction="#refreshStats" prefWidth="Infinity" styleClass="btn-primary" style="-fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 16px; -fx-min-height: 50;"/>
                     </VBox>
-                    <VBox spacing="10" alignment="CENTER" HBox.hgrow="ALWAYS">
-                        <Label text="Volume de Réservations (Par Activité)" styleClass="card-title" style="-fx-text-fill: #FFD700;"/>
-                        <javafx.scene.chart.BarChart fx:id="barChartReservations" prefHeight="400" prefWidth="500">
-                            <xAxis>
-                                <javafx.scene.chart.CategoryAxis label="Activités" fx:id="xAxisAct"/>
-                            </xAxis>
-                            <yAxis>
-                                <javafx.scene.chart.NumberAxis label="Nombre de Réservations" fx:id="yAxisRes"/>
-                            </yAxis>
-                        </javafx.scene.chart.BarChart>
-                    </VBox>
-                </HBox>
+                </ScrollPane>
             </Tab>
         </TabPane>
     </center>

@@ -1033,16 +1033,27 @@ public class ActiviteFrontController {
                         "$ErrorActionPreference = 'Stop'; " +
                         "try { " +
                         "  Add-Type -AssemblyName System.Speech; " +
-                        "  $engine = New-Object System.Speech.Recognition.SpeechRecognitionEngine; " + // Default engine
+                        "  $engine = $null; " +
+                        "  try { " +
+                        "    $culture = Get-Culture; " +
+                        "    $engine = New-Object System.Speech.Recognition.SpeechRecognitionEngine($culture); " +
+                        "  } catch { " +
+                        "    $engine = New-Object System.Speech.Recognition.SpeechRecognitionEngine; " +
+                        "  } " +
                         "  $engine.SetInputToDefaultAudioDevice(); " +
-                        "  $choices = New-Object System.Speech.Recognition.Choices; " +
-                        "  $choices.Add(@(" + choicesStr + ")); " +
-                        "  $gb = New-Object System.Speech.Recognition.GrammarBuilder($choices); " +
-                        "  $g = New-Object System.Speech.Recognition.Grammar($gb); " +
-                        "  $engine.LoadGrammar($g); " +
+                        "  $keywords = @(" + (choicesStr.isEmpty() ? "''" : choicesStr) + "); " +
+                        "  if ($keywords.Count -gt 0 -and $keywords[0] -ne '') { " +
+                        "    $choices = New-Object System.Speech.Recognition.Choices; " +
+                        "    $choices.Add($keywords); " +
+                        "    $gb = New-Object System.Speech.Recognition.GrammarBuilder($choices); " +
+                        "    $g = New-Object System.Speech.Recognition.Grammar($gb); " +
+                        "    $g.Priority = 127; " +
+                        "    $engine.LoadGrammar($g); " +
+                        "  } " +
                         "  $dict = New-Object System.Speech.Recognition.DictationGrammar; " +
+                        "  $dict.Priority = 0; " +
                         "  $engine.LoadGrammar($dict); " +
-                        "  $res = $engine.Recognize((New-TimeSpan -Seconds 6)); " +
+                        "  $res = $engine.Recognize((New-TimeSpan -Seconds 8)); " +
                         "  if ($res) { Write-Output $res.Text } " +
                         "} catch { Write-Output ('ERROR: ' + $_.Exception.Message) }";
                     

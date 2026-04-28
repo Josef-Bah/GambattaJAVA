@@ -38,7 +38,6 @@ public class ActiviteBackController {
 
     // --- TAB ACTIVITES ---
     @FXML private TableView<activite> tableActivites;
-    @FXML private TableColumn<activite, Integer> colActId;
     @FXML private TableColumn<activite, String> colActImage;
     @FXML private TableColumn<activite, String> colActNom;
     @FXML private TableColumn<activite, String> colActType;
@@ -62,7 +61,6 @@ public class ActiviteBackController {
 
     // --- TAB RULES ---
     @FXML private TableView<rules> tableRules;
-    @FXML private TableColumn<rules, String> colRuleId;
     @FXML private TableColumn<rules, String> colRuleDesc;
     @FXML private TableColumn<rules, String> colRuleAct;
     @FXML private TextField tfSearchRules;
@@ -78,11 +76,17 @@ public class ActiviteBackController {
     @FXML private TableColumn<ReservationActivite, String> colResHeure;
     @FXML private TableColumn<ReservationActivite, String> colResStatut;
     @FXML private TableColumn<ReservationActivite, String> colResAct;
+    @FXML private TableColumn<ReservationActivite, String> colResClient;
     @FXML private TextField tfSearchReservations;
 
-    // --- STATISTIQUES ---
+    // --- DASHBOARD & KPIs ---
+    @FXML private Label lblTotalActs;
+    @FXML private Label lblTotalRes;
+    @FXML private Label lblTopAct;
     @FXML private PieChart pieChartActivites;
     @FXML private BarChart<String, Number> barChartReservations;
+    @FXML private CategoryAxis xAxisAct;
+    @FXML private NumberAxis yAxisRes;
 
     private ActiviteService activiteService = new ActiviteService();
     private RulesService rulesService = new RulesService();
@@ -103,7 +107,6 @@ public class ActiviteBackController {
     @FXML
     public void initialize() {
         // Init Activites table
-        colActId.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("id"));
         
         colActImage.setCellFactory(param -> new TableCell<activite, String>() {
             private final ImageView imgV = new ImageView();
@@ -212,7 +215,6 @@ public class ActiviteBackController {
         });
 
         // Init Rules table
-        colRuleId.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getId())));
         colRuleDesc.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getRuleDescription()));
         colRuleAct.setCellValueFactory(data -> {
             activite a = getActiviteById(data.getValue().getActiviteId());
@@ -234,6 +236,7 @@ public class ActiviteBackController {
             activite a = getActiviteById(data.getValue().getActiviteId());
             return new SimpleStringProperty(a != null ? a.getNoma() : "Inconnu");
         });
+        colResClient.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getEmail() != null ? data.getValue().getEmail() : "N/A"));
 
         // Setup FilteredLists mapped to Search fields
         FilteredList<activite> filteredActivites = new FilteredList<>(masterActivites, p -> true);
@@ -281,34 +284,7 @@ public class ActiviteBackController {
         masterRules.setAll(rulesService.getAll());
         masterReservations.setAll(reservationService.getAll());
         cbRuleActivite.setItems(FXCollections.observableArrayList(masterActivites));
-        updateStatistics();
-    }
-    
-    private void updateStatistics() {
-        // Pie Chart: Activités par type
-        pieChartActivites.getData().clear();
-        java.util.Map<String, Long> typesCount = masterActivites.stream()
-            .collect(Collectors.groupingBy(activite::getTypea, Collectors.counting()));
-            
-        for (java.util.Map.Entry<String, Long> entry : typesCount.entrySet()) {
-            PieChart.Data slice = new PieChart.Data(entry.getKey() + " (" + entry.getValue() + ")", entry.getValue());
-            pieChartActivites.getData().add(slice);
-        }
-        
-        // Bar Chart: Reservations par activite
-        barChartReservations.getData().clear();
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Réservations");
-        
-        java.util.Map<Integer, Long> resCount = masterReservations.stream()
-            .collect(Collectors.groupingBy(ReservationActivite::getActiviteId, Collectors.counting()));
-            
-        for (java.util.Map.Entry<Integer, Long> entry : resCount.entrySet()) {
-            activite a = getActiviteById(entry.getKey());
-            String actName = a != null ? a.getNoma() : "Inconnu (" + entry.getKey() + ")";
-            series.getData().add(new XYChart.Data<>(actName, entry.getValue()));
-        }
-        barChartReservations.getData().add(series);
+        refreshStats();
     }
     
     private activite getActiviteById(int id) {
@@ -318,25 +294,34 @@ public class ActiviteBackController {
     // --- ACTIVITE HANDLERS ---
     @FXML void handleSelectImage() {
         FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"));
+        fc.setTitle("Choisir l'image de l'activité");
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif"));
         File f = fc.showOpenDialog(tfActNom.getScene().getWindow());
+        
         if (f != null) {
-            tfActImage.setText("Uploading vers Cloudinary...");
+            tfActImage.setText("☁️ Upload en cours...");
             
             new Thread(() -> {
                 try {
+                    // Upload vers Cloudinary
                     String secureUrl = gambatta.tn.utils.CloudinaryUtil.uploadFile(f);
+                    
                     javafx.application.Platform.runLater(() -> {
                         tfActImage.setText(secureUrl);
+                        // Chargement de l'image en arrière-plan pour ne pas geler l'UI
                         ivImagePreview.setImage(new Image(secureUrl, true));
+                        System.out.println("✅ Image prête : " + secureUrl);
                     });
                 } catch (Exception e) {
                     javafx.application.Platform.runLater(() -> {
-                        tfActImage.setText(f.getAbsolutePath()); // Fallback au local en cas d'erreur
-                        ivImagePreview.setImage(new Image(f.toURI().toString(), true));
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setHeaderText("Erreur Cloudinary");
-                        alert.setContentText("Upload échoué : " + e.getMessage() + "\nLe chemin local a été conservé par défaut.");
+                        String localUri = f.toURI().toString();
+                        tfActImage.setText(localUri);
+                        ivImagePreview.setImage(new Image(localUri, true));
+                        
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Cloudinary - Mode Dégradé");
+                        alert.setHeaderText("Signature ou Clé invalide");
+                        alert.setContentText("L'upload a échoué. L'image sera chargée localement pour l'instant.\nErreur : " + e.getMessage());
                         alert.show();
                     });
                 }
@@ -562,16 +547,28 @@ public class ActiviteBackController {
                         "$ErrorActionPreference = 'Stop'; " +
                         "try { " +
                         "  Add-Type -AssemblyName System.Speech; " +
-                        "  $engine = New-Object System.Speech.Recognition.SpeechRecognitionEngine; " + // Default engine
+                        "  $engine = $null; " +
+                        "  try { " +
+                        "    $culture = Get-Culture; " +
+                        "    $engine = New-Object System.Speech.Recognition.SpeechRecognitionEngine($culture); " +
+                        "  } catch { " +
+                        "    $engine = New-Object System.Speech.Recognition.SpeechRecognitionEngine; " +
+                        "  } " +
                         "  $engine.SetInputToDefaultAudioDevice(); " +
-                        "  $choices = New-Object System.Speech.Recognition.Choices; " +
-                        "  $choices.Add(@(" + choicesStr + ")); " +
-                        "  $gb = New-Object System.Speech.Recognition.GrammarBuilder($choices); " +
-                        "  $g = New-Object System.Speech.Recognition.Grammar($gb); " +
-                        "  $engine.LoadGrammar($g); " +
+                        "  $keywords = @(" + (choicesStr.isEmpty() ? "''" : choicesStr) + "); " +
+                        "  if ($keywords.Count -gt 0 -and $keywords[0] -ne '') { " +
+                        "    $choices = New-Object System.Speech.Recognition.Choices; " +
+                        "    $choices.Add($keywords); " +
+                        "    $gb = New-Object System.Speech.Recognition.GrammarBuilder($choices); " +
+                        "    $g = New-Object System.Speech.Recognition.Grammar($gb); " +
+                        "    $g.Priority = 127; # Priorité maximale pour vos jeux " +
+                        "    $engine.LoadGrammar($g); " +
+                        "  } " +
+                        "  # Dictée de secours avec priorité basse " +
                         "  $dict = New-Object System.Speech.Recognition.DictationGrammar; " +
+                        "  $dict.Priority = 0; " +
                         "  $engine.LoadGrammar($dict); " +
-                        "  $res = $engine.Recognize((New-TimeSpan -Seconds 6)); " +
+                        "  $res = $engine.Recognize((New-TimeSpan -Seconds 8)); " +
                         "  if ($res) { Write-Output $res.Text } " +
                         "} catch { Write-Output ('ERROR: ' + $_.Exception.Message) }";
                     
@@ -1020,5 +1017,57 @@ public class ActiviteBackController {
         sc.setFill(Color.TRANSPARENT);
         st.setScene(sc);
         st.showAndWait();
+    }
+
+    /**
+     * Rafraîchit les statistiques et le Dashboard avec un design professionnel
+     */
+    @FXML
+    private void refreshStats() {
+        // 1. Mise à jour des KPIs numériques
+        int totalActs = masterActivites.size();
+        int totalRes = masterReservations.size();
+        lblTotalActs.setText(String.valueOf(totalActs));
+        lblTotalRes.setText(String.valueOf(totalRes));
+
+        // 2. Identification de la Top Activité (La plus réservée)
+        java.util.Map<String, Long> resCountMap = masterReservations.stream()
+            .collect(java.util.stream.Collectors.groupingBy(r -> {
+                // Trouver le nom de l'activité associée
+                return masterActivites.stream()
+                    .filter(a -> a.getId() == r.getActiviteId())
+                    .map(activite::getNoma)
+                    .findFirst().orElse("Inconnue");
+            }, java.util.stream.Collectors.counting()));
+
+        String topActName = resCountMap.entrySet().stream()
+            .max(java.util.Map.Entry.comparingByValue())
+            .map(java.util.Map.Entry::getKey)
+            .orElse("Aucune");
+        
+        lblTopAct.setText(topActName.toUpperCase());
+
+        // 3. Mise à jour du PieChart (Répartition par Type)
+        javafx.collections.ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
+        java.util.Map<String, Long> typeMap = masterActivites.stream()
+            .collect(java.util.stream.Collectors.groupingBy(activite::getTypea, java.util.stream.Collectors.counting()));
+        
+        typeMap.forEach((type, count) -> pieData.add(new PieChart.Data(type + " (" + count + ")", count)));
+        pieChartActivites.setData(pieData);
+
+        // 4. Mise à jour du BarChart (Popularité)
+        barChartReservations.getData().clear();
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Réservations");
+
+        // On prend les 5 plus populaires pour ne pas encombrer
+        resCountMap.entrySet().stream()
+            .sorted(java.util.Map.Entry.<String, Long>comparingByValue().reversed())
+            .limit(5)
+            .forEach(entry -> series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue())));
+
+        barChartReservations.getData().add(series);
+        
+        System.out.println("📊 Dashboard mis à jour avec succès.");
     }
 }
