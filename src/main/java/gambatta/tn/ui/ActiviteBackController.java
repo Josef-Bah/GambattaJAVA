@@ -19,6 +19,10 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.image.*;
 import javafx.stage.FileChooser;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import java.io.File;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
@@ -834,146 +838,235 @@ public class ActiviteBackController {
     }
 
     private void exportTableToPDF(String defaultName, String title, TableView<?> table) {
-        FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
-        fc.setInitialFileName(defaultName);
-        File docFile = fc.showSaveDialog(table.getScene().getWindow());
-        if (docFile == null) return;
+        // Overlay de chargement
+        Stage loadingStage = new Stage();
+        loadingStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        loadingStage.initModality(Modality.APPLICATION_MODAL);
+        VBox lBox = new VBox(15);
+        lBox.setAlignment(Pos.CENTER);
+        lBox.setPrefSize(300, 150);
+        lBox.setStyle("-fx-background-color: #0f172a; -fx-background-radius: 20; -fx-border-color: #FFD700; -fx-border-width: 2;");
+        ProgressIndicator pi = new ProgressIndicator();
+        pi.setStyle("-fx-progress-color: #FFD700;");
+        Label lLabel = new Label("GÉNÉRATION DU RAPPORT...");
+        lLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+        lBox.getChildren().addAll(pi, lLabel);
+        loadingStage.setScene(new Scene(lBox, Color.TRANSPARENT));
+        loadingStage.show();
 
-        try (PDDocument document = new PDDocument()) {
-            PDPage page = new PDPage();
-            document.addPage(page);
+        new Thread(() -> {
+            File tempFile = null;
+            try {
+                tempFile = File.createTempFile("Rapport_Gambatta_", ".pdf");
+                try (PDDocument document = new PDDocument()) {
+                    PDPage page = new PDPage();
+                    document.addPage(page);
 
-            try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-                // BACKGROUND TOP ACCENT
-                contentStream.setNonStrokingColor(15, 23, 42); // Dark Blue #0f172a
-                contentStream.addRect(0, 780, 612, 50);
-                contentStream.fill();
+                    try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+                        // BACKGROUND TOP ACCENT
+                        contentStream.setNonStrokingColor(15, 23, 42); // Dark Blue #0f172a
+                        contentStream.addRect(0, 780, 612, 50);
+                        contentStream.fill();
 
-                // LOGO / BRANDING
-                contentStream.setNonStrokingColor(255, 215, 0); // Gold
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 24);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(50, 795);
-                contentStream.showText("GAMBATTA");
-                contentStream.endText();
-                
-                contentStream.setNonStrokingColor(255, 255, 255);
-                contentStream.setFont(PDType1Font.HELVETICA, 12);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(190, 795);
-                contentStream.showText("COMPLEX MANAGEMENT");
-                contentStream.endText();
+                        // LOGO / BRANDING
+                        contentStream.setNonStrokingColor(255, 215, 0); // Gold
+                        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 24);
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(50, 795);
+                        contentStream.showText("GAMBATTA");
+                        contentStream.endText();
+                        
+                        contentStream.setNonStrokingColor(255, 255, 255);
+                        contentStream.setFont(PDType1Font.HELVETICA, 12);
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(190, 795);
+                        contentStream.showText("COMPLEX MANAGEMENT");
+                        contentStream.endText();
 
-                // TITLE & DATE
-                contentStream.setNonStrokingColor(15, 23, 42);
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(50, 740);
-                contentStream.showText(title.toUpperCase());
-                contentStream.endText();
+                        // TITLE & DATE
+                        contentStream.setNonStrokingColor(15, 23, 42);
+                        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18);
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(50, 740);
+                        contentStream.showText(title.toUpperCase());
+                        contentStream.endText();
 
-                contentStream.setFont(PDType1Font.HELVETICA, 9);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(420, 740);
-                contentStream.showText("Exporté le: " + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
-                contentStream.endText();
+                        contentStream.setFont(PDType1Font.HELVETICA, 9);
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(420, 740);
+                        contentStream.showText("Exporté le: " + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date()));
+                        contentStream.endText();
 
-                // Separator
-                contentStream.setStrokingColor(255, 215, 0);
-                contentStream.setLineWidth(1.5f);
-                contentStream.moveTo(50, 730);
-                contentStream.lineTo(560, 730);
-                contentStream.stroke();
+                        // Separator
+                        contentStream.setStrokingColor(255, 215, 0);
+                        contentStream.setLineWidth(1.5f);
+                        contentStream.moveTo(50, 730);
+                        contentStream.lineTo(560, 730);
+                        contentStream.stroke();
 
-                float margin = 50;
-                float tableWidth = 510;
-                float yPosition = 700;
-                int cols = table.getColumns().size();
-                float rowHeight = 28f;
-                float colWidth = tableWidth / (float) cols;
+                        float margin = 50;
+                        float tableWidth = 510;
+                        float yPosition = 700;
+                        int cols = table.getColumns().size();
+                        float rowHeight = 28f;
+                        float colWidth = tableWidth / (float) cols;
 
-                // TABLE HEADER
-                contentStream.setNonStrokingColor(30, 41, 59); // Slate header
-                contentStream.addRect(margin, yPosition - rowHeight, tableWidth, rowHeight);
-                contentStream.fill();
-
-                contentStream.setNonStrokingColor(255, 215, 0); // Gold text for header
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
-                float textx = margin + 8;
-                float texty = yPosition - 18;
-                
-                for (TableColumn<?, ?> col : table.getColumns()) {
-                    contentStream.beginText();
-                    contentStream.newLineAtOffset(textx, texty);
-                    String headerTxt = col.getText().toUpperCase();
-                    contentStream.showText(headerTxt);
-                    contentStream.endText();
-                    textx += colWidth;
-                }
-                
-                yPosition -= rowHeight;
-
-                // ROWS
-                contentStream.setFont(PDType1Font.HELVETICA, 9);
-                boolean alternate = false;
-                
-                int rowIndex = 0;
-                for (Object item : table.getItems()) {
-                    if (yPosition - rowHeight < 60) break; // Simple paging check
-                    
-                    if (alternate) {
-                        contentStream.setNonStrokingColor(248, 250, 252); // Very light gray
+                        // TABLE HEADER
+                        contentStream.setNonStrokingColor(30, 41, 59); // Slate header
                         contentStream.addRect(margin, yPosition - rowHeight, tableWidth, rowHeight);
                         contentStream.fill();
-                    }
-                    
-                    // Border line below row
-                    contentStream.setStrokingColor(226, 232, 240);
-                    contentStream.setLineWidth(0.5f);
-                    contentStream.moveTo(margin, yPosition - rowHeight);
-                    contentStream.lineTo(margin + tableWidth, yPosition - rowHeight);
-                    contentStream.stroke();
 
-                    contentStream.setNonStrokingColor(15, 23, 42);
-                    textx = margin + 8;
-                    texty = yPosition - 18;
-                    
-                    for (TableColumn<?, ?> col : table.getColumns()) {
-                        Object cellData = col.getCellData(rowIndex);
-                        String txt = cellData == null ? "" : cellData.toString();
+                        contentStream.setNonStrokingColor(255, 215, 0); // Gold text for header
+                        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 10);
+                        float textx = margin + 8;
+                        float texty = yPosition - 18;
                         
-                        // Simple wrap check
-                        if (txt.length() > 25) txt = txt.substring(0, 22) + "...";
+                        for (TableColumn<?, ?> col : table.getColumns()) {
+                            contentStream.beginText();
+                            contentStream.newLineAtOffset(textx, texty);
+                            String headerTxt = col.getText().toUpperCase();
+                            contentStream.showText(headerTxt);
+                            contentStream.endText();
+                            textx += colWidth;
+                        }
                         
+                        yPosition -= rowHeight;
+
+                        // ROWS
+                        contentStream.setFont(PDType1Font.HELVETICA, 9);
+                        boolean alternate = false;
+                        
+                        int rowIndex = 0;
+                        for (Object item : table.getItems()) {
+                            if (yPosition - rowHeight < 60) break; // Simple paging check
+                            
+                            if (alternate) {
+                                contentStream.setNonStrokingColor(248, 250, 252); // Very light gray
+                                contentStream.addRect(margin, yPosition - rowHeight, tableWidth, rowHeight);
+                                contentStream.fill();
+                            }
+                            
+                            // Border line below row
+                            contentStream.setStrokingColor(226, 232, 240);
+                            contentStream.setLineWidth(0.5f);
+                            contentStream.moveTo(margin, yPosition - rowHeight);
+                            contentStream.lineTo(margin + tableWidth, yPosition - rowHeight);
+                            contentStream.stroke();
+
+                            contentStream.setNonStrokingColor(15, 23, 42);
+                            textx = margin + 8;
+                            texty = yPosition - 18;
+                            
+                            for (TableColumn<?, ?> col : table.getColumns()) {
+                                Object cellData = col.getCellData(rowIndex);
+                                String txt = cellData == null ? "" : cellData.toString();
+                                
+                                // Simple wrap check
+                                if (txt.length() > 25) txt = txt.substring(0, 22) + "...";
+                                
+                                contentStream.beginText();
+                                contentStream.newLineAtOffset(textx, texty);
+                                contentStream.showText(txt);
+                                contentStream.endText();
+                                textx += colWidth;
+                            }
+                            
+                            yPosition -= rowHeight;
+                            alternate = !alternate;
+                            rowIndex++;
+                        }
+                        
+                        // FOOTER
+                        contentStream.setNonStrokingColor(100, 116, 139);
                         contentStream.beginText();
-                        contentStream.newLineAtOffset(textx, texty);
-                        contentStream.showText(txt);
+                        contentStream.newLineAtOffset(50, 30);
+                        contentStream.showText("Généré par Gambatta Esports System");
                         contentStream.endText();
-                        textx += colWidth;
                     }
-                    
-                    yPosition -= rowHeight;
-                    alternate = !alternate;
-                    rowIndex++;
+                    document.save(tempFile);
                 }
-                
-                // FOOTER
-                contentStream.setNonStrokingColor(100, 116, 139);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(50, 30);
-                contentStream.showText("Généré par Gambatta Esports System");
-                contentStream.endText();
+
+                // Upload vers Cloudinary
+                javafx.application.Platform.runLater(() -> lLabel.setText("☁️ UPLOAD VERS CLOUDINARY..."));
+                String cloudinaryUrl = gambatta.tn.utils.CloudinaryUtil.uploadFile(tempFile);
+
+                javafx.application.Platform.runLater(() -> {
+                    loadingStage.close();
+                    showUrlDialog(title, "Votre rapport a été généré et hébergé avec succès sur Cloudinary.", cloudinaryUrl);
+                });
+
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() -> {
+                    loadingStage.close();
+                    alert("ERREUR PDF", "Échec de génération", e.getMessage());
+                });
+            } finally {
+                if (tempFile != null && tempFile.exists()) tempFile.delete();
             }
-            document.save(docFile);
-            Alert a = new Alert(Alert.AlertType.INFORMATION);
-            a.setContentText(title + " exporté avec succès !");
-            a.show();
-        } catch (Exception e) {
-            Alert a = new Alert(Alert.AlertType.ERROR);
-            a.setContentText("Erreur PDF: " + e.getMessage());
-            a.show();
-        }
+        }).start();
+    }
+
+    private void showUrlDialog(String header, String body, String url) {
+        Stage st = new Stage();
+        st.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        st.initModality(Modality.APPLICATION_MODAL);
+
+        VBox root = new VBox(20);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new javafx.geometry.Insets(30));
+        root.setPrefWidth(450);
+        root.setStyle("-fx-background-color: #0f172a; -fx-background-radius: 25; -fx-border-color: #FFD700; -fx-border-width: 2; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 20, 0, 0, 10);");
+
+        Label tLbl = new Label("RAPPORT ADMINISTRATIF");
+        tLbl.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 11px; -fx-font-weight: bold; -fx-letter-spacing: 2px;");
+        
+        Label hLbl = new Label(header);
+        hLbl.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
+        
+        Label bLbl = new Label(body);
+        bLbl.setStyle("-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 13px;");
+        bLbl.setWrapText(true);
+        bLbl.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+
+        TextField tfUrl = new TextField(url);
+        tfUrl.setEditable(false);
+        tfUrl.setStyle("-fx-background-color: #1e293b; -fx-text-fill: #3b82f6; -fx-border-color: #334155; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 10; -fx-font-family: 'Consolas';");
+        
+        HBox btns = new HBox(15);
+        btns.setAlignment(Pos.CENTER);
+
+        Button btnCopy = new Button("COPIER L'URL");
+        btnCopy.setStyle("-fx-background-color: #1e293b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 25; -fx-cursor: hand; -fx-border-color: #334155;");
+        btnCopy.setOnAction(e -> {
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(url);
+            clipboard.setContent(content);
+            btnCopy.setText("COPIÉ ! ✓");
+            btnCopy.setStyle("-fx-background-color: #059669; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 25;");
+        });
+
+        Button btnOpen = new Button("OUVRIR ↗");
+        btnOpen.setStyle("-fx-background-color: linear-gradient(to right, #FFD700, #ff9f43); -fx-text-fill: #020617; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 25; -fx-cursor: hand;");
+        btnOpen.setOnAction(e -> {
+            try {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+            } catch (Exception ex) {
+                alert("ERREUR", "Navigateur", "Impossible d'ouvrir le navigateur.");
+            }
+        });
+
+        btns.getChildren().addAll(btnCopy, btnOpen);
+
+        Button btnClose = new Button("FERMER");
+        btnClose.setStyle("-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;");
+        btnClose.setOnAction(e -> st.close());
+
+        root.getChildren().addAll(tLbl, hLbl, bLbl, tfUrl, btns, btnClose);
+        Scene sc = new Scene(root);
+        sc.setFill(Color.TRANSPARENT);
+        st.setScene(sc);
+        st.showAndWait();
     }
 
     private void showPurgeConfirm(String itemName, Runnable onConfirm) {

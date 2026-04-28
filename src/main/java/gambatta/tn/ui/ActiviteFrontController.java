@@ -22,6 +22,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -781,121 +783,214 @@ public class ActiviteFrontController {
 
     @FXML
     void handleExportPDF() {
-        FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
-        fc.setInitialFileName("Catalogue_Activites_Gambatta.pdf");
-        File docFile = fc.showSaveDialog(activitiesPane.getScene().getWindow());
-        if (docFile == null) return;
+        // Overlay de chargement
+        Stage loadingStage = new Stage();
+        loadingStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        loadingStage.initModality(Modality.APPLICATION_MODAL);
+        VBox lBox = new VBox(15);
+        lBox.setAlignment(Pos.CENTER);
+        lBox.setPrefSize(300, 150);
+        lBox.setStyle("-fx-background-color: #0f172a; -fx-background-radius: 20; -fx-border-color: #FFD700; -fx-border-width: 2;");
+        ProgressIndicator pi = new ProgressIndicator();
+        pi.setStyle("-fx-progress-color: #FFD700;");
+        Label lLabel = new Label("GÉNÉRATION DU CATALOGUE...");
+        lLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
+        lBox.getChildren().addAll(pi, lLabel);
+        loadingStage.setScene(new Scene(lBox, Color.TRANSPARENT));
+        loadingStage.show();
 
-        try (PDDocument document = new PDDocument()) {
-            PDPage page = new PDPage();
-            document.addPage(page);
+        new Thread(() -> {
+            File tempFile = null;
+            try {
+                tempFile = File.createTempFile("Catalogue_Gambatta_", ".pdf");
+                try (PDDocument document = new PDDocument()) {
+                    PDPage page = new PDPage();
+                    document.addPage(page);
 
-            try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-                // TOP HEADER ACCENT
-                contentStream.setNonStrokingColor(15, 23, 42); // #0f172a
-                contentStream.addRect(0, 770, 612, 60);
-                contentStream.fill();
+                    try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+                        // TOP HEADER ACCENT
+                        contentStream.setNonStrokingColor(15, 23, 42); // #0f172a
+                        contentStream.addRect(0, 770, 612, 60);
+                        contentStream.fill();
 
-                // LOGO
-                contentStream.setNonStrokingColor(255, 215, 0); // Gold
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 26);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(50, 790);
-                contentStream.showText("GAMBATTA");
-                contentStream.endText();
+                        // LOGO
+                        contentStream.setNonStrokingColor(255, 215, 0); // Gold
+                        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 26);
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(50, 790);
+                        contentStream.showText("GAMBATTA");
+                        contentStream.endText();
 
-                contentStream.setNonStrokingColor(255, 255, 255);
-                contentStream.setFont(PDType1Font.HELVETICA, 10);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(200, 793);
-                contentStream.showText("LE COMPLEXE ESPORT & SPORT DE RÉFÉRENCE");
-                contentStream.endText();
+                        contentStream.setNonStrokingColor(255, 255, 255);
+                        contentStream.setFont(PDType1Font.HELVETICA, 10);
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(200, 793);
+                        contentStream.showText("LE COMPLEXE ESPORT & SPORT DE RÉFÉRENCE");
+                        contentStream.endText();
 
-                // TITLE
-                contentStream.setNonStrokingColor(15, 23, 42);
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 20);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(50, 730);
-                contentStream.showText("CATALOGUE DES ACTIVITÉS");
-                contentStream.endText();
+                        // TITLE
+                        contentStream.setNonStrokingColor(15, 23, 42);
+                        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 20);
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(50, 730);
+                        contentStream.showText("CATALOGUE DES ACTIVITÉS");
+                        contentStream.endText();
 
-                contentStream.setFont(PDType1Font.HELVETICA, 10);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(420, 730);
-                contentStream.showText("Mis à jour le: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date()));
-                contentStream.endText();
+                        contentStream.setFont(PDType1Font.HELVETICA, 10);
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(420, 730);
+                        contentStream.showText("Mis à jour le: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date()));
+                        contentStream.endText();
 
-                // Separator
-                contentStream.setStrokingColor(255, 215, 0);
-                contentStream.setLineWidth(1.5f);
-                contentStream.moveTo(50, 720);
-                contentStream.lineTo(560, 720);
-                contentStream.stroke();
+                        // Separator
+                        contentStream.setStrokingColor(255, 215, 0);
+                        contentStream.setLineWidth(1.5f);
+                        contentStream.moveTo(50, 720);
+                        contentStream.lineTo(560, 720);
+                        contentStream.stroke();
 
-                int y = 680;
-                for (activite a : allActivities) {
-                    if (y < 80) break;
+                        int y = 680;
+                        for (activite a : allActivities) {
+                            if (y < 80) break;
 
-                    // Activity Box
-                    contentStream.setNonStrokingColor(248, 250, 252);
-                    contentStream.addRect(50, y - 45, 510, 40);
-                    contentStream.fill();
+                            // Activity Box
+                            contentStream.setNonStrokingColor(248, 250, 252);
+                            contentStream.addRect(50, y - 45, 510, 40);
+                            contentStream.fill();
 
-                    // Left Indicator (Gold bar)
-                    contentStream.setNonStrokingColor(255, 215, 0);
-                    contentStream.addRect(50, y - 45, 4, 40);
-                    contentStream.fill();
+                            // Left Indicator (Gold bar)
+                            contentStream.setNonStrokingColor(255, 215, 0);
+                            contentStream.addRect(50, y - 45, 4, 40);
+                            contentStream.fill();
 
-                    // Name
-                    contentStream.setNonStrokingColor(15, 23, 42);
-                    contentStream.setFont(PDType1Font.HELVETICA_BOLD, 13);
-                    contentStream.beginText();
-                    contentStream.newLineAtOffset(65, y - 22);
-                    contentStream.showText(a.getNoma().toUpperCase());
-                    contentStream.endText();
+                            // Name
+                            contentStream.setNonStrokingColor(15, 23, 42);
+                            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 13);
+                            contentStream.beginText();
+                            contentStream.newLineAtOffset(65, y - 22);
+                            contentStream.showText(a.getNoma().toUpperCase());
+                            contentStream.endText();
 
-                    // Type Badge
-                    String type = a.getTypea().toUpperCase();
-                    contentStream.setNonStrokingColor(30, 41, 59);
-                    contentStream.setFont(PDType1Font.HELVETICA_BOLD, 8);
-                    contentStream.beginText();
-                    contentStream.newLineAtOffset(65, y - 35);
-                    contentStream.showText(type);
-                    contentStream.endText();
+                            // Type Badge
+                            String type = a.getTypea().toUpperCase();
+                            contentStream.setNonStrokingColor(30, 41, 59);
+                            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 8);
+                            contentStream.beginText();
+                            contentStream.newLineAtOffset(65, y - 35);
+                            contentStream.showText(type);
+                            contentStream.endText();
 
-                    // Location
-                    contentStream.setNonStrokingColor(100, 116, 139);
-                    contentStream.setFont(PDType1Font.HELVETICA, 10);
-                    contentStream.beginText();
-                    contentStream.newLineAtOffset(250, y - 22);
-                    contentStream.showText("\uD83D\uDCCD " + a.getAdresse());
-                    contentStream.endText();
+                            // Location
+                            contentStream.setNonStrokingColor(100, 116, 139);
+                            contentStream.setFont(PDType1Font.HELVETICA, 10);
+                            contentStream.beginText();
+                            contentStream.newLineAtOffset(250, y - 22);
+                            contentStream.showText("Lieu: " + a.getAdresse());
+                            contentStream.endText();
 
-                    // Availability
-                    contentStream.setNonStrokingColor(15, 23, 42);
-                    contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, 9);
-                    contentStream.beginText();
-                    contentStream.newLineAtOffset(450, y - 22);
-                    contentStream.showText("Status: " + a.getDispoa());
-                    contentStream.endText();
+                            // Availability
+                            contentStream.setNonStrokingColor(15, 23, 42);
+                            contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, 9);
+                            contentStream.beginText();
+                            contentStream.newLineAtOffset(450, y - 22);
+                            contentStream.showText("Status: " + a.getDispoa());
+                            contentStream.endText();
 
-                    y -= 60;
+                            y -= 60;
+                        }
+
+                        // FOOTER
+                        contentStream.setNonStrokingColor(100, 116, 139);
+                        contentStream.setFont(PDType1Font.HELVETICA, 8);
+                        contentStream.beginText();
+                        contentStream.newLineAtOffset(50, 40);
+                        contentStream.showText("Pour toute réservation, veuillez visiter notre plateforme ou nous contacter directement.");
+                        contentStream.endText();
+                    }
+                    document.save(tempFile);
                 }
 
-                // FOOTER
-                contentStream.setNonStrokingColor(100, 116, 139);
-                contentStream.setFont(PDType1Font.HELVETICA, 8);
-                contentStream.beginText();
-                contentStream.newLineAtOffset(50, 40);
-                contentStream.showText("Pour toute réservation, veuillez visiter notre plateforme ou nous contacter directement.");
-                contentStream.endText();
+                // Upload vers Cloudinary
+                Platform.runLater(() -> lLabel.setText("☁️ UPLOAD VERS CLOUDINARY..."));
+                String cloudinaryUrl = gambatta.tn.utils.CloudinaryUtil.uploadFile(tempFile);
+
+                Platform.runLater(() -> {
+                    loadingStage.close();
+                    showUrlDialog("Catalogue PDF Prêt", "Votre catalogue a été généré et hébergé avec succès.", cloudinaryUrl);
+                });
+
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    loadingStage.close();
+                    alert("Erreur", "Échec de création du PDF : " + e.getMessage());
+                });
+            } finally {
+                if (tempFile != null && tempFile.exists()) tempFile.delete();
             }
-            document.save(docFile);
-            alert("Succès", "Catalogue PDF exporté avec succès !");
-        } catch (IOException e) {
-            alert("Erreur", "Échec de création du PDF : " + e.getMessage());
-        }
+        }).start();
+    }
+
+    private void showUrlDialog(String header, String body, String url) {
+        Stage st = new Stage();
+        st.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        st.initModality(Modality.APPLICATION_MODAL);
+
+        VBox root = new VBox(20);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new javafx.geometry.Insets(30));
+        root.setPrefWidth(450);
+        root.setStyle("-fx-background-color: #0f172a; -fx-background-radius: 25; -fx-border-color: #FFD700; -fx-border-width: 2; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 20, 0, 0, 10);");
+
+        Label tLbl = new Label("DOCUMENT GÉNÉRÉ");
+        tLbl.setStyle("-fx-text-fill: #FFD700; -fx-font-size: 11px; -fx-font-weight: bold; -fx-letter-spacing: 2px;");
+        
+        Label hLbl = new Label(header);
+        hLbl.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;");
+        
+        Label bLbl = new Label(body);
+        bLbl.setStyle("-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 13px;");
+        bLbl.setWrapText(true);
+        bLbl.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+
+        TextField tfUrl = new TextField(url);
+        tfUrl.setEditable(false);
+        tfUrl.setStyle("-fx-background-color: #1e293b; -fx-text-fill: #3b82f6; -fx-border-color: #334155; -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 10; -fx-font-family: 'Consolas';");
+        
+        HBox btns = new HBox(15);
+        btns.setAlignment(Pos.CENTER);
+
+        Button btnCopy = new Button("COPIER L'URL");
+        btnCopy.setStyle("-fx-background-color: #1e293b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 25; -fx-cursor: hand; -fx-border-color: #334155;");
+        btnCopy.setOnAction(e -> {
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(url);
+            clipboard.setContent(content);
+            btnCopy.setText("COPIÉ ! ✓");
+            btnCopy.setStyle("-fx-background-color: #059669; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 25;");
+        });
+
+        Button btnOpen = new Button("OUVRIR ↗");
+        btnOpen.setStyle("-fx-background-color: linear-gradient(to right, #FFD700, #ff9f43); -fx-text-fill: #020617; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 25; -fx-cursor: hand;");
+        btnOpen.setOnAction(e -> {
+            try {
+                java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+            } catch (Exception ex) {
+                alert("Erreur", "Impossible d'ouvrir le navigateur.");
+            }
+        });
+
+        btns.getChildren().addAll(btnCopy, btnOpen);
+
+        Button btnClose = new Button("FERMER");
+        btnClose.setStyle("-fx-background-color: transparent; -fx-text-fill: #94a3b8; -fx-font-size: 12px; -fx-cursor: hand;");
+        btnClose.setOnAction(e -> st.close());
+
+        root.getChildren().addAll(tLbl, hLbl, bLbl, tfUrl, btns, btnClose);
+        Scene sc = new Scene(root);
+        sc.setFill(Color.TRANSPARENT);
+        st.setScene(sc);
+        st.showAndWait();
     }
 
     private activite selectedActivite;

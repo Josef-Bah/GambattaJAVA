@@ -39,10 +39,20 @@ public class CloudinaryUtil {
         }
 
         try {
-            // L'upload direct sans options complexes est le plus fiable pour la signature
-            Map uploadResult = getInstance().uploader().upload(file.getAbsolutePath(), ObjectUtils.emptyMap());
+            // Utiliser "image" pour les PDF permet à Cloudinary de les traiter avec plus de flexibilité
+            // et évite souvent les erreurs 401 liées aux fichiers "raw"
+            String resourceType = file.getName().toLowerCase().endsWith(".pdf") ? "image" : "auto";
+            
+            Map uploadResult = getInstance().uploader().upload(file.getAbsolutePath(), ObjectUtils.asMap(
+                "resource_type", resourceType,
+                "type", "upload",         // Retour au mode public pour tester si "image" passe mieux
+                "invalidate", true
+            ));
+            
+            // Récupérer l'URL sécurisée
             String secureUrl = (String) uploadResult.get("secure_url");
-            System.out.println("✅ Upload réussi : " + secureUrl);
+            
+            System.out.println("✅ URL PDF (mode image) : " + secureUrl);
             return secureUrl;
         } catch (Exception e) {
             System.err.println("❌ Erreur Cloudinary détaillée : " + e.getMessage());
