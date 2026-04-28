@@ -4,7 +4,9 @@ import gambatta.tn.entites.activites.activite;
 import gambatta.tn.entites.activites.ReservationActivite;
 import gambatta.tn.services.activites.ActiviteService;
 import gambatta.tn.services.activites.ReservationActiviteService;
-
+import gambatta.tn.utils.GeminiUtil;
+import gambatta.tn.utils.QuoteUtil;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -952,6 +954,54 @@ public class ActiviteFrontController {
     @FXML
     void handleMesReservations() {
         navigate("/activites/MesReservations.fxml");
+    }
+
+    @FXML
+    void handleConseilJour() {
+        Stage st = new Stage();
+        st.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        st.initModality(Modality.APPLICATION_MODAL);
+        st.initOwner(activitiesPane.getScene().getWindow());
+
+        VBox root = new VBox(20);
+        root.setAlignment(Pos.CENTER);
+        root.setPadding(new javafx.geometry.Insets(30));
+        root.setPrefWidth(450);
+        root.setStyle("-fx-background-color: #0f172a; -fx-background-radius: 25; -fx-border-color: #3b82f6; -fx-border-width: 2; -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3), 20, 0, 0, 10);");
+
+        Label icon = new Label("💡");
+        icon.setStyle("-fx-font-size: 50px;");
+
+        Label title = new Label("CONSEIL DU JOUR");
+        title.setStyle("-fx-text-fill: #3b82f6; -fx-font-size: 14px; -fx-font-weight: bold; -fx-letter-spacing: 2px;");
+
+        Label adviceLabel = new Label("Chargement de votre motivation...");
+        adviceLabel.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-style: italic; -fx-text-alignment: center;");
+        adviceLabel.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+        adviceLabel.setWrapText(true);
+        adviceLabel.setMaxWidth(380);
+
+        Button btnClose = new Button("MERCI !");
+        btnClose.setStyle("-fx-background-color: linear-gradient(to right, #3b82f6, #60a5fa); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 40; -fx-cursor: hand;");
+        btnClose.setOnAction(e -> st.close());
+
+        root.getChildren().addAll(icon, title, adviceLabel, btnClose);
+
+        Scene sc = new Scene(root);
+        sc.setFill(Color.TRANSPARENT);
+        st.setScene(sc);
+
+        // Fetch advice via Gemini (Gaming/Sport specific)
+        new Thread(() -> {
+            String advice = GeminiUtil.generateGamingTip();
+            Platform.runLater(() -> {
+                adviceLabel.setText("\"" + advice + "\"");
+                st.sizeToScene();
+                st.centerOnScreen();
+            });
+        }).start();
+
+        st.showAndWait();
     }
 
     @FXML

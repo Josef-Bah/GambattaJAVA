@@ -77,6 +77,14 @@ public class GeminiUtil {
         return generateRuleSuggestion(activityName, null);
     }
 
+    /** Generate a motivational tip specifically for Gaming or Sports */
+    public static String generateGamingTip() {
+        String prompt = "Tu es un coach expert en Gaming et Sport. Donne un conseil court, motivant et percutant (max 20 mots) pour un joueur qui s'apprête à faire une activité dans un complexe de loisirs. " +
+                        "Le conseil peut concerner la stratégie, le mental, ou la santé (ex: s'hydrater, rester concentré). " +
+                        "Réponds UNIQUEMENT avec le texte du conseil.";
+        return callGeminiApi(prompt, "Reste concentré, garde l'esprit d'équipe et amuse-toi !");
+    }
+
     // ─────────────────────────────────────────────────────────────────
     //  INTERNAL : single HTTP call to Gemini API
     // ─────────────────────────────────────────────────────────────────

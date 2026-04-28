@@ -13,6 +13,7 @@
             <Label text="GAMBATTA" styleClass="title" style="-fx-font-size: 24px;"/>
             <Region HBox.hgrow="ALWAYS" />
             <Button text="🚪 Déconnexion" onAction="#handleLogout" styleClass="btn-secondary" style="-fx-text-fill: #ff4757; -fx-border-color: rgba(255,71,87,0.5);"/>
+            <Button text="💡 Conseil du jour" onAction="#handleConseilJour" styleClass="btn-secondary" style="-fx-text-fill: #FFD700; -fx-border-color: rgba(255,215,0,0.5);"/>
             <Button text="📅 Mes Réservations" onAction="#handleMesReservations" styleClass="btn-primary"/>
         </HBox>
     </top>
