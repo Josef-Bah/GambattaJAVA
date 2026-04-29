@@ -161,7 +161,14 @@ public class LoginController implements Initializable {
                 return;
             }
 
-            // 3. Succès
+            // 3. Vérifier si banni
+            if ("banned".equals(connectedUser.getStatus())) {
+                errorLabel.setText("🚫 Votre compte a été banni. Contactez l'administrateur.");
+                errorLabel.setStyle("-fx-text-fill: #e74c3c;");
+                return;
+            }
+
+            // 4. Succès
             resetAttempts(email);
             Session.setCurrentUser(connectedUser);
 

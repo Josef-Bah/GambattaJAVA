@@ -64,9 +64,12 @@
                                 <Button text="🚪"
                                         onAction="#logout"
                                         styleClass="home-logout-btn"/>
-                                <Button text="📍  Trouver le complexe"
+                                <Button text="📍  Localisation"
                                         styleClass="btn-secondary"
                                         onAction="#ouvrirMap"/>
+                                <Button text="🤖  Assistant"
+                                        styleClass="btn-secondary"
+                                        onAction="#toggleChatbot"/>
                             </children>
                         </HBox>
                     </children>

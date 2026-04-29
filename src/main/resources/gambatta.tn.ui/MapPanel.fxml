@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="gambatta.tn.ui.MapPanelController"
+            prefWidth="1280.0" prefHeight="760.0"
+            stylesheets="@style.css"
+            styleClass="root">
+
+    <!-- ══════════════════ TOP NAV ══════════════════ -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20"
+              style="-fx-background-color: rgba(5,11,20,0.92);
+                     -fx-border-color: rgba(255,255,255,0.06);
+                     -fx-border-width: 0 0 1 0;
+                     -fx-padding: 14 28 14 28;">
+            <children>
+                <Button text="← Retour" onAction="#goBack" styleClass="btn-secondary"
+                        style="-fx-padding: 8 18 8 18;"/>
+                <Label text="📍  Localisation — Gambatta E-Sports"
+                       style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: 900;"/>
+            </children>
+        </HBox>
+    </top>
+
+    <!-- ══════════════════ CENTER ══════════════════ -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane" hbarPolicy="NEVER">
+            <content>
+                <VBox alignment="TOP_CENTER" spacing="24">
+                    <padding>
+                        <Insets top="32.0" right="40.0" bottom="32.0" left="40.0"/>
+                    </padding>
+                    <children>
+
+                        <!-- Page title -->
+                        <VBox alignment="CENTER" spacing="6">
+                            <children>
+                                <Label text="📍 Notre adresse"
+                                       style="-fx-text-fill: #FFD700;
+                                              -fx-font-size: 28px;
+                                              -fx-font-weight: 900;
+                                              -fx-effect: dropshadow(gaussian, rgba(255,215,0,0.4), 10, 0.3, 0, 0);"/>
+                                <Label text="Centre commercial Géant, Tunis, Tunisie"
+                                       style="-fx-text-fill: #94a3b8; -fx-font-size: 15px;"/>
+                            </children>
+                        </VBox>
+
+                        <!-- ── MAP CONTAINER ── -->
+                        <StackPane prefWidth="620" prefHeight="400"
+                                   style="-fx-background-color: rgba(15,23,42,0.8);
+                                          -fx-background-radius: 18;
+                                          -fx-border-radius: 18;
+                                          -fx-border-color: rgba(255,215,0,0.22);
+                                          -fx-border-width: 1;
+                                          -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 16, 0, 0, 6);
+                                          -fx-max-width: 620;">
+                            <children>
+                                <!-- Real static map image -->
+                                <ImageView fx:id="mapView"
+                                           fitWidth="600" fitHeight="380"
+                                           preserveRatio="false"
+                                           visible="false"
+                                           smooth="true"/>
+
+                                <!-- Loading spinner -->
+                                <ProgressIndicator fx:id="loadingSpinner"
+                                                   prefWidth="64" prefHeight="64"
+                                                   style="-fx-progress-color: #FFD700;
+                                                          -fx-accent: #FFD700;"/>
+
+                                <!-- Error fallback (shown when no internet) -->
+                                <VBox fx:id="errorCard" alignment="CENTER" spacing="14" visible="false">
+                                    <children>
+                                        <Label text="🗺"
+                                               style="-fx-font-size: 52px;"/>
+                                        <Label text="Carte indisponible"
+                                               style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                                        <Label text="Vérifiez votre connexion internet"
+                                               style="-fx-text-fill: #64748b; -fx-font-size: 13px;"/>
+                                        <Label text="📍 Centre commercial Géant, Tunis"
+                                               style="-fx-text-fill: #94a3b8; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </StackPane>
+
+                        <!-- ── INFO CARD ── -->
+                        <HBox spacing="20" alignment="CENTER" maxWidth="620">
+                            <children>
+
+                                <!-- Address -->
+                                <VBox HBox.hgrow="ALWAYS" spacing="6"
+                                      style="-fx-background-color: rgba(30,41,59,0.82);
+                                             -fx-background-radius: 14;
+                                             -fx-border-radius: 14;
+                                             -fx-border-color: rgba(255,215,0,0.15);
+                                             -fx-border-width: 1;
+                                             -fx-padding: 16;">
+                                    <children>
+                                        <Label text="📍  Adresse"
+                                               style="-fx-text-fill: #FFD700; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                                        <Label text="Centre commercial Géant"
+                                               style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                        <Label text="Tunis, Tunisie"
+                                               style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+                                    </children>
+                                </VBox>
+
+                                <!-- Hours -->
+                                <VBox HBox.hgrow="ALWAYS" spacing="6"
+                                      style="-fx-background-color: rgba(30,41,59,0.82);
+                                             -fx-background-radius: 14;
+                                             -fx-border-radius: 14;
+                                             -fx-border-color: rgba(255,215,0,0.15);
+                                             -fx-border-width: 1;
+                                             -fx-padding: 16;">
+                                    <children>
+                                        <Label text="🕐  Horaires"
+                                               style="-fx-text-fill: #FFD700; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                                        <Label text="Lun – Ven : 09h – 23h"
+                                               style="-fx-text-fill: white; -fx-font-size: 13px;"/>
+                                        <Label text="Sam – Dim : 10h – 00h"
+                                               style="-fx-text-fill: white; -fx-font-size: 13px;"/>
+                                    </children>
+                                </VBox>
+
+                                <!-- Contact -->
+                                <VBox HBox.hgrow="ALWAYS" spacing="6"
+                                      style="-fx-background-color: rgba(30,41,59,0.82);
+                                             -fx-background-radius: 14;
+                                             -fx-border-radius: 14;
+                                             -fx-border-color: rgba(255,215,0,0.15);
+                                             -fx-border-width: 1;
+                                             -fx-padding: 16;">
+                                    <children>
+                                        <Label text="📞  Contact"
+                                               style="-fx-text-fill: #FFD700; -fx-font-size: 12px; -fx-font-weight: bold;"/>
+                                        <Label text="+216 XX XXX XXX"
+                                               style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                        <Label text="info@gambatta.tn"
+                                               style="-fx-text-fill: #94a3b8; -fx-font-size: 13px;"/>
+                                    </children>
+                                </VBox>
+
+                            </children>
+                        </HBox>
+
+                        <!-- ── ACTION BUTTONS ── -->
+                        <HBox spacing="16" alignment="CENTER">
+                            <children>
+                                <Button text="🗺  Ouvrir dans Google Maps"
+                                        styleClass="btn-primary"
+                                        prefWidth="240"
+                                        onAction="#openGoogleMaps"/>
+                                <Button text="🧭  Itinéraire"
+                                        styleClass="btn-secondary"
+                                        prefWidth="160"
+                                        onAction="#openItineraire"/>
+                                <Button text="🔄  Actualiser"
+                                        styleClass="btn-secondary"
+                                        prefWidth="140"
+                                        onAction="#refreshMap"/>
+                            </children>
+                        </HBox>
+
+                        <!-- Feedback label -->
+                        <Label fx:id="feedbackLabel" text=""
+                               style="-fx-font-size: 12px;" alignment="CENTER" maxWidth="Infinity"/>
+
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

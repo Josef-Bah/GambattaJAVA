@@ -11,35 +11,33 @@
             stylesheets="@style.css"
             styleClass="root">
 
+    <!-- ══════════════════ SIDEBAR ══════════════════ -->
     <left>
         <VBox styleClass="sidebar-classic" spacing="18.0">
             <padding>
                 <Insets top="26.0" right="18.0" bottom="26.0" left="18.0"/>
             </padding>
-
             <children>
                 <Label text="GAMBATTA" styleClass="sidebar-brand"/>
                 <Label text="Backoffice Admin" styleClass="sidebar-subtitle"/>
 
-                <Separator />
+                <Separator/>
 
                 <VBox spacing="8.0">
                     <children>
                         <Label text="Navigation" styleClass="sidebar-section-title"/>
-
                         <HBox spacing="10.0" alignment="CENTER_LEFT" styleClass="sidebar-item-active">
                             <children>
                                 <Label text="👥" styleClass="sidebar-item-icon"/>
                                 <Label text="Utilisateurs" styleClass="sidebar-item-text-active"/>
                             </children>
                         </HBox>
-
                     </children>
                 </VBox>
 
                 <Pane VBox.vgrow="ALWAYS"/>
 
-                <Separator />
+                <Separator/>
 
                 <VBox spacing="10.0">
                     <children>
@@ -49,104 +47,104 @@
                                 <Hyperlink text="Mon compte" onAction="#openAdminProfile" styleClass="sidebar-link"/>
                             </children>
                         </HBox>
-
                         <HBox spacing="10.0" alignment="CENTER_LEFT" styleClass="sidebar-bottom-item">
                             <children>
                                 <Label text="⇦" styleClass="sidebar-item-icon"/>
                                 <Hyperlink text="Déconnexion" onAction="#logout" styleClass="sidebar-link-danger"/>
                             </children>
-                            <Button text="📊  Statistiques" styleClass="btn-secondary"
-                                    maxWidth="180" onAction="#openStats"/>
                         </HBox>
+                        <Button text="📊  Statistiques" styleClass="btn-secondary"
+                                maxWidth="Infinity" onAction="#openStats"/>
                     </children>
                 </VBox>
             </children>
         </VBox>
     </left>
 
+    <!-- ══════════════════ MAIN CONTENT ══════════════════ -->
     <center>
         <VBox spacing="18.0" styleClass="admin-main-clean">
             <padding>
                 <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
             </padding>
-
             <children>
-                <HBox alignment="CENTER_LEFT">
-                    <children>
-                        <VBox spacing="4.0">
-                            <children>
-                                <Label text="Admin Dashboard" styleClass="dashboard-title-clean"/>
-                                <Label fx:id="welcomeLabel" text="Bienvenue" styleClass="dashboard-subtitle-clean"/>
-                            </children>
-                        </VBox>
-                    </children>
-                </HBox>
 
+                <!-- Title -->
+                <VBox spacing="4.0">
+                    <children>
+                        <Label text="Admin Dashboard" styleClass="dashboard-title-clean"/>
+                        <Label fx:id="welcomeLabel" text="Bienvenue" styleClass="dashboard-subtitle-clean"/>
+                    </children>
+                </VBox>
+
+                <!-- Stats row -->
                 <HBox spacing="16.0">
                     <children>
-                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS" spacing="6.0">
                             <children>
-                                <Label text="Total utilisateurs" styleClass="stat-title-clean"/>
+                                <Label text="👥 Total utilisateurs" styleClass="stat-title-clean"/>
                                 <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value-clean"/>
                             </children>
                         </VBox>
-
-                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS" spacing="6.0">
                             <children>
-                                <Label text="Admins" styleClass="stat-title-clean"/>
+                                <Label text="⭐ Admins" styleClass="stat-title-clean"/>
                                 <Label fx:id="totalAdminsLabel" text="0" styleClass="stat-value-clean"/>
                             </children>
                         </VBox>
-
-                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS" spacing="6.0">
                             <children>
-                                <Label text="Utilisateurs simples" styleClass="stat-title-clean"/>
-                                <Label fx:id="totalSimpleUsersLabel" text="0" styleClass="stat-value-clean"/>
+                                <Label text="🟢 Actifs" styleClass="stat-title-clean"/>
+                                <Label fx:id="totalActifsLabel" text="0" styleClass="stat-value-clean"/>
                             </children>
                         </VBox>
-
-                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS">
+                        <VBox styleClass="stat-card-clean" HBox.hgrow="ALWAYS" spacing="6.0">
                             <children>
-                                <Label text="Connexions aujourd'hui" styleClass="stat-title-clean"/>
+                                <Label text="🔐 Connexions aujourd'hui" styleClass="stat-title-clean"/>
                                 <Label fx:id="loginsTodayLabel" text="0" styleClass="stat-value-clean"/>
                             </children>
                         </VBox>
                     </children>
                 </HBox>
 
-                <VBox spacing="16.0" VBox.vgrow="ALWAYS" styleClass="users-panel-clean">
+                <!-- Users panel -->
+                <VBox spacing="14.0" VBox.vgrow="ALWAYS" styleClass="users-panel-clean">
                     <children>
-                        <HBox alignment="CENTER_LEFT">
+
+                        <!-- Header: title + search -->
+                        <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <children>
-                                <Label text="Liste des utilisateurs" styleClass="section-title-clean"/>
+                                <Label text="👥 Gestion des utilisateurs" styleClass="section-title-clean"/>
                                 <Pane HBox.hgrow="ALWAYS"/>
                                 <TextField fx:id="searchField"
-                                           promptText="Rechercher par nom, email, rôle..."
+                                           promptText="Rechercher par nom, email, rôle, statut..."
                                            onKeyReleased="#handleSearch"
                                            styleClass="search-field-clean"
-                                           prefWidth="320.0"/>
+                                           prefWidth="360.0"/>
                             </children>
                         </HBox>
 
                         <Label fx:id="feedbackLabel" text="" styleClass="admin-feedback"/>
 
-                        <TableView fx:id="userTable"
-                                   VBox.vgrow="ALWAYS"
-                                   styleClass="admin-table-clean">
+                        <!-- Cards area -->
+                        <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" styleClass="scroll-pane"
+                                    hbarPolicy="NEVER">
+                            <content>
+                                <FlowPane fx:id="cardsContainer"
+                                          hgap="16.0" vgap="16.0"
+                                          styleClass="cards-container">
+                                    <padding>
+                                        <Insets top="4.0" right="4.0" bottom="8.0" left="4.0"/>
+                                    </padding>
+                                </FlowPane>
+                            </content>
+                        </ScrollPane>
 
-                            <columns>
-                                <TableColumn fx:id="colId" text="ID" prefWidth="70.0"/>
-                                <TableColumn fx:id="colFirstName" text="Prénom" prefWidth="150.0"/>
-                                <TableColumn fx:id="colLastName" text="Nom" prefWidth="150.0"/>
-                                <TableColumn fx:id="colEmail" text="Email" prefWidth="280.0"/>
-                                <TableColumn fx:id="colTel" text="Téléphone" prefWidth="150.0"/>
-                                <TableColumn fx:id="colRole" text="Rôle" prefWidth="170.0"/>
-                                <TableColumn fx:id="colActions" text="Actions" prefWidth="140.0"/>
-                            </columns>
-                        </TableView>
                     </children>
                 </VBox>
+
             </children>
         </VBox>
     </center>
+
 </BorderPane>

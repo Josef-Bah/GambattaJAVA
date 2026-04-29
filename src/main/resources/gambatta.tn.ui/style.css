@@ -904,3 +904,139 @@
 .home-logout-btn:hover {
     -fx-background-color: rgba(255, 107, 107, 0.24);
 }
+
+/* =========================================================
+   USER CARDS — ADMIN DASHBOARD
+   ========================================================= */
+
+.user-card {
+    -fx-background-color: rgba(30, 41, 59, 0.85);
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 12, 0, 0, 4);
+}
+
+.user-card:hover {
+    -fx-border-color: rgba(255, 215, 0, 0.55);
+    -fx-background-color: rgba(30, 41, 59, 0.95);
+    -fx-effect: dropshadow(gaussian, rgba(255,215,0,0.18), 18, 0.08, 0, 0);
+    -fx-translate-y: -2;
+}
+
+.user-card-name {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.user-card-email {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+}
+
+/* Role and status badges */
+.badge-admin {
+    -fx-background-color: rgba(255, 215, 0, 0.16);
+    -fx-text-fill: #FFD700;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(255, 215, 0, 0.35);
+    -fx-border-width: 1;
+    -fx-padding: 3 10 3 10;
+}
+
+.badge-user {
+    -fx-background-color: rgba(46, 213, 115, 0.10);
+    -fx-text-fill: #2ed573;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(46, 213, 115, 0.28);
+    -fx-border-width: 1;
+    -fx-padding: 3 10 3 10;
+}
+
+.badge-active {
+    -fx-background-color: rgba(46, 213, 115, 0.10);
+    -fx-text-fill: #2ed573;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(46, 213, 115, 0.28);
+    -fx-border-width: 1;
+    -fx-padding: 3 10 3 10;
+}
+
+.badge-banned {
+    -fx-background-color: rgba(255, 71, 87, 0.12);
+    -fx-text-fill: #ff4757;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(255, 71, 87, 0.30);
+    -fx-border-width: 1;
+    -fx-padding: 3 10 3 10;
+}
+
+/* Ban / Unban action buttons */
+.action-btn-ban {
+    -fx-background-color: rgba(255, 71, 87, 0.12);
+    -fx-text-fill: #ff4757;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 6 12 6 12;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(255, 71, 87, 0.25);
+    -fx-border-radius: 10;
+}
+
+.action-btn-ban:hover {
+    -fx-background-color: rgba(255, 71, 87, 0.24);
+}
+
+.action-btn-unban {
+    -fx-background-color: rgba(46, 213, 115, 0.12);
+    -fx-text-fill: #2ed573;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-padding: 6 12 6 12;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(46, 213, 115, 0.25);
+    -fx-border-radius: 10;
+}
+
+.action-btn-unban:hover {
+    -fx-background-color: rgba(46, 213, 115, 0.24);
+}
+
+/* FlowPane cards container */
+.cards-container {
+    -fx-background-color: transparent;
+}
+
+/* Edit dialog pane */
+.edit-dialog-pane {
+    -fx-background-color: #0f172a;
+    -fx-border-color: rgba(255, 215, 0, 0.22);
+    -fx-border-radius: 16;
+    -fx-background-radius: 16;
+}
+
+.edit-dialog-pane .header-panel {
+    -fx-background-color: #0f172a;
+}
+
+.edit-dialog-pane .button-bar {
+    -fx-background-color: #0f172a;
+    -fx-padding: 10 24 16 24;
+}
