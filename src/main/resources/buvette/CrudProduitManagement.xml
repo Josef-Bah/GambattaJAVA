@@ -30,8 +30,8 @@
             <TextField fx:id="searchField" promptText="Rechercher..." prefWidth="180" styleClass="search-field"/>
             <ComboBox fx:id="sortCombo" prefWidth="140" style="-fx-background-color:#1e293b;"/>
             <Button text="📊" onAction="#showStats" styleClass="btn-secondary"/>
-            <Button text="☁️" onAction="#migrateToCloud" style="-fx-background-color:#0284c7; -fx-text-fill:white; -fx-background-radius:8;"/>
-            <Button text="📄" onAction="#exportPDF" styleClass="btn-secondary"/>
+            <Button text="☁" onAction="#migrateToCloud" style="-fx-background-color:#0284c7; -fx-text-fill:white; -fx-background-radius:8;"/>
+            <Button text="Rapport" onAction="#exportPDF" styleClass="btn-secondary"/>
         </HBox>
         
         <TableView fx:id="produitTable" VBox.vgrow="ALWAYS" styleClass="table-view">
@@ -86,7 +86,7 @@
                     <VBox spacing="5">
                         <Label text="Image" styleClass="form-label"/>
                         <HBox spacing="10" alignment="CENTER_LEFT">
-                            <Button text="🖼️ Choisir" onAction="#chooseImage" styleClass="btn-secondary" style="-fx-padding: 8 15;"/>
+                            <Button text="🖼️" onAction="#chooseImage" styleClass="btn-secondary" style="-fx-padding: 8 15;"/>
                             <Label fx:id="imageNameLabel" text="Aucune image" style="-fx-text-fill:#94a3b8; -fx-font-size:12px;"/>
                         </HBox>
                     </VBox>

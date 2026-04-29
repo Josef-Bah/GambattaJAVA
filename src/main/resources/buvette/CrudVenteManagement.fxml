@@ -20,12 +20,12 @@
     </HBox>
 
     <HBox spacing="15" alignment="CENTER_LEFT">
-        <Label text=" Vente Management" style="-fx-font-size:20px; -fx-font-weight:bold; -fx-text-fill:white;"/>
+        <Label text=" Gestion des Ventes" style="-fx-font-size:20px; -fx-font-weight:bold; -fx-text-fill:white;"/>
         <Region HBox.hgrow="ALWAYS"/>
         <TextField fx:id="searchField" promptText="Search Amount/Date..." prefWidth="200" styleClass="search-field"/>
         <ComboBox fx:id="sortCombo" promptText="Trier par..." style="-fx-background-color:rgba(30, 41, 59, 0.8); -fx-text-fill:white;"/>
-        <Button text="Stats" onAction="#showStats" styleClass="btn-secondary"/>
-        <Button text="Export PDF" onAction="#exportPDF" styleClass="btn-secondary"/>
+        <Button text="📊" onAction="#showStats" styleClass="btn-secondary"/>
+        <Button text="Rapport" onAction="#exportPDF" styleClass="btn-secondary"/>
     </HBox>
     
     <Separator/>
