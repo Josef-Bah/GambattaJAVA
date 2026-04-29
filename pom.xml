@@ -15,6 +15,7 @@
     </properties>
 
     <dependencies>
+
         <!-- MySQL -->
         <dependency>
             <groupId>com.mysql</groupId>
@@ -33,6 +34,7 @@
             <artifactId>javafx-fxml</artifactId>
             <version>21.0.2</version>
         </dependency>
+        <!-- javafx-web sera ajouté à l'étape Maps uniquement -->
 
         <!-- BCrypt -->
         <dependency>
@@ -40,6 +42,14 @@
             <artifactId>jbcrypt</artifactId>
             <version>0.4</version>
         </dependency>
+
+        <!-- JSON parser pour appels API REST (Groq, Avatar...) -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -54,4 +64,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

@@ -194,7 +194,7 @@
                                                                styleClass="auth-field"
                                                                prefWidth="290.0"
                                                                maxWidth="290.0"/>
-                                                <Label fx:id="passwordValidationLabel" text="" styleClass="field-help"/>
+                                                <Label fx:id="passwordValidationLabel" text="" styleClass="field-help" wrapText="true"/>
                                             </children>
                                         </VBox>
 

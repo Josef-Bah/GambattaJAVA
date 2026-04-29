@@ -9,6 +9,8 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.shape.Circle?>
 
 <StackPane xmlns="http://javafx.com/javafx/21"
            xmlns:fx="http://javafx.com/fxml/1"
@@ -44,6 +46,17 @@
 
                         <HBox spacing="10.0" alignment="CENTER_RIGHT">
                             <children>
+
+                                <!-- AVATAR NAVBAR -->
+                                <StackPane>
+                                    <Circle radius="20" fill="#FFD700" opacity="0.15"/>
+                                    <Circle radius="19" fill="transparent"
+                                            stroke="#FFD700" strokeWidth="1.5"/>
+                                    <ImageView fx:id="homeAvatarView"
+                                               fitWidth="36" fitHeight="36"
+                                               preserveRatio="true" smooth="true"/>
+                                </StackPane>
+
                                 <Button text="👤"
                                         onAction="#openProfile"
                                         styleClass="home-profile-btn"/>

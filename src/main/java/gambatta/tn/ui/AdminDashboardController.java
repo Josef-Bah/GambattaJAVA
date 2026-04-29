@@ -15,6 +15,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import gambatta.tn.services.user.AvatarService;
+import javafx.scene.image.ImageView;
+import javafx.scene.shape.Circle;
 
 import java.net.URL;
 import java.util.List;
@@ -75,6 +78,34 @@ public class AdminDashboardController implements Initializable {
         addActionsColumn();
         userTable.setPlaceholder(new Label("Aucun utilisateur trouvé."));
         userTable.setFixedCellSize(48);
+        // Colonne avatar
+        TableColumn<user, Void> colAvatar = new TableColumn<>("");
+        colAvatar.setPrefWidth(52);
+        colAvatar.setMinWidth(52);
+        colAvatar.setMaxWidth(52);
+        colAvatar.setSortable(false);
+        colAvatar.setReorderable(false);
+        colAvatar.setCellFactory(col -> new TableCell<>() {
+            final ImageView iv = new ImageView();
+            {
+                iv.setFitWidth(36);
+                iv.setFitHeight(36);
+                Circle clip = new Circle(18, 18, 18);
+                iv.setClip(clip);
+            }
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    user u = getTableView().getItems().get(getIndex());
+                    iv.setImage(AvatarService.loadAvatarAsync(u.getFirstName()));
+                    setGraphic(iv);
+                }
+            }
+        });
+        userTable.getColumns().add(0, colAvatar);
     }
 
     private void loadStats() {

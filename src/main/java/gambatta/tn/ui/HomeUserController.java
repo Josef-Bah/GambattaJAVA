@@ -8,11 +8,16 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import gambatta.tn.services.user.AvatarService;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.shape.Circle;
 
 public class HomeUserController {
 
     @FXML
     private Label welcomeLabel;
+    @FXML private ImageView homeAvatarView;
 
     @FXML
     public void initialize() {
@@ -23,6 +28,16 @@ public class HomeUserController {
             welcomeLabel.setText("Bienvenue " + firstName + " dans votre espace Gambatta.");
         } else {
             welcomeLabel.setText("Bienvenue dans votre espace Gambatta.");
+        }
+        // Avatar
+        if (homeAvatarView != null) {
+            user u = Session.getCurrentUser();
+            if (u != null) {
+                Image avatar = AvatarService.loadAvatarAsync(u.getFirstName());
+                homeAvatarView.setImage(avatar);
+                Circle clip = new Circle(33, 33, 33);
+                homeAvatarView.setClip(clip);
+            }
         }
     }
 

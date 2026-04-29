@@ -8,6 +8,7 @@ public class user {
     private String firstName;
     private String lastName;
     private String numTel;
+    private String profileImage; // ← AJOUTÉ
 
     public user() {}
 
@@ -35,10 +36,14 @@ public class user {
     public void setLastName(String lastName) { this.lastName = lastName; }
     public String getNumTel() { return numTel; }
     public void setNumTel(String numTel) { this.numTel = numTel; }
+    public String getProfileImage() { return profileImage; }           // ← AJOUTÉ
+    public void setProfileImage(String profileImage) {                 // ← AJOUTÉ
+        this.profileImage = profileImage;
+    }
 
     @Override
     public String toString() {
-        return "User{id=" + id + ", email='" + email + "', name='" + firstName + " " + lastName +
-                "', roles='" + roles + "', numTel='" + numTel + "'}";
+        return "User{id=" + id + ", email='" + email + "', name='" +
+                firstName + " " + lastName + "', roles='" + roles + "'}";
     }
 }

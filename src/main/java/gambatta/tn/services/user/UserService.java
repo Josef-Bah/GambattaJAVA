@@ -240,6 +240,7 @@ public class UserService implements IService<user> {
         u.setFirstName(rs.getString("first_name"));
         u.setLastName(rs.getString("last_name"));
         u.setNumTel(rs.getString("num_tel"));
+        u.setProfileImage(rs.getString("profile_image")); // ← AJOUTÉ
         return u;
     }
     // Inscriptions par mois (6 derniers mois)
@@ -283,6 +284,16 @@ public class UserService implements IService<user> {
     // Inactifs
     public int countInactifs() {
         return countQuery("SELECT COUNT(*) FROM user WHERE status != 'active' OR status IS NULL");
+    }
+    public void updateProfileImage(int userId, String seed) {
+        String sql = "UPDATE user SET profile_image=? WHERE id=?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, seed);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur update avatar : " + e.getMessage(), e);
+        }
     }
 
 }

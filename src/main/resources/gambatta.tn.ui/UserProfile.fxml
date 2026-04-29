@@ -4,12 +4,16 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -24,162 +28,217 @@
             <padding>
                 <Insets top="18.0" right="28.0" bottom="18.0" left="28.0"/>
             </padding>
-
             <children>
                 <Label text="🎮 GAMBATTA" styleClass="home-logo"/>
                 <Pane HBox.hgrow="ALWAYS"/>
-                <Button text="← Retour accueil" onAction="#goBackHome" styleClass="btn-secondary"/>
+                <Button text="← Retour accueil"
+                        onAction="#goBackHome"
+                        styleClass="btn-secondary"/>
             </children>
         </HBox>
     </top>
 
     <center>
-        <HBox alignment="CENTER" spacing="24.0">
+        <HBox alignment="TOP_CENTER" spacing="24.0">
             <padding>
                 <Insets top="28.0" right="28.0" bottom="28.0" left="28.0"/>
             </padding>
-
             <children>
 
-                <VBox spacing="18.0" alignment="TOP_CENTER" styleClass="profile-side-card" prefWidth="290.0">
+                <!-- COLONNE GAUCHE : Avatar + Infos -->
+                <VBox spacing="18.0" alignment="TOP_CENTER"
+                      styleClass="profile-side-card" prefWidth="290.0">
                     <padding>
                         <Insets top="24.0" right="20.0" bottom="24.0" left="20.0"/>
                     </padding>
-
                     <children>
-                        <StackPane styleClass="profile-user-avatar-wrap">
+
+                        <!-- AVATAR CIRCULAIRE -->
+                        <StackPane alignment="CENTER"
+                                   styleClass="profile-user-avatar-wrap">
                             <children>
-                                <Label text="👤" styleClass="profile-user-avatar-icon"/>
+                                <Circle radius="57" fill="#FFD700" opacity="0.12"/>
+                                <Circle radius="55" fill="transparent"
+                                        stroke="#FFD700" strokeWidth="2"/>
+                                <ImageView fx:id="avatarImageView"
+                                           fitWidth="100" fitHeight="100"
+                                           preserveRatio="true" smooth="true"/>
                             </children>
                         </StackPane>
 
-                        <Label fx:id="displayNameLabel" text="Nom utilisateur" styleClass="profile-user-name"/>
-                        <Label fx:id="displayRoleLabel" text="ROLE_USER" styleClass="profile-user-role"/>
+                        <Label fx:id="displayNameLabel"
+                               text="Nom utilisateur"
+                               styleClass="profile-user-name"/>
+                        <Label fx:id="displayRoleLabel"
+                               text="ROLE_USER"
+                               styleClass="profile-user-role"/>
 
-                        <VBox spacing="10.0" styleClass="profile-mini-info-card">
+                        <VBox spacing="6.0" styleClass="profile-mini-info-card">
                             <children>
                                 <Label text="Email" styleClass="profile-mini-label"/>
-                                <Label fx:id="displayEmailLabel" text="email@gmail.com" styleClass="profile-mini-value"/>
+                                <Label fx:id="displayEmailLabel"
+                                       text="email@gmail.com"
+                                       styleClass="profile-mini-value"/>
                             </children>
                         </VBox>
 
-                        <VBox spacing="10.0" styleClass="profile-mini-info-card">
+                        <VBox spacing="6.0" styleClass="profile-mini-info-card">
                             <children>
                                 <Label text="Téléphone" styleClass="profile-mini-label"/>
-                                <Label fx:id="displayPhoneLabel" text="22000000" styleClass="profile-mini-value"/>
+                                <Label fx:id="displayPhoneLabel"
+                                       text="22000000"
+                                       styleClass="profile-mini-value"/>
                             </children>
                         </VBox>
+
                     </children>
                 </VBox>
 
-                <VBox spacing="18.0" styleClass="users-panel-clean" prefWidth="820.0" maxWidth="820.0">
-                    <padding>
-                        <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
-                    </padding>
-
-                    <children>
-                        <Label text="Mon profil" styleClass="section-title-clean"/>
-                        <Label text="Modifie tes informations personnelles depuis cet espace." styleClass="dashboard-subtitle-clean"/>
-                        <Label fx:id="feedbackLabel" text="" styleClass="admin-feedback"/>
-
-                        <HBox spacing="22.0">
+                <!-- COLONNE DROITE : Formulaire -->
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background-color: transparent; -fx-background: transparent;"
+                            VBox.vgrow="ALWAYS" prefWidth="820.0" maxWidth="820.0">
+                    <content>
+                        <VBox spacing="18.0" styleClass="users-panel-clean">
+                            <padding>
+                                <Insets top="24.0" right="24.0" bottom="24.0" left="24.0"/>
+                            </padding>
                             <children>
 
-                                <VBox spacing="14.0">
+                                <Label text="Mon profil"
+                                       styleClass="section-title-clean"/>
+                                <Label text="Modifie tes informations personnelles depuis cet espace."
+                                       styleClass="dashboard-subtitle-clean"/>
+                                <Label fx:id="feedbackLabel" text=""
+                                       styleClass="admin-feedback"/>
+
+                                <!-- CHAMPS FORMULAIRE -->
+                                <HBox spacing="22.0">
                                     <children>
-                                        <VBox spacing="4.0">
+
+                                        <VBox spacing="14.0">
                                             <children>
-                                                <Label text="Prénom" styleClass="auth-label"/>
-                                                <TextField fx:id="firstNameField"
-                                                           styleClass="auth-field"
-                                                           prefWidth="360.0"
-                                                           maxWidth="360.0"/>
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Prénom" styleClass="auth-label"/>
+                                                        <TextField fx:id="firstNameField"
+                                                                   styleClass="auth-field"
+                                                                   prefWidth="360.0" maxWidth="360.0"/>
+                                                    </children>
+                                                </VBox>
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Nom" styleClass="auth-label"/>
+                                                        <TextField fx:id="lastNameField"
+                                                                   styleClass="auth-field"
+                                                                   prefWidth="360.0" maxWidth="360.0"/>
+                                                    </children>
+                                                </VBox>
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Email" styleClass="auth-label"/>
+                                                        <TextField fx:id="emailField"
+                                                                   styleClass="auth-field"
+                                                                   prefWidth="360.0" maxWidth="360.0"/>
+                                                    </children>
+                                                </VBox>
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Téléphone" styleClass="auth-label"/>
+                                                        <TextField fx:id="numTelField"
+                                                                   styleClass="auth-field"
+                                                                   prefWidth="360.0" maxWidth="360.0"/>
+                                                    </children>
+                                                </VBox>
                                             </children>
                                         </VBox>
 
-                                        <VBox spacing="4.0">
+                                        <VBox spacing="14.0">
                                             <children>
-                                                <Label text="Nom" styleClass="auth-label"/>
-                                                <TextField fx:id="lastNameField"
-                                                           styleClass="auth-field"
-                                                           prefWidth="360.0"
-                                                           maxWidth="360.0"/>
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Mot de passe" styleClass="auth-label"/>
+                                                        <PasswordField fx:id="passwordField"
+                                                                       styleClass="auth-field"
+                                                                       prefWidth="360.0" maxWidth="360.0"/>
+                                                    </children>
+                                                </VBox>
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Confirmer mot de passe" styleClass="auth-label"/>
+                                                        <PasswordField fx:id="confirmPasswordField"
+                                                                       styleClass="auth-field"
+                                                                       prefWidth="360.0" maxWidth="360.0"/>
+                                                    </children>
+                                                </VBox>
+                                                <VBox spacing="4.0">
+                                                    <children>
+                                                        <Label text="Rôle" styleClass="auth-label"/>
+                                                        <TextField fx:id="roleField"
+                                                                   editable="false"
+                                                                   focusTraversable="false"
+                                                                   styleClass="auth-field"
+                                                                   prefWidth="360.0" maxWidth="360.0"/>
+                                                    </children>
+                                                </VBox>
                                             </children>
                                         </VBox>
 
-                                        <VBox spacing="4.0">
-                                            <children>
-                                                <Label text="Email" styleClass="auth-label"/>
-                                                <TextField fx:id="emailField"
-                                                           styleClass="auth-field"
-                                                           prefWidth="360.0"
-                                                           maxWidth="360.0"/>
-                                            </children>
-                                        </VBox>
+                                    </children>
+                                </HBox>
 
-                                        <VBox spacing="4.0">
-                                            <children>
-                                                <Label text="Téléphone" styleClass="auth-label"/>
-                                                <TextField fx:id="numTelField"
-                                                           styleClass="auth-field"
-                                                           prefWidth="360.0"
-                                                           maxWidth="360.0"/>
-                                            </children>
-                                        </VBox>
+                                <!-- SECTION CHOIX AVATAR -->
+                                <VBox spacing="10.0">
+                                    <children>
+                                        <Label text="🎨 Choisir un avatar"
+                                               style="-fx-font-size: 15px;
+                                                      -fx-font-weight: bold;
+                                                      -fx-text-fill: #FFD700;"/>
+                                        <Label text="Clique sur un avatar pour le sélectionner, puis clique sur Enregistrer."
+                                               style="-fx-text-fill: #94a3b8;
+                                                      -fx-font-size: 12px;"/>
+
+                                        <ScrollPane fitToWidth="true"
+                                                    prefHeight="280.0"
+                                                    style="-fx-background-color: transparent;
+                                                           -fx-background: transparent;
+                                                           -fx-border-color: rgba(255,255,255,0.1);
+                                                           -fx-border-radius: 10;
+                                                           -fx-background-radius: 10;">
+                                            <content>
+                                                <FlowPane fx:id="avatarGrid"
+                                                          hgap="10.0" vgap="10.0"
+                                                          prefWrapLength="720.0"
+                                                          style="-fx-background-color: rgba(15,23,42,0.5);
+                                                                 -fx-padding: 14;
+                                                                 -fx-background-radius: 10;"/>
+                                            </content>
+                                        </ScrollPane>
+
+                                        <Label fx:id="selectedAvatarLabel"
+                                               text=""
+                                               style="-fx-text-fill: #2ed573;
+                                                      -fx-font-size: 12px;"/>
                                     </children>
                                 </VBox>
 
-                                <VBox spacing="14.0">
+                                <!-- BOUTON ENREGISTRER -->
+                                <HBox spacing="14.0" alignment="CENTER_LEFT">
                                     <children>
-                                        <VBox spacing="4.0">
-                                            <children>
-                                                <Label text="Mot de passe" styleClass="auth-label"/>
-                                                <PasswordField fx:id="passwordField"
-                                                               styleClass="auth-field"
-                                                               prefWidth="360.0"
-                                                               maxWidth="360.0"/>
-                                            </children>
-                                        </VBox>
-
-                                        <VBox spacing="4.0">
-                                            <children>
-                                                <Label text="Confirmer mot de passe" styleClass="auth-label"/>
-                                                <PasswordField fx:id="confirmPasswordField"
-                                                               styleClass="auth-field"
-                                                               prefWidth="360.0"
-                                                               maxWidth="360.0"/>
-                                            </children>
-                                        </VBox>
-
-                                        <VBox spacing="4.0">
-                                            <children>
-                                                <Label text="Rôle" styleClass="auth-label"/>
-                                                <TextField fx:id="roleField"
-                                                           editable="false"
-                                                           focusTraversable="false"
-                                                           styleClass="auth-field"
-                                                           prefWidth="360.0"
-                                                           maxWidth="360.0"/>
-                                            </children>
-                                        </VBox>
+                                        <Button text="Enregistrer"
+                                                onAction="#saveProfile"
+                                                styleClass="auth-btn"
+                                                prefWidth="220.0"/>
                                     </children>
-                                </VBox>
+                                </HBox>
 
                             </children>
-                        </HBox>
-
-                        <HBox spacing="14.0" alignment="CENTER_LEFT">
-                            <children>
-                                <Button text="Enregistrer"
-                                        onAction="#saveProfile"
-                                        styleClass="auth-btn"
-                                        prefWidth="220.0"/>
-                            </children>
-                        </HBox>
-                    </children>
-                </VBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
 
             </children>
         </HBox>
     </center>
+
 </BorderPane>
